@@ -131,7 +131,7 @@ class Navb extends Component {
                         <div className='dropdown' onClick={async () => {
                             await this.props.WalletConnect()
                           }
-                          }><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect</div>
+                          }><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect v1</div>
                         </Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>
@@ -180,7 +180,7 @@ class Navb extends Component {
                           <Dropdown.Item>
                             <Buttons variant="secondary" size="sm" style={{width:"100%", marginBottom:"10px"}} onClick={async () => {
                               await this.props.WalletConnect()
-                              }}><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect  
+                              }}><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect v1
                             </Buttons>
                           </Dropdown.Item>
                     </div>}

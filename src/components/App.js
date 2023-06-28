@@ -671,6 +671,7 @@ class App extends Component {
         //97: `https://data-seed-prebsc-1-s3.binance.org:8545/`
         56: `https://bsc-dataseed.binance.org/`
       },
+      bridge: "https://wallet-connect.pundix.com/bridge/",
       //chainId: 97,
       chainId: 56,
     });
