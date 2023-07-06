@@ -4,14 +4,15 @@ WORKDIR /app
 COPY package* ./
 COPY . .
 
-FROM nginx:alpine
+# Set the desired port (replace 3000 with your custom port)
+ENV PORT=2000
 
-# Copy SSL certificate and private key
-COPY server.pem /etc/nginx/conf.d/
-#COPY privkey.pem /etc/nginx/conf.d/
+# Install `serve` to run the application.
+RUN npm install -g serve
 
-COPY default.conf /etc/nginx/conf.d/default.conf
-COPY --from=0 /app/build /usr/share/nginx/html
-EXPOSE 80
-EXPOSE 443
-CMD ["nginx", "-g", "daemon off;"]
+# Uses port which is used by the actual application
+EXPOSE 2000
+
+# Run application
+#CMD [ "npm", "start" ]
+CMD serve -s build
