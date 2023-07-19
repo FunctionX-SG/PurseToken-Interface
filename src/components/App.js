@@ -136,7 +136,7 @@ class App extends Component {
     const purseTokenUpgradable = new web3Bsc.eth.Contract(PurseTokenUpgradable.abi, "0x29a63F4B209C29B4DC47f06FFA896F32667DAD2C") //mainnet
     const restakingFarm = new web3Bsc.eth.Contract(RestakingFarm.abi, "0x439ec8159740a9b9a579f286963ac1c050af31c8")
     const purseStaking = new web3Bsc.eth.Contract(PurseStaking.abi, "0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE") 
-    const retroactiveRewards = new window.web3Bsc.eth.Contract(RetroactiveRewards.abi, "0x0755956Ee0331671cC522D0EDA15b9C1Eebd3D05")
+    const retroactiveRewards = new window.web3Bsc.eth.Contract(RetroactiveRewards.abi, "0x092EdD5aD8f9bd8Fd3D97b94DC88E129D440B599")
 
     this.setState({ purseTokenUpgradable })
     this.setState({ restakingFarm })
@@ -1271,10 +1271,10 @@ class App extends Component {
         let address = window.web3Bsc.utils.toChecksumAddress(this.state.account)
         let merkleProof = await this.getMerkleProof(address)
         if (this.state.walletConnect === true) {
-          let retroactiveRewards = new window.web3Con.eth.Contract(RetroactiveRewards.abi, "0x0755956Ee0331671cC522D0EDA15b9C1Eebd3D05")
+          let retroactiveRewards = new window.web3Con.eth.Contract(RetroactiveRewards.abi, "0x092EdD5aD8f9bd8Fd3D97b94DC88E129D440B599")
           await retroactiveRewards.methods.claimRewards(this.state.retroactiveRewardsAmount, merkleProof).send({ from: this.state.account })
         } else if (this.state.wallet === true) {
-          let retroactiveRewards = new window.web3.eth.Contract(RetroactiveRewards.abi, "0x0755956Ee0331671cC522D0EDA15b9C1Eebd3D05")
+          let retroactiveRewards = new window.web3.eth.Contract(RetroactiveRewards.abi, "0x092EdD5aD8f9bd8Fd3D97b94DC88E129D440B599")
           await retroactiveRewards.methods.claimRewards(this.state.retroactiveRewardsAmount, merkleProof).send({ from: this.state.account })
         }
       }
