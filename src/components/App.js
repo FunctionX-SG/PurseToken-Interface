@@ -32,6 +32,7 @@ import Footer from './Footer'
 
 import './Popup.css'
 import './App.css'
+import * as Constants from "../constants"
 
 class App extends Component {
 
@@ -55,8 +56,7 @@ class App extends Component {
   async loadBlockchainData() {
     const web3Bsc = window.web3Bsc
 
-    const networkId = "56"
-    //const networkId = "97"
+    const networkId = Constants.NETWORK_ID
     this.setState({ networkId })
     const farmNetwork = "MAINNET"
     this.setState({ farmNetwork })
@@ -132,11 +132,11 @@ class App extends Component {
     this.setState({ cumulateBurn })
 
     // Load contract
-    const pancakeContract = new window.web3Bsc.eth.Contract(IPancakePair.abi, "0x081F4B87F223621B4B31cB7A727BB583586eAD98")
-    const purseTokenUpgradable = new web3Bsc.eth.Contract(PurseTokenUpgradable.abi, "0x29a63F4B209C29B4DC47f06FFA896F32667DAD2C") //mainnet
-    const restakingFarm = new web3Bsc.eth.Contract(RestakingFarm.abi, "0x439ec8159740a9b9a579f286963ac1c050af31c8")
-    const purseStaking = new web3Bsc.eth.Contract(PurseStaking.abi, "0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE") 
-    const retroactiveRewards = new window.web3Bsc.eth.Contract(RetroactiveRewards.abi, "0x092EdD5aD8f9bd8Fd3D97b94DC88E129D440B599")
+    const pancakeContract = new window.web3Bsc.eth.Contract(IPancakePair.abi, Constants.PANCAKE_PAIR_ADDRESS)
+    const purseTokenUpgradable = new web3Bsc.eth.Contract(PurseTokenUpgradable.abi, Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS) //mainnet
+    const restakingFarm = new web3Bsc.eth.Contract(RestakingFarm.abi, Constants.RESTAKING_FARM_ADDRESS)
+    const purseStaking = new web3Bsc.eth.Contract(PurseStaking.abi, Constants.PURSE_STAKING_ADDRESS)
+    const retroactiveRewards = new window.web3Bsc.eth.Contract(RetroactiveRewards.abi, Constants.RETROACTIVE_REWARDS_ADDRESS)
 
     this.setState({ purseTokenUpgradable })
     this.setState({ restakingFarm })
@@ -144,11 +144,11 @@ class App extends Component {
     this.setState({ purseStaking })
     this.setState({ retroactiveRewards })
 
-    const provider = 'https://fx-json-web3.functionx.io:8545';
+    const provider = Constants.PROVIDER;
     const web3Provider = new Web3.providers.HttpProvider(provider);
     const fxweb3 = new Web3(web3Provider);
-    const tokenOnFXCore = new fxweb3.eth.Contract(FIP20Upgradable.abi, "0x5FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687");
-    const masterChef = new fxweb3.eth.Contract(MasterChefV2.abi, "0x4bd522b2E25f6b1A874C78518EF25f5914C522dC");
+    const tokenOnFXCore = new fxweb3.eth.Contract(FIP20Upgradable.abi, Constants.FIP20UPGRADABLE_ADDRESS);
+    const masterChef = new fxweb3.eth.Contract(MasterChefV2.abi, Constants.MASTERCHEFV2_ADDRESS);
 
     this.setState({ tokenOnFXCore })
     this.setState({ masterChef })
@@ -402,27 +402,27 @@ class App extends Component {
   }
 
   async loadApiPrice() {
-    let coingeckoResponse = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin%2Cweth%2Cbinance-usd%2Cusd-coin%2Ctether%2Cbitcoin%2Cpundi-x-purse&vs_currencies=usd`);
+    let coingeckoResponse = await fetch(Constants.COINGECKO_API);
     return coingeckoResponse.json();
   }
 
   async loadBDL() {
-    let mongoResponse0 = await fetch(`https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/PundiX`);
+    let mongoResponse0 = await fetch(Constants.MONGO_RESPONSE_0_API);
     return mongoResponse0.json()
   }
 
   async loadAccumulateTransfer() {
-    let mongoResponse1 = await fetch(`https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/CumulativeTransfer`);
+    let mongoResponse1 = await fetch(Constants.MONGO_RESPONSE_1_API);
     return mongoResponse1.json()
   }
 
   async loadAccumulateBurn() {
-    let mongoResponse2 = await fetch(`https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/CumulativeBurn`);
+    let mongoResponse2 = await fetch(Constants.MONGO_RESPONSE_2_API);
     return mongoResponse2.json()
   }
 
   async loadStakedBalance() {
-    let stakedBalance = await this.state.pancakeContract.methods.balanceOf("0x439ec8159740a9B9a579F286963Ac1C050aF31C8").call()
+    let stakedBalance = await this.state.pancakeContract.methods.balanceOf(Constants.RESTAKING_FARM_ADDRESS).call()
     stakedBalance = window.web3Bsc.utils.fromWei(stakedBalance, 'Ether')
     return stakedBalance
   }
@@ -433,7 +433,7 @@ class App extends Component {
   }
 
   async loadPoolRewardToken() {
-    let poolRewardToken = await this.state.purseTokenUpgradable.methods.balanceOf("0x439ec8159740a9b9a579f286963ac1c050af31c8").call()
+    let poolRewardToken = await this.state.purseTokenUpgradable.methods.balanceOf(Constants.RESTAKING_FARM_ADDRESS).call()
     return poolRewardToken
   }
 
@@ -509,7 +509,7 @@ class App extends Component {
     return purseStakingUserPurse
   }
   async loadPurseStakingUserAllowance() {
-    let purseStakingUserAllowance = await this.state.purseTokenUpgradable.methods.allowance(this.state.account, "0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE").call()
+    let purseStakingUserAllowance = await this.state.purseTokenUpgradable.methods.allowance(this.state.account, Constants.PURSE_STAKING_ADDRESS).call()
     return purseStakingUserAllowance
   }
   async loadPurseStakingUserPurse() {
@@ -521,7 +521,7 @@ class App extends Component {
     return purseStakingTotalReceipt
   }
   async loadPurseStakingTotalStake() {
-    let purseStakingTotalStake = await this.state.purseTokenUpgradable.methods.balanceOf("0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE").call()
+    let purseStakingTotalStake = await this.state.purseTokenUpgradable.methods.balanceOf(Constants.PURSE_STAKING_ADDRESS).call()
     return purseStakingTotalStake
   }
   async loadPurseStakingLockPeriod() {
@@ -578,7 +578,7 @@ class App extends Component {
     let apyMonthly = [[], []]
     let n = 0
 
-    let response = await fetch(`https://ap-southeast-1.aws.data.mongodb-api.com/app/application-0-iqgbt/endpoint/PundiX`);
+    let response = await fetch(Constants.MONGO_TVLAPR_RESPONSE_API);
     const myJson = await response.json();
     let tvlArray = myJson["TVL"]
     let aprArray = myJson["APR"]
@@ -609,7 +609,7 @@ class App extends Component {
     this.setState({ apyMonthly })
     this.setState({ aprloading: true })
 
-    let fxswapResponse = await fetch(`https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/tvl_prod`);
+    let fxswapResponse = await fetch(Constants.MONGO_FXSWAP_RESPONSE_API);
     const fxswapJson = await fxswapResponse.json();
     let fxswapTvl = fxswapJson["AllData"]["tvl"][2]
     let fxswapApr = fxswapJson["AllData"]["apr"][2]
@@ -636,8 +636,8 @@ class App extends Component {
       this.setState({ metamask: false })
       this.setState({ wallet: false })
     }
-    //window.web3Bsc = new Web3(`https://data-seed-prebsc-1-s2.binance.org:8545/`);  // testnet
-    window.web3Bsc = new Web3(`https://bsc-dataseed.binance.org/`);
+    //window.web3Bsc = new Web3(Constants.BSC_TESTNET_RPC_URL_S2);  // testnet
+    window.web3Bsc = new Web3(Constants.BSC_MAINNET_RPCURL);
   }
 
   connectWallet = () => {
@@ -668,12 +668,11 @@ class App extends Component {
   WalletConnect = async () => {
     const provider = new WalletConnectProvider({
       rpc: {
-        //97: `https://data-seed-prebsc-1-s3.binance.org:8545/`
-        56: `https://bsc-dataseed.binance.org/`
+        //97: Constants.BSC_TESTNET_RPC_URL_S3
+        56: Constants.BSC_MAINNET_RPCURL
       },
-      bridge: "https://wallet-connect.pundix.com/bridge/",
-      //chainId: 97,
-      chainId: 56,
+      bridge: Constants.WALLETCONNECT_BRIDGE_URL,
+      chainId: Constants.CHAIN_ID,
     });
     window.provider = provider
     await window.provider.enable();
@@ -727,12 +726,12 @@ class App extends Component {
           await window.ethereum.request({
             method: 'wallet_addEthereumChain',
             params: [{
-              chainId: '0x38', rpcUrls: ['https://bsc-dataseed1.binance.org/'], chainName: 'BSC Mainnet',
+              chainId: '0x38', rpcUrls: [Constants.BSC_MAINNET_RPCURL_1], chainName: 'BSC Mainnet',
               nativeCurrency: {
                 name: 'BNB',
                 symbol: 'BNB', // 2-6 characters long
                 decimals: 18
-              }, blockExplorerUrls: ['https://bscscan.com/']
+              }, blockExplorerUrls: [Constants.BSC_MAINNET_BLOCKEXPLORER]
             }],
           });
           const chainId = await window.ethereum.request({ method: 'eth_chainId' });
@@ -1010,10 +1009,10 @@ class App extends Component {
         alert("No reward available")
       } else {
         if (this.state.walletConnect === true) {
-          let purseTokenUpgradable = new window.web3Con.eth.Contract(PurseTokenUpgradable.abi, "0x29a63F4B209C29B4DC47f06FFA896F32667DAD2C")
+          let purseTokenUpgradable = new window.web3Con.eth.Contract(PurseTokenUpgradable.abi, Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS)
           await purseTokenUpgradable.methods.claimDistributionPurse().send({ from: this.state.account })
         } else if (this.state.wallet === true) {
-          let purseTokenUpgradable = new window.web3.eth.Contract(PurseTokenUpgradable.abi, "0x29a63F4B209C29B4DC47f06FFA896F32667DAD2C")
+          let purseTokenUpgradable = new window.web3.eth.Contract(PurseTokenUpgradable.abi, Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS)
           await purseTokenUpgradable.methods.claimDistributionPurse().send({ from: this.state.account })
         }
       }
@@ -1048,7 +1047,7 @@ class App extends Component {
   //Functions for PURSE Staking
   stake = async (amount) => {
     if (this.state.walletConnect === true) {
-      let purseStaking = new window.web3Con.eth.Contract(PurseStaking.abi, "0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE") 
+      let purseStaking = new window.web3Con.eth.Contract(PurseStaking.abi, Constants.PURSE_STAKING_ADDRESS)
       this.setState({ stakeLoading: false })
       await purseStaking.methods.enter(amount).send({ from: this.state.account }).then(async (result) => {
         this.componentWillMount()
@@ -1062,7 +1061,7 @@ class App extends Component {
         }
       })  
     } else if (this.state.wallet === true) {
-      let purseStaking = new window.web3.eth.Contract(PurseStaking.abi, "0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE") 
+      let purseStaking = new window.web3.eth.Contract(PurseStaking.abi, Constants.PURSE_STAKING_ADDRESS)
       this.setState({ stakeLoading: false })
       await purseStaking.methods.enter(amount).send({ from: this.state.account }).then(async (result) => {
         this.componentWillMount()
@@ -1080,7 +1079,7 @@ class App extends Component {
 
   unstake = async (receipt) => {
     if (this.state.walletConnect === true) {
-      let purseStaking = new window.web3Con.eth.Contract(PurseStaking.abi, "0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE") 
+      let purseStaking = new window.web3Con.eth.Contract(PurseStaking.abi, Constants.PURSE_STAKING_ADDRESS)
       this.setState({ stakeLoading: false })
       await purseStaking.methods.leave(receipt).send({ from: this.state.account }).then(async (result) => {
         this.componentWillMount()
@@ -1094,7 +1093,7 @@ class App extends Component {
         }
       })
     } else if (this.state.wallet === true) {
-      let purseStaking = new window.web3.eth.Contract(PurseStaking.abi, "0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE") 
+      let purseStaking = new window.web3.eth.Contract(PurseStaking.abi, Constants.PURSE_STAKING_ADDRESS)
       this.setState({ stakeLoading: false })
       await purseStaking.methods.leave(receipt).send({ from: this.state.account }).then(async (result) => {
         this.componentWillMount()
@@ -1112,7 +1111,7 @@ class App extends Component {
 
   withdrawLocked = async () => {
     if (this.state.walletConnect === true) {
-      let purseStaking = new window.web3Con.eth.Contract(PurseStaking.abi, "0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE") 
+      let purseStaking = new window.web3Con.eth.Contract(PurseStaking.abi, Constants.PURSE_STAKING_ADDRESS)
       this.setState({ stakeLoading: false })
       await purseStaking.methods.withdrawLockedAmount().send({ from: this.state.account }).then(async (result) => {
         this.componentWillMount()
@@ -1126,7 +1125,7 @@ class App extends Component {
         }
       });   
     } else if (this.state.wallet === true) {
-      let purseStaking = new window.web3.eth.Contract(PurseStaking.abi, "0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE") 
+      let purseStaking = new window.web3.eth.Contract(PurseStaking.abi, Constants.PURSE_STAKING_ADDRESS)
       this.setState({ stakeLoading: false })
       await purseStaking.methods.withdrawLockedAmount().send({ from: this.state.account }).then(async (result) => {
         this.componentWillMount()
@@ -1174,9 +1173,9 @@ class App extends Component {
 
   approvePurse = async () => {
     if (this.state.walletConnect === true) {
-      let purseTokenUpgradable = new window.web3Con.eth.Contract(PurseTokenUpgradable.abi, "0x29a63F4B209C29B4DC47f06FFA896F32667DAD2C")
+      let purseTokenUpgradable = new window.web3Con.eth.Contract(PurseTokenUpgradable.abi, Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS)
       this.setState({ stakeLoading: false })
-      await purseTokenUpgradable.methods.approve("0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE", "115792089237316195423570985008687907853269984665640564039457584007913129639935").send({ from: this.state.account }).then(async (result) => {
+      await purseTokenUpgradable.methods.approve(Constants.PURSE_STAKING_ADDRESS, "115792089237316195423570985008687907853269984665640564039457584007913129639935").send({ from: this.state.account }).then(async (result) => {
         this.componentWillMount()
         this.setState({ stakeLoading: true })
       }).catch((err) => {
@@ -1188,9 +1187,9 @@ class App extends Component {
         }
       })
     } else if (this.state.wallet === true) {
-      let purseTokenUpgradable = new window.web3.eth.Contract(PurseTokenUpgradable.abi, "0x29a63F4B209C29B4DC47f06FFA896F32667DAD2C")
+      let purseTokenUpgradable = new window.web3.eth.Contract(PurseTokenUpgradable.abi, Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS)
       this.setState({ stakeLoading: false })
-      await purseTokenUpgradable.methods.approve("0xFb1D31a3f51Fb9422c187492D8EA14921d6ea6aE", "115792089237316195423570985008687907853269984665640564039457584007913129639935").send({ from: this.state.account }).then(async (result) => {
+      await purseTokenUpgradable.methods.approve(Constants.PURSE_STAKING_ADDRESS, "115792089237316195423570985008687907853269984665640564039457584007913129639935").send({ from: this.state.account }).then(async (result) => {
         this.componentWillMount()
         this.setState({ stakeLoading: true })
       }).catch((err) => {
@@ -1271,10 +1270,10 @@ class App extends Component {
         let address = window.web3Bsc.utils.toChecksumAddress(this.state.account)
         let merkleProof = await this.getMerkleProof(address)
         if (this.state.walletConnect === true) {
-          let retroactiveRewards = new window.web3Con.eth.Contract(RetroactiveRewards.abi, "0x092EdD5aD8f9bd8Fd3D97b94DC88E129D440B599")
+          let retroactiveRewards = new window.web3Con.eth.Contract(RetroactiveRewards.abi, Constants.RETROACTIVE_REWARDS_ADDRESS)
           await retroactiveRewards.methods.claimRewards(this.state.retroactiveRewardsAmount, merkleProof).send({ from: this.state.account })
         } else if (this.state.wallet === true) {
-          let retroactiveRewards = new window.web3.eth.Contract(RetroactiveRewards.abi, "0x092EdD5aD8f9bd8Fd3D97b94DC88E129D440B599")
+          let retroactiveRewards = new window.web3.eth.Contract(RetroactiveRewards.abi, Constants.RETROACTIVE_REWARDS_ADDRESS)
           await retroactiveRewards.methods.claimRewards(this.state.retroactiveRewardsAmount, merkleProof).send({ from: this.state.account })
         }
       }
