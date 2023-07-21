@@ -69,7 +69,7 @@ class Rewards extends Component {
                                 </table>
                                 <div className="textWhiteSmall ml-3 mb-2"><b>Remarks:</b></div>
                                 <ul>
-                                    <li className="textWhiteSmaller">300 Million PURSE will be given out to Early Stakers as Retroactive Rewards</li>
+                                    <li className="textWhiteSmaller">838 Million PURSE will be given out to Early Stakers as Retroactive Rewards</li>
                                     <li className="textWhiteSmaller">Make sure your wallet is connected to BSC network.</li>
                                     <li className="textWhiteSmaller">Make sure you have sufficient BNB to pay for the transaction fees.</li>
                                     <li className="textWhiteSmaller">Click on Claim and confirm the transaction to claim your PURSE tokens.</li>
