@@ -1,10 +1,10 @@
 {
   "main.css": "/static/css/main.6181a8df.chunk.css",
-  "main.js": "/static/js/main.8a3b8d1c.chunk.js",
-  "main.js.map": "/static/js/main.8a3b8d1c.chunk.js.map",
+  "main.js": "/static/js/main.da7a564e.chunk.js",
+  "main.js.map": "/static/js/main.da7a564e.chunk.js.map",
   "static/css/1.1e464657.chunk.css": "/static/css/1.1e464657.chunk.css",
-  "static/js/1.162f292c.chunk.js": "/static/js/1.162f292c.chunk.js",
-  "static/js/1.162f292c.chunk.js.map": "/static/js/1.162f292c.chunk.js.map",
+  "static/js/1.2e788835.chunk.js": "/static/js/1.2e788835.chunk.js",
+  "static/js/1.2e788835.chunk.js.map": "/static/js/1.2e788835.chunk.js.map",
   "runtime~main.js": "/static/js/runtime~main.229c360f.js",
   "runtime~main.js.map": "/static/js/runtime~main.229c360f.js.map",
   "static/media/purse.png": "/static/media/purse.43f5489d.png",
@@ -14,9 +14,9 @@
   "static/media/pancakeswap.png": "/static/media/pancakeswap.bdd7c45a.png",
   "static/media/Blockchain.png": "/static/media/Blockchain.6e74b3ec.png",
   "static/media/asterisk.png": "/static/media/asterisk.d69fefca.png",
-  "static/css/1.1e464657.chunk.css.map": "/static/css/1.1e464657.chunk.css.map",
   "static/css/main.6181a8df.chunk.css.map": "/static/css/main.6181a8df.chunk.css.map",
+  "static/css/1.1e464657.chunk.css.map": "/static/css/1.1e464657.chunk.css.map",
   "index.html": "/index.html",
-  "precache-manifest.1d30d97b35fb6863f99bf79c10e315cd.js": "/precache-manifest.1d30d97b35fb6863f99bf79c10e315cd.js",
+  "precache-manifest.1e8a68887859934d2ae1710f25baf2e8.js": "/precache-manifest.1e8a68887859934d2ae1710f25baf2e8.js",
   "service-worker.js": "/service-worker.js"
 }

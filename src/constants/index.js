@@ -31,3 +31,8 @@ export const BSC_TESTNET_RPC_URL_S2 = `https://data-seed-prebsc-1-s2.binance.org
 export const BSC_TESTNET_RPC_URL_S3 = `https://data-seed-prebsc-1-s3.binance.org:8545/`;
 export const BSC_MAINNET_BLOCKEXPLORER = 'https://bscscan.com/';
 export const BSC_TESTNET_BLOCKEXPLORER = 'https://testnet.bscscan.com/';
+
+//Retroactive Rewards figures
+export const RETROACTIVE_INITIAL_REWARDS = 162164878;
+export const RETROACTIVE_AUG23_REWARDS = 837835122;
+export const RETROACTIVE_PERIOD_DAYS = 365;
