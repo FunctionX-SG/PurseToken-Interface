@@ -185,6 +185,10 @@ class Stake extends Component {
         { maximumFractionDigits: 5 }
     );
 
+    let combinedAPR = (
+        parseFloat(purseStakingAPR) + parseFloat(retroactiveAPR)
+    );
+
     return (
       <div id="content" className="mt-4">
         <label className="textWhite center mb-5" style={{fontSize:"40px", textAlign:"center"}}><big><b>PURSE Staking</b></big></label>
@@ -472,36 +476,43 @@ class Stake extends Component {
                               contentStyle={{ padding: '3px' }}
                           >
                             <span className="textInfo">
-                              Percentage of Past 30 Days Distribution Sum x 12 / Total Staked (Pool).
+                              Percentage of past 30 days distribution sum x 12 / Total staked (Pool) + <br/>
+                              Percentage of total rewards disbursed and to disburse / Total staked (Pool)
                             </span>
                           </Popup>
                         </div>
                         <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
-                          <b>{purseStakingAPR+" %"}</b>
+                          <b>
+                            {
+                              isNaN(combinedAPR) ?
+                                  "0 %" :
+                                  `${combinedAPR.toLocaleString('en-US', { maximumFractionDigits: 5 })} %`
+                            }
+                          </b>
                         </div>
                       </div>
-                      <div style={{ marginLeft: "50px" }}>
-                        <div className="textWhiteSmall mb-1">
-                          <b>APR (Retroactive Rewards):&nbsp;&nbsp;</b>
-                          <Popup
-                              trigger={open => (
-                                  <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
-                              )}
-                              on="hover"
-                              position="right"
-                              offsetY={-23}
-                              offsetX={0}
-                              contentStyle={{ padding: '3px' }}
-                          >
-                            <span className="textInfo">
-                              Percentage of Total rewards disbursed & to disburse / Total Staked (Pool).
-                            </span>
-                          </Popup>
-                        </div>
-                        <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE"}}>
-                          <b>{retroactiveAPR+" %"}</b>
-                        </div>
-                      </div>
+                      {/*<div style={{ marginLeft: "50px" }}>*/}
+                      {/*  <div className="textWhiteSmall mb-1">*/}
+                      {/*    <b>APR (Retroactive Rewards):&nbsp;&nbsp;</b>*/}
+                      {/*    <Popup*/}
+                      {/*        trigger={open => (*/}
+                      {/*            <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>*/}
+                      {/*        )}*/}
+                      {/*        on="hover"*/}
+                      {/*        position="right"*/}
+                      {/*        offsetY={-23}*/}
+                      {/*        offsetX={0}*/}
+                      {/*        contentStyle={{ padding: '3px' }}*/}
+                      {/*    >*/}
+                      {/*      <span className="textInfo">*/}
+                      {/*        Percentage of Total rewards disbursed & to disburse / Total Staked (Pool).*/}
+                      {/*      </span>*/}
+                      {/*    </Popup>*/}
+                      {/*  </div>*/}
+                      {/*  <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE"}}>*/}
+                      {/*    <b>{retroactiveAPR+" %"}</b>*/}
+                      {/*  </div>*/}
+                      {/*</div>*/}
                     </div>
                     <div style={{paddingRight:"2px", width:"50%", minWidth:"250px"}}>
                       <div className="textWhiteSmall mb-1"><b>Past 30 Days Distribution Sum:</b></div>
