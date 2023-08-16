@@ -19,18 +19,18 @@ import UserAmount from '../abis/userAmount.json'
 import PurseFarm from '../farm/farmPurse.json'
 import Navb from './Navbar'
 import Main from './Main'
-import Menu from './Menu'
+import FarmMenu from './FarmMenu'
 import FXSwap from './FXSwap'
 import Deposit from './Deposit'
 import Popup from './Popup'
-import Farm from './Farm'
-import Distribution from './Distribution'
+import FarmInfo from './FarmInfo'
+// import Distribution from './Distribution'
 import Stake from './Stake'
 import Reward from './Reward'
 import Landing from './Landing'
 import Footer from './Footer'
 
-import './Popup.css'
+import './Popup/Popup.css'
 import './App.css'
 import * as Constants from "../constants"
 
@@ -1385,7 +1385,7 @@ class App extends Component {
       cumulateTransfer={this.state.cumulateTransfer}
       cumulateBurn={this.state.cumulateBurn}
     />
-    menucontent = <Menu
+    menucontent = <FarmMenu
       lpTokenBalance={this.state.lpTokenBalance}
       purseTokenUpgradableBalance={this.state.purseTokenUpgradableBalance}
       purseTokenTotalSupply={this.state.purseTokenTotalSupply}
@@ -1442,7 +1442,7 @@ class App extends Component {
       purseBalanceOnFXCore={this.state.purseBalanceOnFXCore}
       earnedAmountOnFXCore={this.state.earnedAmountOnFXCore}
     />
-    farmInfoContent = <Farm
+    farmInfoContent = <FarmInfo
       lpTokenBalance={this.state.lpTokenBalance}
       purseTokenUpgradableBalance={this.state.purseTokenUpgradableBalance}
       poolLength={this.state.poolLength}
