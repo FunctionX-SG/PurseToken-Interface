@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import purse from '../../assets/images/purse.png'
 import fox from '../../assets/images/metamask-fox.svg'
 import walletconnectLogo from '../../assets/images/walletconnect-logo.svg'
@@ -11,7 +11,10 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import '../App.css'
 // import { connectWallet, connect } from '../utils'
 import { useWeb3React } from '@web3-react/core'
-import { metaMask } from '../connectors/metamask'
+import { metaMask, hooks as metaMaskHooks } from '../connectors/metamask'
+import { walletConnectV2, hooks as walletConnectV2Hooks } from '../connectors/walletConnect'
+import { URI_AVAILABLE } from '@web3-react/walletconnect-v2'
+import { getShortAccount, chainId2NetworkName, isSupportedChain } from '../utils'
 
 import {
   NavLink,
@@ -19,36 +22,98 @@ import {
 } from './NavMenu'
 
 interface NavbProps {
-  account: string;
-  first4Account: string;
-  last4Account: string;
-  wallet: boolean;
-  setWalletTrigger: any;
-  loadWeb3: any;
-  connectWallet: any;
-  WalletConnect: any;
-  WalletDisconnect: any;
-  walletConnect: boolean;
-  networkName: string;
   PURSEPrice: string;
 }
 
 export default function Navb({
-    account,
-    first4Account,
-    last4Account,
-    wallet,
-    setWalletTrigger,
-    loadWeb3,
-    connectWallet,
-    WalletConnect,
-    WalletDisconnect,
-    walletConnect,
-    networkName,
     PURSEPrice,
 }:NavbProps) {
-  // const {chainId,account:acc,provider} = useWeb3React()
-  // console.log(chainId,acc,provider)
+  const {chainId,account} = useWeb3React()
+
+  const {connector, hooks} = useWeb3React()
+  const {useSelectedIsActive,useSelectedIsActivating,useSelectedAccount} = hooks
+  const isActive = useSelectedIsActive(connector)
+  const isActivating = useSelectedIsActivating(connector)
+  const [networkName, setNetworkName] = useState('BSC')
+  
+  useEffect(()=>{
+    const connectWalletOnPageLoad = async () => {
+      if (localStorage?.getItem('isWalletConnected') === 'metamask') {
+        try{
+          await metaMask.connectEagerly()
+        } catch (ex){
+          console.log(ex)
+        }
+      } else if (localStorage?.getItem('isWalletConnected') === 'wc2'){
+        try{
+          await walletConnectV2.connectEagerly()
+        } catch (ex){
+          console.log(ex)
+        }
+      }
+    }
+    connectWalletOnPageLoad()
+  },[])
+
+  useEffect(()=>{
+    if (chainId){
+      if (isSupportedChain(chainId)){
+        setNetworkName(chainId2NetworkName(chainId))
+      } else {
+        setNetworkName("Unsupported")
+      }
+    } else {
+      setNetworkName("BSC")
+    }
+  },[chainId])
+
+  const metamaskConnect = async () => {
+    if (isActive) {
+      if (metaMask?.deactivate){
+        metaMask.deactivate()
+      } else {
+        metaMask.resetState()
+      }
+    } else if (!isActivating) {
+      try{
+        await metaMask.activate()
+        localStorage.setItem('isWalletConnected','metamask')
+      } catch (err){
+        metaMask.resetState()
+        console.log(err)
+      }
+    }
+  }
+
+  const WalletConnectV2 = async () => {
+    if (isActive) {
+      if (walletConnectV2?.deactivate){
+        walletConnectV2.deactivate()
+      } else {
+        walletConnectV2.resetState()
+      }
+    } else if (!isActivating) {
+      try{
+        await walletConnectV2.activate()
+        localStorage.setItem('isWalletConnected','wc2')
+      } catch (err){
+        walletConnectV2.resetState()
+        console.log(err)
+      }
+    }
+  }
+
+  const disconnect = async () => {
+    if (isActive) {
+      if (connector?.deactivate){
+        connector.deactivate()
+      } else {
+        connector.resetState()
+      }
+      localStorage.setItem('isWalletConnected','false')
+    }
+  }
+
     return (
       <nav className="navbar navbar-dark top bg-dark flex-md-nowrap p-0 shadow" style={{height:"50px",position:"fixed",width:"100%", top:"0",zIndex:"9999"}}>
         <div className="navbar-brand col-sm-3 col-md-2 mt-1 md-1 mr-0 rowB">
@@ -127,10 +192,10 @@ export default function Navb({
                 </div>&nbsp;
 
                 <div className='center'>
-                  {wallet || walletConnect ?
+                  {account ?
                     <div>
                       <Dropdown>
-                      <Dropdown.Toggle variant="secondary" size="sm">{first4Account}...{last4Account}</Dropdown.Toggle>
+                      <Dropdown.Toggle variant="secondary" size="sm">{getShortAccount(account)}</Dropdown.Toggle>
                         <Dropdown.Menu style={{backgroundColor:"#28313b", marginTop:"8px"}}>
                           <Dropdown.Item>
                           <div className='dropdown0' style={{ paddingBottom: '12px' }} onClick={() => {
@@ -138,11 +203,12 @@ export default function Navb({
                           }}>&nbsp;Wallet</div>
                           </Dropdown.Item>
                           <Dropdown.Item>
-                          <div className='dropdown' onClick={() => {
-                            setWalletTrigger(false)
-                            if (walletConnect === true) {
-                              WalletDisconnect()
-                            }
+                          <div className='dropdown' onClick={async () => {
+                            await disconnect()
+                            // setWalletTrigger(false)
+                            // if (walletConnect === true) {
+                            //   WalletDisconnect()
+                            // }
                           }}>&nbsp;Disconnect</div>
                           </Dropdown.Item>
                         </Dropdown.Menu>
@@ -154,16 +220,15 @@ export default function Navb({
                         <Dropdown.Menu style={{backgroundColor:"#28313b", marginTop:"8px"}}>
                         <Dropdown.Item>
                         <div className='dropdown0' style={{ paddingBottom: '12px' }} onClick={async () => {
-                            console.log("connecting")
-                            await connectWallet()
+                            await metamaskConnect()
                           }
                           }><img src={fox} width="23" height="23" className="d-inline-block" alt="" />&nbsp; Metamask</div>
                         </Dropdown.Item>
                         <Dropdown.Item>
                         <div className='dropdown' onClick={async () => {
-                            await WalletConnect()
+                            await WalletConnectV2()
                           }
-                          }><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect v1</div>
+                          }><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect v2</div>
                         </Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>
@@ -185,33 +250,35 @@ export default function Navb({
                       }}>{networkName}
                       </Buttons>
                     </Dropdown.Item>
-                      {wallet || walletConnect ?
+                      {account ?
                         <div>
-                            <Dropdown.Item><Buttons variant="secondary" size="sm" style={{width:"100%"}}> {first4Account}...{last4Account}</Buttons></Dropdown.Item>
+                            <Dropdown.Item><Buttons variant="secondary" size="sm" style={{width:"100%"}}> {getShortAccount(account)}</Buttons></Dropdown.Item>
                             <Dropdown.Item>
                               <Buttons variant="secondary" size="sm" style={{width:"100%"}} onClick={() => {
                                 window.open(`https://bscscan.com/address/${account}`, '_blank')
                               }}>&nbsp;Wallet</Buttons>
                             </Dropdown.Item>
                             <Dropdown.Item>
-                              <Buttons variant="secondary" size="sm" style={{width:"100%", marginBottom:"10px"}} onClick={() => {
-                                setWalletTrigger(false)
-                                if (walletConnect === true) {
-                                  WalletDisconnect()
-                                }
+                              <Buttons variant="secondary" size="sm" style={{width:"100%", marginBottom:"10px"}} onClick={async () => {
+                                console.log("disconnect1")
+                                await disconnect()
+                                // setWalletTrigger(false)
+                                // if (walletConnect === true) {
+                                //   WalletDisconnect()
+                                // }
                               }}>&nbsp;Disconnect</Buttons>
                             </Dropdown.Item>
                         </div> : <div>
                         
                           <Dropdown.Item>
                             <Buttons variant="secondary" size="sm" style={{width:"100%"}} onClick={async () => {
-                              await connectWallet()
+                              await metamaskConnect()
                               }}><img src={fox} width="23" height="23" className="d-inline-block" alt="" />&nbsp; Metamask
                             </Buttons>
                           </Dropdown.Item>
                           <Dropdown.Item>
                             <Buttons variant="secondary" size="sm" style={{width:"100%", marginBottom:"10px"}} onClick={async () => {
-                              await WalletConnect()
+                              await WalletConnectV2()
                               }}><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect v1
                             </Buttons>
                           </Dropdown.Item>

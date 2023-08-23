@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import purse from '../../assets/images/purse.png'
 import purse2 from '../../assets/images/purse2.png'
@@ -10,8 +10,67 @@ import { BsFillQuestionCircleFill } from 'react-icons/bs';
 import { FaExclamationCircle, FaCheck } from 'react-icons/fa';
 import { HiExternalLink } from 'react-icons/hi';
 import { formatUnits } from 'ethers/lib/utils'
+import { useWeb3React } from '@web3-react/core';
+import { ethers } from 'ethers';
+import * as Constants from "../../constants"
+import MasterChefV2 from '../../abis/MasterChefV2.json'
+import FIP20Upgradable from '../../abis/FIP20Upgradable.json'
+import { formatBigNumber, readContract } from '../utils';
 
 export default function FXSwap(props: any) {
+    const {isActive,account} = useWeb3React()
+    const {bscProvider,fxProvider} = props
+
+    const [purseTotalSupplyOnFXCore, setPurseTotalSupplyOnFXCore] = useState('')
+    const [fxRewardPerWeek, setFxRewardPerWeek] = useState('')
+
+    const [aprloading, setAprLoading] = useState(false)
+    const [farmLoading, setFarmLoading] = useState(false)
+
+    const [fxswapTvl, setFxswapTvl] = useState('0')
+    const [fxswapApr, setFxswapApr] = useState('0')
+    const [fxswapApy, setFxswapApy] = useState('0')
+    const [purseBalanceOnFXCore, setPurseBalanceOnFXCore] = useState('0')
+    const [earnedAmountOnFXCore, setEarnedAmountOnFXCore] = useState('0')
+
+    // console.log(fxProvider)
+    const tokenOnFXCore = new ethers.Contract(Constants.FIP20UPGRADABLE_ADDRESS, FIP20Upgradable.abi, fxProvider);
+    console.log("contract",tokenOnFXCore)
+    const masterChef = new ethers.Contract(Constants.MASTERCHEFV2_ADDRESS, MasterChefV2.abi, fxProvider);
+    console.log("master",masterChef)
+
+    useEffect(()=>{
+        async function loadData(){
+            let _purseTotalSupplyOnFXCore = await tokenOnFXCore.totalSupply()
+            console.log("_purse",_purseTotalSupplyOnFXCore)
+            setPurseTotalSupplyOnFXCore(_purseTotalSupplyOnFXCore)
+
+            let _purseBalanceOnFXCore = await readContract(tokenOnFXCore,"balanceOf",account)
+            setPurseBalanceOnFXCore(_purseBalanceOnFXCore)
+
+            let _earnedAmountOnFXCore = await readContract(masterChef,"pendingReward",2, account)
+            setEarnedAmountOnFXCore(_earnedAmountOnFXCore)
+            setFarmLoading(true)
+            let totalAllocPoint = await masterChef.totalAllocPoint()
+            let rewardPerBlock = await masterChef.rewardPerBlock()
+            let poolInfo = await masterChef.poolInfo(2)
+            let _fxRewardPerWeek = rewardPerBlock.mul(poolInfo[1]).mul(15000 * 7).div(totalAllocPoint) // Reward per Week
+            setFxRewardPerWeek(_fxRewardPerWeek)
+            
+            
+            let fxswapResponse = await fetch(Constants.MONGO_FXSWAP_RESPONSE_API);
+            const fxswapJson = await fxswapResponse.json();
+            let _fxswapTvl = fxswapJson["AllData"]["tvl"][2]
+            let _fxswapApr = fxswapJson["AllData"]["apr"][2]
+            let _fxswapApy = fxswapJson["AllData"]["apyDaily"][2]
+            setFxswapTvl(_fxswapTvl)
+            setFxswapApr(_fxswapApr)
+            setFxswapApy(_fxswapApy)
+            setAprLoading(true)
+        }
+        loadData()
+    },[account])
+
     return (
         <div id="content" className="mt-3">
             <div className="text-center">
@@ -48,7 +107,7 @@ export default function FXSwap(props: any) {
                                 >
                                     <span className="textInfo"><small>The amount shown is the PURSE balance on f(x)Core for the address you are currently connected to.</small></span>
                                 </Popup><br />
-                                <b>{parseFloat(formatUnits(props.purseBalanceOnFXCore, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 2 })}</b>
+                                <b>{parseFloat(formatBigNumber(purseBalanceOnFXCore, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 2 })}</b>
                             </span>
                             <span className="float-right">
                                 <Buttons 
@@ -69,7 +128,7 @@ export default function FXSwap(props: any) {
                                 <span className="float-left">Total Pending Harvest</span>
                                 <span className="float-right">
                                     <span>
-                                        {parseFloat(formatUnits(props.earnedAmountOnFXCore, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 4 })}&nbsp;FX
+                                        {parseFloat(formatBigNumber(earnedAmountOnFXCore, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 4 })}&nbsp;FX
                                     </span>
                                 </span>
                             </small>
@@ -94,14 +153,14 @@ export default function FXSwap(props: any) {
                                 >
                                     <span className="textInfo"><small>The amount shown is the Total PURSE Supply on f(x)Core network.</small></span>
                                 </Popup><br />
-                                <b>{parseFloat(formatUnits(props.purseTotalSupplyOnFXCore, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })}</b>
+                                <b>{parseFloat(formatBigNumber(purseTotalSupplyOnFXCore, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })}</b>
                             </span><br /><br /><br />
                             <span>
                                 <small>
                                     <span className="float-left">Total Reward / Week</span>
                                     <span className="float-right">
                                         <span>
-                                        {parseFloat(formatUnits(props.fxRewardPerWeek, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 2 })}&nbsp;FX
+                                        {parseFloat(formatBigNumber(fxRewardPerWeek, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 2 })}&nbsp;FX
                                         </span>
                                     </span>
                                 </small>
@@ -119,7 +178,7 @@ export default function FXSwap(props: any) {
             <div className="center" style={{ color: 'silver' }}><small><FaCheck size={13} style={{marginBottom:"3px"}}/> PURSE has NO BDL on f(x)Core</small></div>
             <br />
 
-            {props.farmLoading ?
+            {farmLoading ?
                 <div className="col">
                     <div className="card mb-4 cardbody card-body text-center" style={{ maxWidth: '230px', color: 'white' }}>
                         <span>
@@ -129,9 +188,9 @@ export default function FXSwap(props: any) {
                                 <div className=""><small>Deposit<small className="textSmall">FX-PURSE FXSWAP LP</small> to Earn FX</small></div>
 
                                 <div className="" style={{ color: 'white' }}>
-                                    {props.aprloading ?
+                                    {aprloading ?
                                         <div className="borderTop" style={{ marginTop: '8px' }}>
-                                            <span className=""><small>APR: {parseFloat(props.apr).toLocaleString('en-US', {maximumFractionDigits:2})} % &nbsp;</small></span>
+                                            <span className=""><small>APR: {parseFloat(fxswapApr).toLocaleString('en-US', {maximumFractionDigits:2})} % &nbsp;</small></span>
                                             <span className="">
                                                 <Popup 
                                                     trigger={open => (
@@ -147,7 +206,7 @@ export default function FXSwap(props: any) {
                                                     <span className="textInfo mt-2"><small>If it shows 'NaN' or 'Infinity', it means the pool has no LP token staked currently. </small></span>
                                                 </Popup>
                                             </span><br />
-                                            <span><small>APY: {parseFloat(props.apy).toLocaleString('en-US', {maximumFractionDigits:0})} % &nbsp;</small></span>
+                                            <span><small>APY: {parseFloat(fxswapApy).toLocaleString('en-US', {maximumFractionDigits:0})} % &nbsp;</small></span>
                                             <span className="">
                                                 <Popup 
                                                     trigger={open => (
@@ -195,8 +254,8 @@ export default function FXSwap(props: any) {
 
                                 <span className=" ">
                                     <small>
-                                        {props.aprloading ? 
-                                            <div className="">TVL: $ {parseFloat(props.tvl).toLocaleString('en-US', {maximumFractionDigits:0})} </div> 
+                                        {aprloading ? 
+                                            <div className="">TVL: $ {parseFloat(fxswapTvl).toLocaleString('en-US', {maximumFractionDigits:0})} </div> 
                                         :
                                             <div className="">
                                                 <span><small>TVL:</small></span>&nbsp;&nbsp;

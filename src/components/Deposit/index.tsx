@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import asterisk from '../../assets/images/asterisk.png'
 import exlink from '../../assets/images/link.png'
@@ -9,13 +9,53 @@ import Button from 'react-bootstrap/Button'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import '../App.css';
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-
+import { useWeb3React } from '@web3-react/core'
+import RestakingFarm from '../../abis/RestakingFarm.json'
+import IPancakePair from '../../abis/IPancakePair.json'
+import { BigNumber, ethers } from 'ethers'
+import { callContract, formatBigNumber, readContract } from '../utils'
+import * as Constants from "../../constants"
+import ConnectWallet from '../ConnectWallet'
 
 export default function Deposit(props: any) {
+    const {account,isActive,chainId,provider} = useWeb3React()
+    const {
+      selectedPoolInfo, 
+      selectedPoolUserInfo, 
+      signer, 
+      bscProvider, 
+      farmNetwork,
+      selectedPendingReward, 
+      harvest,
+      purseTokenUpgradableBalance,
+      trigger,
+      setTrigger
+    } = props
     const [message, setMessage] = useState('')
     const [amount, setAmount] = useState('')
+    const [lpTokenBalance, setLpTokenBalance] = useState(BigNumber.from('0'))
+    const [lpTokenAllowance, setLpTokenAllowance] = useState(BigNumber.from('0'))
+
+    
+    
+    
+    // console.log("contract",lpTokenContract)
+    useEffect(()=>{
+      async function loadData(){
+        const lpTokenContract = new ethers.Contract(selectedPoolInfo.lpAddresses[chainId?.toString() as keyof typeof selectedPoolInfo.lpAddresses], IPancakePair.abi, bscProvider)
+
+        let _lpTokenBalance = await readContract(lpTokenContract,"balanceOf",account)
+        setLpTokenBalance(_lpTokenBalance)
+
+        let _lpTokenAllowance = await readContract(lpTokenContract,"allowance",account)
+        setLpTokenAllowance(_lpTokenAllowance)
+      }
+      if (isActive) loadData()
+      // loadData()
+    },[account])
 
     const onChangeHandler = (event: string) => {
+
         // console.log("event",!isNaN(parseFloat(event)))
         let result = !isNaN(parseFloat(event)); // true if its a number, false if not
         let afterDot = event.split('.', 2)[1]
@@ -52,7 +92,7 @@ export default function Deposit(props: any) {
         }
       }
     
-    const onClickHandlerDeposit = () => {
+    const onClickHandlerDeposit = async () => {
         if (amount===''||amount==='0.0'){
             console.log("Deposit: Amount not valid")
             return
@@ -61,14 +101,14 @@ export default function Deposit(props: any) {
         const amountWei = parseUnits(amount, 'ether')
         if (amountWei.lte(0)) {
             alert("Amount cannot less than or equal to 0")
-        } else if (amountWei.gt(props.lpTokenSegmentBalance[props.n][props.i])) {
+        } else if (amountWei.gt(lpTokenBalance)) {
             alert("Not enough funds")
         } else {
-            props.deposit(props.i, amountWei, props.n)
+            await deposit(amountWei)
         }
     }
     
-    const onClickHandlerWithdraw = () => {
+    const onClickHandlerWithdraw = async () => {
         if (amount===''||amount==='0.0'){
             console.log("Withdraw: Amount not valid")
             return
@@ -76,28 +116,50 @@ export default function Deposit(props: any) {
         const amountWei = parseUnits(amount, 'ether')
         if (amountWei.lte(0)) {
             alert("Amount cannot less than or equal to 0")
-        } else if (amountWei.gt(props.userSegmentInfo[props.n][props.i])) {
+        } else if (amountWei.gt(selectedPoolUserInfo)) {
             alert("Withdraw tokens more than deposit LP tokens")
         } else {
-            props.withdraw(props.i, amountWei, props.n)
+            await withdraw(amountWei)
         }
+    }
+
+    const deposit = async (amount:BigNumber) => {
+      if (isActive) {
+        const restakingFarm = new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS,RestakingFarm.abi)
+        await callContract(signer,restakingFarm,"deposit",selectedPoolInfo.lpAddresses[chainId?.toString() as keyof typeof selectedPoolInfo.lpAddresses],amount)
+      }
+    }
+
+    const withdraw = async  (amount:BigNumber) => {
+      if (isActive) {
+        const restakingFarm = new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS,RestakingFarm.abi)
+        await callContract(signer,restakingFarm,"withdraw",selectedPoolInfo.lpAddresses[chainId?.toString() as keyof typeof selectedPoolInfo.lpAddresses],amount)
+      }
+    }
+
+    const approve = async () => {
+      if (isActive) {
+        const lpTokenContract = new ethers.Contract(selectedPoolInfo.lpAddresses[chainId?.toString() as keyof typeof selectedPoolInfo.lpAddresses], IPancakePair.abi, bscProvider)
+        await callContract(signer,lpTokenContract,"approve",Constants.RESTAKING_FARM_ADDRESS,"115792089237316195423570985008687907853269984665640564039457584007913129639935")
+      }
     }
 
     return (
         <div className="mt-0">
-          <h2 className="center textWhite" style={{fontSize:"40px"}}><b>{props.poolSegmentInfo[props.n][props.i].token[props.farmNetwork]["symbol"]}-{props.poolSegmentInfo[props.n][props.i].quoteToken[props.farmNetwork]["symbol"]}</b></h2>
+
+          <h2 className="center textWhite" style={{fontSize:"40px"}}><b>{selectedPoolInfo.token[farmNetwork]["symbol"]}-{selectedPoolInfo.quoteToken[farmNetwork]["symbol"]}</b></h2>
          
-          <div className="center" style={{ fontFamily: 'Verdana', color: 'silver', textAlign:"center" }}>Deposit {props.poolSegmentInfo[props.n][props.i].token[props.farmNetwork]["symbol"]}-{props.poolSegmentInfo[props.n][props.i].quoteToken[props.farmNetwork]["symbol"]} LP Token and earn PURSE&nbsp;!</div>
+          <div className="center" style={{ fontFamily: 'Verdana', color: 'silver', textAlign:"center" }}>Deposit {selectedPoolInfo.token[farmNetwork]["symbol"]}-{selectedPoolInfo.quoteToken[farmNetwork]["symbol"]} LP Token and earn PURSE&nbsp;!</div>
           <br />
           <div className="card mb-3 cardbody" style={{ fontFamily: 'Verdana', color: 'silver'}}>
             <div className="card-body">
               <div className='float-left row mb-3 ml-1' style={{width:"70%"}}>
                 <div className='dropdown' style={{ fontSize: '12px' }} onClick={() => {
-                  window.open(props.poolSegmentInfo[props.n][props.i].getLPLink, '_blank')
-                }}>Get {props.poolSegmentInfo[props.n][props.i].token[props.farmNetwork]["symbol"]}-{props.poolSegmentInfo[props.n][props.i].quoteToken[props.farmNetwork]["symbol"]} <img src={exlink} className='mb-1' height='10' alt="" />
+                  window.open(selectedPoolInfo.getLPLink, '_blank')
+                }}>Get {selectedPoolInfo.token[farmNetwork]["symbol"]}-{selectedPoolInfo.quoteToken[farmNetwork]["symbol"]} <img src={exlink} className='mb-1' height='10' alt="" />
                 </div>
                 <div className='dropdown' style={{ fontSize: '12px' }} onClick={() => {
-                  window.open(props.poolSegmentInfo[props.n][props.i].lpContract, '_blank')
+                  window.open(selectedPoolInfo.lpContract, '_blank')
                 }}>View&nbsp;Contract&nbsp;<img src={exlink} className='mb-1' height='10' alt="" />
                 </div>
               </div>
@@ -106,9 +168,9 @@ export default function Deposit(props: any) {
                 type="submit"
                 className="btn btn-success btn-sm float-right center mb-3"
                 style={{ position:'absolute', right:'20px' }}
-                onClick={(event) => {
+                onClick={async(event) => {
                   event.preventDefault()
-                  props.harvest(props.i, props.n)
+                  await harvest()
                 }}>
                 <small>Harvest</small>
               </button>  <br />  <br />
@@ -116,7 +178,7 @@ export default function Deposit(props: any) {
               <table className="table table-borderless text-center" style={{ color: 'silver', fontSize:'15px' }}>
                 <thead>
                   <tr>
-                    <th scope="col">{props.poolSegmentInfo[props.n][props.i].token[props.farmNetwork]["symbol"]}-{props.poolSegmentInfo[props.n][props.i].quoteToken[props.farmNetwork]["symbol"]} LP Staked </th>
+                    <th scope="col">{selectedPoolInfo.token[farmNetwork]["symbol"]}-{selectedPoolInfo.quoteToken[farmNetwork]["symbol"]} LP Staked </th>
                     <th scope="col">PURSE Earned</th>
                   </tr>
                   <tr>
@@ -126,8 +188,8 @@ export default function Deposit(props: any) {
                 </thead>
                 <tbody>
                   <tr>
-                    <td>{parseFloat(props.userSegmentInfo[props.n][props.i]).toLocaleString('en-US', { maximumFractionDigits: 5 })}</td>
-                    <td>{parseFloat(props.pendingSegmentReward[props.n][props.i]).toLocaleString('en-US', { maximumFractionDigits: 3 })}</td>
+                    <td>{parseFloat(selectedPoolUserInfo).toLocaleString('en-US', { maximumFractionDigits: 5 })}</td>
+                    <td>{parseFloat(selectedPendingReward).toLocaleString('en-US', { maximumFractionDigits: 3 })}</td>
                   </tr>
                 </tbody>
               </table>
@@ -135,22 +197,22 @@ export default function Deposit(props: any) {
   
               <div className="card mb-4 cardbody" >
                 <div className="card-body">
-                  {props.wallet || props.walletConnect ?
+                  {isActive ?
                   <div>
                       <div>
                         <label className="float-left mt-1" style={{ color: 'silver', fontSize: '15px', width: '40%', minWidth:"120px"}}><b>Start Farming</b></label>
                         <span className="float-right mb-2 mt-1" style={{ color: 'silver', fontSize: '15px' }}>
                           <span>
-                            LP Balance&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {parseFloat(formatUnits(props.lpTokenSegmentBalance[props.n][props.i].toString(), 'ether')).toLocaleString('en-US', { maximumFractionDigits: 3 })}
+                            LP Balance&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {parseFloat(formatUnits(lpTokenBalance.toString(), 'ether')).toLocaleString('en-US', { maximumFractionDigits: 3 })}
                           </span>
                           <span><br />
-                            PURSE Balance&nbsp;: {parseFloat(formatUnits(props.purseTokenUpgradableBalance, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 5 })}
+                            PURSE Balance&nbsp;: {parseFloat(formatBigNumber(purseTokenUpgradableBalance, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 5 })}
                           </span>
                         </span>
                       </div>
                       <br /><br /><br />
   
-                      {props.lpTokenSegmentAllowance[props.n][props.i] < 100000000000000000000000000000 ?
+                      {parseFloat(lpTokenAllowance?.toString()) < 100000000000000000000000000000 ?
                         <div>
                         <form className="mb-3" onSubmit={(event) => {
                             event.preventDefault()}} >
@@ -180,21 +242,21 @@ export default function Deposit(props: any) {
   
                           <div className="row center mt-3">
                             <ButtonGroup className='mt-2 ml-3'>
-                              <Button type="submit" className="btn btn-primary"  style={{width:"105px"}} onClick={(event) => {
-                                onClickHandlerDeposit()
+                              <Button type="submit" className="btn btn-primary"  style={{width:"105px"}} onClick={async (event) => {
+                                await onClickHandlerDeposit()
                               }}>Deposit</Button>
                               <Button type="text" variant="outline-primary" className="btn" onClick={(event) => {
-                                setAmount(formatUnits(props.lpTokenSegmentBalance[props.n][props.i], 'ether'))
-                                onChangeHandler(formatUnits(props.lpTokenSegmentBalance[props.n][props.i], 'ether'))
+                                setAmount(formatUnits(lpTokenBalance, 'ether'))
+                                onChangeHandler(formatUnits(lpTokenBalance, 'ether'))
                               }}>Max</Button>&nbsp;&nbsp;&nbsp;
                             </ButtonGroup>
                             <ButtonGroup  className='mt-2 ml-3'>
-                              <Button type="submit" className="btn btn-primary" style={{width:"105px"}} onClick={(event) => {
-                                onClickHandlerWithdraw()
+                              <Button type="submit" className="btn btn-primary" style={{width:"105px"}} onClick={async (event) => {
+                                await onClickHandlerWithdraw()
                               }}>Withdraw</Button>
                               <Button type="text" variant="outline-primary" className="btn" onClick={(event) => {
                                 setMessage('')
-                                onChangeHandler(props.userSegmentInfo[props.n][props.i])
+                                onChangeHandler(selectedPoolUserInfo)
                               }}>Max</Button>&nbsp;&nbsp;&nbsp;
                             </ButtonGroup>
                           </div>
@@ -202,16 +264,16 @@ export default function Deposit(props: any) {
                         </div>
                         :
                         <div className="row center mt-3">
-                          <button className="btn btn-primary btn-block" style={{width:"96%"}} onClick={(event) => {
+                          <button className="btn btn-primary btn-block" style={{width:"96%"}} onClick={async (event) => {
                             console.log("abc")
-                            props.approve(props.i, props.n)
+                            await approve()
                           }}>Approve</button>
                         </div>
                       }</div>
                     :
                     <div className="rowC center">
                       <button className="btn btn-primary" onClick={async () => {
-                        await props.connectWallet()
+                        setTrigger(true)
                       }}>Connect Wallet</button>
                     </div>
                   }
@@ -220,6 +282,7 @@ export default function Deposit(props: any) {
           </div>
           </div>
           <div className="text-center" style={{ color: 'silver' }}><img src={asterisk} alt={"*"} height='15' />&nbsp;<small>Every time you stake & unstake LP tokens, the contract will automatically harvest PURSE rewards for you!</small></div>
+          <ConnectWallet trigger={trigger} setTrigger={setTrigger}/>
         </div>
   
     );

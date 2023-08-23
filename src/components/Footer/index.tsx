@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { FaTwitter, FaFacebook, FaInstagram, FaLinkedin, FaYoutube, FaTelegram, FaReddit, FaMedium } from 'react-icons/fa';
 import { AiFillMail } from 'react-icons/ai';
 import { MdForum } from 'react-icons/md';

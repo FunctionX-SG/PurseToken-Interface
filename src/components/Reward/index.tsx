@@ -1,14 +1,128 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
-import bigInt from 'big-integer'
 import '../App.css';
-import { isAddress, formatUnits } from 'ethers/lib/utils'
+import { isAddress, formatUnits, getAddress, solidityPack } from 'ethers/lib/utils'
+import * as Constants from "../../constants"
+import RetroactiveRewards from '../../abis/RetroactiveRewards.json'
+import UserAmount from '../../abis/userAmount.json'
+import { BigNumber, ethers } from 'ethers'
+import keccak256 from "keccak256";
+import MerkleTree from "merkletreejs";
+import { timeConverter } from '../utils';
+import { useWeb3React } from '@web3-react/core';
 
 export default function Rewards(props: any) {
+    const {PURSEPrice, bscProvider} = props
+
+    const {isActive, account} = useWeb3React()
+    
     const [message, setMessage] = useState('')
     const [addValid, setAddValid] = useState(false)
     const [otherAddress, setOtherAddress] = useState('')
     const [otherAddressAmount, setOtherAddressAmount] = useState('')
+    const [retroactiveRewardsAmount, setRetroactiveRewardsAmount] = useState<BigNumber>(BigNumber.from("0"))
+    const [retroactiveRewardsIsClaim, setRetroactiveRewardsIsClaim] = useState<Boolean>(false)
+    const [retroactiveRewardsStartTime, setRetroactiveRewardsStartTime] = useState<number>(0)
+    const [retroactiveRewardsEndTime, setRetroactiveRewardsEndTime] = useState<number>(0)
+
+    const signer = bscProvider.getSigner()
+
+    const checkRetroactiveRewardsAmount = (address:string|undefined) => {
+        // let UserAmountI: {
+        //     [key:string]: {"Amount": [string]},
+        // }[] = UserAmount
+        if (!address) return BigNumber.from('0')
+        let newAddress = getAddress(address)
+        let retroactiveRewardsAmount: any
+        if(UserAmount[newAddress as keyof typeof UserAmount] !== undefined){
+          retroactiveRewardsAmount = UserAmount[newAddress as keyof typeof UserAmount]["Amount"]
+        } else{
+          retroactiveRewardsAmount = BigNumber.from("0")
+        }
+        return retroactiveRewardsAmount
+    }
+
+    useEffect(() => {
+        async function getRewardData(){
+            // await provider?.send("eth_requestAccounts", [])
+            const retroactiveRewards = new ethers.Contract(Constants.RETROACTIVE_REWARDS_ADDRESS, RetroactiveRewards.abi, bscProvider)
+            const _retroactiveRewardsStartTime = await retroactiveRewards.rewardStartTime()
+            const _retroactiveRewardsEndTime = await retroactiveRewards.rewardEndTime()
+            setRetroactiveRewardsStartTime(_retroactiveRewardsStartTime)
+            setRetroactiveRewardsEndTime(_retroactiveRewardsEndTime)
+            if (isActive===true){
+                const _retroactiveRewardsIsClaim = await retroactiveRewards.isClaim(account)
+                const _retroactiveRewardsAmount = checkRetroactiveRewardsAmount(account)
+                setRetroactiveRewardsIsClaim(_retroactiveRewardsIsClaim)
+                setRetroactiveRewardsAmount(_retroactiveRewardsAmount)
+            }
+        }
+        getRewardData()
+    },[isActive])
+
+    const getMerkleProof = async (account: string) => {
+        const keys = Object.keys(UserAmount)
+        const values = Object.values(UserAmount)
+        const balances: {address: string, amount: any}[] = []
+        let address: string
+        let amount: string
+        for (let i = 0; i < keys.length; i++) {
+          address = keys[i]
+          amount = values[i]["Amount"]
+          if (parseFloat(amount) !== 0){
+            balances.push({
+                address: address,
+                amount: solidityPack(
+                    ["uint256"],
+                    [amount]
+              )
+            })
+          }
+        }
+        const newValues = Object.values(balances)
+        const array: {address:string,id:number}[] = []
+        for (let i = 0; i < Object.keys(balances).length; i++) {
+          address = newValues[i]["address"];
+          amount = values[i]["Amount"]
+          array.push({
+            address: newValues[i]["address"],
+            id: i
+          })
+        } 
+        const index = Object.assign({}, ...array.map((x) => ({[x.address]: x.id})));
+        const leafNodes = balances.map((balance) =>
+          keccak256( 
+            Buffer.concat([
+              Buffer.from(balance.address.replace("0x", ""), "hex"),
+              Buffer.from(balance.amount.replace("0x", ""), "hex"),
+            ])
+          )
+        )
+        const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true })
+        const merkleProof = merkleTree.getHexProof(leafNodes[index[account]])
+        return merkleProof
+    }
+    
+    const claimRetroactiveRewardsAmount = async () => {
+        if (parseFloat((Date.now() / 1000).toFixed(0)) > retroactiveRewardsEndTime) {
+          alert("Claim Ended")
+        } else if (parseFloat((Date.now() / 1000).toFixed(0)) < retroactiveRewardsStartTime) {
+          alert("Claim Not Started")
+        } else {
+          if (retroactiveRewardsAmount.eq(0)) {
+            alert("No Reward Available")
+          } else {
+            let address = getAddress(account||'')
+            let merkleProof = await getMerkleProof(address)
+            let retroactiveRewards = new ethers.Contract(Constants.RETROACTIVE_REWARDS_ADDRESS, RetroactiveRewards.abi, bscProvider)
+            if (isActive === true) {
+              const tx = await retroactiveRewards.connect(signer).claimRewards(retroactiveRewardsAmount, merkleProof)
+              await tx.wait()
+            }
+          }
+        }
+    }
+
 
     const onChangeHandler = (event: string) => {
         if (event === "") {
@@ -32,8 +146,8 @@ export default function Rewards(props: any) {
         if (addValid === false) {
             alert("Invalid input! Please check your input again")
         } else {
-            let claimMessage = await props.checkRetroactiveRewardsAmount(otherAddress)
-            let otherAddressAmount = parseFloat(formatUnits(claimMessage, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 6 }) + " PURSE (" + (parseFloat(formatUnits(claimMessage, 'ether'))*props.PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
+            let claimMessage = await checkRetroactiveRewardsAmount(otherAddress)
+            let otherAddressAmount = parseFloat(formatUnits(claimMessage, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 6 }) + " PURSE (" + (parseFloat(formatUnits(claimMessage, 'ether'))*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
             setOtherAddressAmount(otherAddressAmount)
         }
     }
@@ -54,8 +168,8 @@ export default function Rewards(props: any) {
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>{props.retroactiveRewardsStartDate}</td>
-                                        <td>{props.retroactiveRewardsEndDate}</td>
+                                        <td>{timeConverter(retroactiveRewardsStartTime)}</td>
+                                        <td>{timeConverter(retroactiveRewardsEndTime)}</td>
                                     </tr>
                                 </tbody>
                                 <tbody>
@@ -76,20 +190,20 @@ export default function Rewards(props: any) {
                         </span>
                     </div>
                 </div>
-                {props.wallet || props.walletConnect ?
+                {isActive ?
                     <div className="card cardbody mb-3" style={{ width: '450px', minHeight: '400px', color: 'white' }}>
                         <div className="card-body">
                             <div>
                                 <div>
                                     <div className="textWhiteSmall mb-1"><b>Address:</b></div>
-                                    <div className="textWhiteSmall mb-2"><b>{props.account}</b></div>
+                                    <div className="textWhiteSmall mb-2"><b>{account}</b></div>
                                 </div>
                                 <div>
                                     <div className="textWhiteSmall mb-1"><b>Retroactive Rewards:</b></div>
-                                    <div className="textWhiteSmall mb-1"><b>{parseFloat(formatUnits(props.retroactiveRewardsAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 6 }) + " PURSE (" + (parseFloat(formatUnits(props.retroactiveRewardsAmount, 'ether'))*props.PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"}</b></div>
+                                    <div className="textWhiteSmall mb-1"><b>{parseFloat(formatUnits(retroactiveRewardsAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 6 }) + " PURSE (" + (parseFloat(formatUnits(retroactiveRewardsAmount, 'ether'))*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"}</b></div>
                                 </div>
-                                {(Date.now() / 1000).toFixed(0) > props.retroactiveRewardsEndTime || (Date.now() / 1000).toFixed(0) < props.retroactiveRewardsStartTime ?
-                                    <div>{(Date.now() / 1000).toFixed(0) < props.retroactiveRewardsStartTime ?
+                                {parseFloat((Date.now() / 1000).toFixed(0)) > retroactiveRewardsEndTime || parseFloat((Date.now() / 1000).toFixed(0)) < retroactiveRewardsStartTime ?
+                                    <div>{parseFloat((Date.now() / 1000).toFixed(0)) < retroactiveRewardsStartTime ?
                                         <div className="center mt-2 mb-4">
                                             <Button
                                                 disabled
@@ -113,8 +227,8 @@ export default function Rewards(props: any) {
                                         </div>  
                                     }</div>
                                 :
-                                    <div>{props.retroactiveRewardsIsClaim === false ? 
-                                        (props.retroactiveRewardsAmount === "0" ?
+                                    <div>{retroactiveRewardsIsClaim === false ? 
+                                        (retroactiveRewardsAmount.eq(0) ?
                                             <div className="center mt-2 mb-4">
                                                 <Button
                                                     disabled
@@ -134,7 +248,7 @@ export default function Rewards(props: any) {
                                                     style={{ minWidth: '80px' }}
                                                     onClick={(event) => {
                                                         event.preventDefault()
-                                                        props.claimRetroactiveRewardsAmount()
+                                                        claimRetroactiveRewardsAmount()
                                                     }}>Claim
                                                 </Button>
                                             </div>          
@@ -185,11 +299,11 @@ export default function Rewards(props: any) {
                     :
                     <div className="card cardbody mb-3" style={{ width: '450px', minHeight: '400px', color: 'white' }}>
                         <div className="card-body">
-                            <div style={{transform: "translate(0%, 120%)"}}>
+                            <div style={{transform: "translate(0%, 500%)"}}>
                                 <div className="center textWhiteMedium"><b>Connect wallet to claim PURSE</b></div>
-                                <div className="center"><button type="submit" className="btn btn-primary mt-4" onClick={async () => {
-                                    await props.connectWallet()
-                                }}>Connect</button></div>
+                                {/* <div className="center"><button type="submit" className="btn btn-primary mt-4" onClick={async () => {
+                                    await connectWallet()
+                                }}>Connect</button></div> */}
                             </div>
                         </div>
                     </div>

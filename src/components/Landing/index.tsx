@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import Button from 'react-bootstrap/Button'
 import Blockchain from '../../assets/images/Blockchain.png'
 import { NavLink } from '../Navbar/NavMenu'
