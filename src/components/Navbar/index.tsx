@@ -9,29 +9,25 @@ import { FaWallet } from 'react-icons/fa'
 import { slide as Menu } from 'react-burger-menu'
 import Dropdown from 'react-bootstrap/Dropdown'
 import '../App.css'
-// import { connectWallet, connect } from '../utils'
 import { useWeb3React } from '@web3-react/core'
-import { metaMask, hooks as metaMaskHooks } from '../connectors/metamask'
-import { walletConnectV2, hooks as walletConnectV2Hooks } from '../connectors/walletConnect'
-import { URI_AVAILABLE } from '@web3-react/walletconnect-v2'
+import { metaMask } from '../connectors/metamask'
+import { walletConnectV2 } from '../connectors/walletConnect'
 import { getShortAccount, chainId2NetworkName, isSupportedChain } from '../utils'
+import { Link } from "react-router-dom";
 
 import {
   NavLink,
   NavLinkHome,
 } from './NavMenu'
 
-interface NavbProps {
-  PURSEPrice: string;
-}
 
 export default function Navb({
-    PURSEPrice,
-}:NavbProps) {
+    PURSEPrice, switchNetwork
+}:any) {
   const {chainId,account} = useWeb3React()
 
   const {connector, hooks} = useWeb3React()
-  const {useSelectedIsActive,useSelectedIsActivating,useSelectedAccount} = hooks
+  const {useSelectedIsActive,useSelectedIsActivating} = hooks
   const isActive = useSelectedIsActive(connector)
   const isActivating = useSelectedIsActivating(connector)
   const [networkName, setNetworkName] = useState('BSC')
@@ -122,7 +118,6 @@ export default function Navb({
               <div className='dropdown0'><NavLink to='/home'>Home</NavLink></div>
               <div className='dropdown0'><NavLink to='/lpfarm/farmInfo'>Farm Dashboard</NavLink></div>
               <div className='dropdown0'><NavLink to='/lpfarm/menu'>Farm Menu</NavLink></div>
-              {/*<div className='dropdown0'><NavLink to='/distribution'>Distribution</NavLink></div>*/}
               <div className='dropdown0'><NavLink to='/stake'>Stake</NavLink></div>
               <div className='dropdown0'><NavLink to='/rewards'>Rewards</NavLink></div>
               <div className='dropdown'>
@@ -146,18 +141,15 @@ export default function Navb({
             <Dropdown>
               <Dropdown.Toggle className='center' variant="transparent" style={{padding:0,color:"#D3D3D3"}}>Farm</Dropdown.Toggle>
                <Dropdown.Menu style={{backgroundColor:"#28313b", marginTop:"8px"}}>
-                <Dropdown.Item href="/lpfarm/farmInfo">
+                <Dropdown.Item as={Link} to="/lpfarm/farmInfo">
                   <div className="dropdown0" style={{ paddingBottom: '12px' }}>Farm Dashboard</div>
                 </Dropdown.Item>
-                <Dropdown.Item href='/lpfarm/menu'>
+                <Dropdown.Item as={Link} to='/lpfarm/menu'>
                   <div className="dropdown">Farm Menu</div>
                 </Dropdown.Item>
                </Dropdown.Menu>
             </Dropdown>
           </div>
-          {/*<div className="mr-4">
-            <NavLink to='/distribution' >Distribution</NavLink>
-            </div>*/}
           <div className="mr-4">
             <NavLink to='/stake' >Stake</NavLink>
           </div>
@@ -186,7 +178,10 @@ export default function Navb({
                 </div>&nbsp;
 
                 <div className='center'>
-                  <Buttons variant="info" size="sm" onClick={() => {
+                  <Buttons variant="info" size="sm" onClick={async() => {
+                    if (!isSupportedChain(chainId)){
+                      await switchNetwork(56)
+                    }
                   }}>{networkName}
                   </Buttons>
                 </div>&nbsp;
@@ -246,7 +241,10 @@ export default function Navb({
                       </Buttons>
                     </Dropdown.Item>
                     <Dropdown.Item>
-                      <Buttons variant="info" size="sm" style={{width:"100%"}} onClick={() => {
+                      <Buttons variant="info" size="sm" style={{width:"100%"}} onClick={async () => {
+                        if (!isSupportedChain(chainId)){
+                          await switchNetwork()
+                        }
                       }}>{networkName}
                       </Buttons>
                     </Dropdown.Item>
@@ -260,12 +258,7 @@ export default function Navb({
                             </Dropdown.Item>
                             <Dropdown.Item>
                               <Buttons variant="secondary" size="sm" style={{width:"100%", marginBottom:"10px"}} onClick={async () => {
-                                console.log("disconnect1")
                                 await disconnect()
-                                // setWalletTrigger(false)
-                                // if (walletConnect === true) {
-                                //   WalletDisconnect()
-                                // }
                               }}>&nbsp;Disconnect</Buttons>
                             </Dropdown.Item>
                         </div> : <div>

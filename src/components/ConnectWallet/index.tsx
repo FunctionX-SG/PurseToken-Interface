@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react'
+import React from 'react'
 import Popup from '../Popup'
 import Button from 'react-bootstrap/Button'
 import fox from '../../assets/images/metamask-fox.svg'
 import walletconnectLogo from '../../assets/images/walletconnect-logo.svg'
 import { useWeb3React } from '@web3-react/core'
-import { metaMask, hooks as metaMaskHooks } from '../connectors/metamask'
-import { walletConnectV2, hooks as walletConnectV2Hooks } from '../connectors/walletConnect'
+import { metaMask } from '../connectors/metamask'
+import { walletConnectV2 } from '../connectors/walletConnect'
 
 export default function ConnectWallet(props:any) {
     const { trigger, setTrigger } = props
@@ -70,7 +70,7 @@ export default function ConnectWallet(props:any) {
                         setTrigger(false)
                     }}>
                         <img src={walletconnectLogo} width="26" height="23" alt=""/>
-                        &nbsp;WalletConnect
+                        &nbsp;WalletConnectV2
                     </Button>
                     </div>
                 </div>

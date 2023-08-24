@@ -21,9 +21,4 @@ export default async function useConnect(connector:Connector,hooks:Web3ReactHook
           console.log(err)
         }
     }
-    // return {}
 }
-
-// export default async function handleDisconnect(connector){
-
-// }

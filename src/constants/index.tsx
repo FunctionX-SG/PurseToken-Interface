@@ -25,7 +25,7 @@ export const MONGO_FXSWAP_RESPONSE_API = `https://ap-southeast-1.aws.data.mongod
 
 //RPC URLs
 export const WALLETCONNECT_BRIDGE_URL = "https://wallet-connect.pundix.com/bridge/";
-export const BSC_MAINNET_RPCURL = `https://bsc-dataseed.binance.org/`;
+export const BSC_MAINNET_RPCURL = `https://bsc-dataseed3.bnbchain.org`;
 export const BSC_MAINNET_RPCURL_1 = 'https://bsc-dataseed1.binance.org/';
 export const BSC_TESTNET_RPC_URL_S2 = `https://data-seed-prebsc-1-s2.binance.org:8545/`;
 export const BSC_TESTNET_RPC_URL_S3 = `https://data-seed-prebsc-1-s3.binance.org:8545/`;

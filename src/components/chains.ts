@@ -1,4 +1,5 @@
 import type { AddEthereumChainParameter } from '@web3-react/types'
+import * as Constants from "../constants"
 
 interface BasicChainInformation {
     urls: string[]
@@ -10,7 +11,7 @@ interface ExtendedChainInformation extends BasicChainInformation {
     blockExplorerUrls: AddEthereumChainParameter['blockExplorerUrls']
 }
 
-type ChainConfig = { [chainId: number]: BasicChainInformation | ExtendedChainInformation }
+type ChainConfig = { [chainId: number]: ExtendedChainInformation }
 
 const MATIC: AddEthereumChainParameter['nativeCurrency'] = {
     name: 'Matic',
@@ -24,10 +25,18 @@ const CELO: AddEthereumChainParameter['nativeCurrency'] = {
     decimals: 18,
 }
 
+const BNB: AddEthereumChainParameter['nativeCurrency'] = {
+  name: 'Binance Coin',
+  symbol: 'BNB',
+  decimals: 18,
+}
+
 export const MAINNET_CHAINS: ChainConfig = {
     56: {
-      urls: ['url1','url2'].filter(Boolean),
+      urls: [Constants.BSC_MAINNET_RPCURL,Constants.BSC_MAINNET_RPCURL_1].filter(Boolean),
       name: 'BSC',
+      blockExplorerUrls: ['https://bscscan.com/'],
+      nativeCurrency: BNB,
     },
     137: {
       urls: ['url3','https://polygon-rpc.com'].filter(Boolean),
@@ -42,3 +51,7 @@ export const MAINNET_CHAINS: ChainConfig = {
       blockExplorerUrls: ['https://explorer.celo.org'],
     },
   }
+
+export function getChainInfo(chainId:number){
+  return MAINNET_CHAINS[chainId]
+}

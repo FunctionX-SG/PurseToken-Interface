@@ -8,13 +8,15 @@ import UserAmount from '../../abis/userAmount.json'
 import { BigNumber, ethers } from 'ethers'
 import keccak256 from "keccak256";
 import MerkleTree from "merkletreejs";
-import { timeConverter } from '../utils';
+import { timeConverter, isSupportedChain, callContract, getShortTxHash } from '../utils';
 import { useWeb3React } from '@web3-react/core';
+import ConnectWallet from '../ConnectWallet'
+import { Loading } from '../Loading';
 
 export default function Rewards(props: any) {
-    const {PURSEPrice, bscProvider} = props
+    const {PURSEPrice, bscProvider, switchNetwork, showToast} = props
 
-    const {isActive, account} = useWeb3React()
+    const {isActive, account, chainId} = useWeb3React()
     
     const [message, setMessage] = useState('')
     const [addValid, setAddValid] = useState(false)
@@ -24,13 +26,13 @@ export default function Rewards(props: any) {
     const [retroactiveRewardsIsClaim, setRetroactiveRewardsIsClaim] = useState<Boolean>(false)
     const [retroactiveRewardsStartTime, setRetroactiveRewardsStartTime] = useState<number>(0)
     const [retroactiveRewardsEndTime, setRetroactiveRewardsEndTime] = useState<number>(0)
+    const [trigger, setTrigger] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
 
     const signer = bscProvider.getSigner()
 
     const checkRetroactiveRewardsAmount = (address:string|undefined) => {
-        // let UserAmountI: {
-        //     [key:string]: {"Amount": [string]},
-        // }[] = UserAmount
+
         if (!address) return BigNumber.from('0')
         let newAddress = getAddress(address)
         let retroactiveRewardsAmount: any
@@ -44,7 +46,6 @@ export default function Rewards(props: any) {
 
     useEffect(() => {
         async function getRewardData(){
-            // await provider?.send("eth_requestAccounts", [])
             const retroactiveRewards = new ethers.Contract(Constants.RETROACTIVE_REWARDS_ADDRESS, RetroactiveRewards.abi, bscProvider)
             const _retroactiveRewardsStartTime = await retroactiveRewards.rewardStartTime()
             const _retroactiveRewardsEndTime = await retroactiveRewards.rewardEndTime()
@@ -56,9 +57,10 @@ export default function Rewards(props: any) {
                 setRetroactiveRewardsIsClaim(_retroactiveRewardsIsClaim)
                 setRetroactiveRewardsAmount(_retroactiveRewardsAmount)
             }
+            setIsLoading(false)
         }
         getRewardData()
-    },[isActive])
+    },[isActive, account, bscProvider])
 
     const getMerkleProof = async (account: string) => {
         const keys = Object.keys(UserAmount)
@@ -105,19 +107,32 @@ export default function Rewards(props: any) {
     
     const claimRetroactiveRewardsAmount = async () => {
         if (parseFloat((Date.now() / 1000).toFixed(0)) > retroactiveRewardsEndTime) {
-          alert("Claim Ended")
+            showToast("Claim Ended","failure")
         } else if (parseFloat((Date.now() / 1000).toFixed(0)) < retroactiveRewardsStartTime) {
-          alert("Claim Not Started")
+            showToast("Claim Not Started","failure")
         } else {
           if (retroactiveRewardsAmount.eq(0)) {
-            alert("No Reward Available")
+            showToast("No Reward Available","failure")
           } else {
             let address = getAddress(account||'')
             let merkleProof = await getMerkleProof(address)
             let retroactiveRewards = new ethers.Contract(Constants.RETROACTIVE_REWARDS_ADDRESS, RetroactiveRewards.abi, bscProvider)
             if (isActive === true) {
-              const tx = await retroactiveRewards.connect(signer).claimRewards(retroactiveRewardsAmount, merkleProof)
-              await tx.wait()
+                try{
+                    const tx:any = await callContract(signer,retroactiveRewards,"claimRewards",retroactiveRewardsAmount,merkleProof)
+                    if (tx?.hash){
+                        const link = `https://bscscan.com/tx/${tx.hash}`
+                        showToast("Transaction sent!","success",link)
+                        await tx.wait()
+                        const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+                        showToast(message,"success",link)
+                      }else{
+                        showToast("Something went wrong.","failure")
+                      }
+                    } catch(err) {
+                      showToast("Something went wrong.","failure")
+                      console.log(err)
+                }
             }
           }
         }
@@ -167,10 +182,17 @@ export default function Rewards(props: any) {
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {isLoading?
+                                    <tr>
+                                        <td><Loading/></td>
+                                        <td><Loading/></td>
+                                    </tr>
+                                    :
                                     <tr>
                                         <td>{timeConverter(retroactiveRewardsStartTime)}</td>
                                         <td>{timeConverter(retroactiveRewardsEndTime)}</td>
                                     </tr>
+                                    }
                                 </tbody>
                                 <tbody>
                                     <tr>
@@ -190,7 +212,30 @@ export default function Rewards(props: any) {
                         </span>
                     </div>
                 </div>
-                {isActive ?
+                {!isActive?
+                <div className="card cardbody mb-3" style={{ width: '450px', minHeight: '400px', color: 'white' }}>
+                    <div className="card-body">
+                        <div style={{transform: "translate(0%, 150%)"}}>
+                            <div className="center textWhiteMedium"><b>Connect wallet to claim PURSE</b></div>
+                            <div className="center"><button type="submit" className="btn btn-primary mt-4" onClick={async () => {
+                                setTrigger(true)
+                            }}>Connect</button></div>
+                        </div>
+                    </div>
+                </div>
+                :
+                !isSupportedChain(chainId)?
+                <div className="card cardbody mb-3" style={{ width: '450px', minHeight: '400px', color: 'white' }}>
+                <div className="card-body">
+                    <div style={{transform: "translate(0%, 150%)"}}>
+                        <div className="center textWhiteMedium"><b>Switch chain to claim PURSE</b></div>
+                        <div className="center"><button type="submit" className="btn btn-primary mt-4" onClick={async () => {
+                            await switchNetwork()
+                        }}>Switch</button></div>
+                        </div>
+                    </div>
+                </div>
+                :
                     <div className="card cardbody mb-3" style={{ width: '450px', minHeight: '400px', color: 'white' }}>
                         <div className="card-body">
                             <div>
@@ -200,8 +245,27 @@ export default function Rewards(props: any) {
                                 </div>
                                 <div>
                                     <div className="textWhiteSmall mb-1"><b>Retroactive Rewards:</b></div>
-                                    <div className="textWhiteSmall mb-1"><b>{parseFloat(formatUnits(retroactiveRewardsAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 6 }) + " PURSE (" + (parseFloat(formatUnits(retroactiveRewardsAmount, 'ether'))*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"}</b></div>
+                                    <div className="textWhiteSmall mb-1">
+                                        {isLoading?
+                                        <Loading/>
+                                        :
+                                        <b>{parseFloat(formatUnits(retroactiveRewardsAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 6 }) + " PURSE (" + (parseFloat(formatUnits(retroactiveRewardsAmount, 'ether'))*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"}</b>
+                                        }
+                                    </div>
                                 </div>
+                                {isLoading?
+                                <div className="center mt-2 mb-4">
+                                    <Button
+                                        disabled
+                                        className="btn-block"
+                                        variant="secondary"
+                                        size="sm"
+                                        style={{ minWidth: '80px' }}
+                                        ><Loading/>
+                                    </Button>
+                                </div>
+                                :
+                                <div>
                                 {parseFloat((Date.now() / 1000).toFixed(0)) > retroactiveRewardsEndTime || parseFloat((Date.now() / 1000).toFixed(0)) < retroactiveRewardsStartTime ?
                                     <div>{parseFloat((Date.now() / 1000).toFixed(0)) < retroactiveRewardsStartTime ?
                                         <div className="center mt-2 mb-4">
@@ -266,6 +330,8 @@ export default function Rewards(props: any) {
                                         </div>
                                     }</div>
                                 }
+                                </div>
+                                }
                                 <div className="float-left">
                                     <div className="textWhiteSmall mt-2 mb-2" ><b>Check Other Address:</b></div>
                                 </div>
@@ -296,18 +362,8 @@ export default function Rewards(props: any) {
                             </div>
                         </div>
                     </div>
-                    :
-                    <div className="card cardbody mb-3" style={{ width: '450px', minHeight: '400px', color: 'white' }}>
-                        <div className="card-body">
-                            <div style={{transform: "translate(0%, 500%)"}}>
-                                <div className="center textWhiteMedium"><b>Connect wallet to claim PURSE</b></div>
-                                {/* <div className="center"><button type="submit" className="btn btn-primary mt-4" onClick={async () => {
-                                    await connectWallet()
-                                }}>Connect</button></div> */}
-                            </div>
-                        </div>
-                    </div>
                 }
+            <ConnectWallet trigger={trigger} setTrigger={setTrigger}/>
             </div>
         </div >
 

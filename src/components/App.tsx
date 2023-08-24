@@ -15,6 +15,11 @@ import './App.css'
 import * as Constants from "../constants"
 import { Signer, ethers } from 'ethers'
 import { useWeb3React } from '@web3-react/core'
+import { isSupportedChain } from './utils'
+import { metaMask } from './connectors/metamask'
+import { walletConnectV2 } from './connectors/walletConnect'
+import { getChainInfo } from './chains'
+import ToastList from './ToastList/ToastList'
 
 
 export default function App() {
@@ -22,7 +27,7 @@ export default function App() {
   const bscProvider = new ethers.providers.JsonRpcProvider(Constants.BSC_MAINNET_RPCURL)
   const fxProvider = new ethers.providers.JsonRpcProvider(Constants.PROVIDER)
   
-  const { account, provider } = useWeb3React()
+  const { account, provider, connector } = useWeb3React()
   const [signer, setSigner] = useState<Signer>()
   const [PURSEPrice, setPURSEPrice] = useState('0')
 
@@ -42,11 +47,68 @@ export default function App() {
     }
   },[account,provider])
 
+  async function switchNetwork(chainId:number=56) {
+    try{
+      if (!isSupportedChain(chainId)){
+        console.log("Not supported chain")
+      } else {
+        if (connector===walletConnectV2){
+          await connector.activate(chainId)
+        } else if (connector===metaMask){
+          const info = getChainInfo(chainId)
+          const addChainParameter = {
+            chainId,
+            chainName: info.name,
+            rpcUrls: info.urls,
+            nativeCurrency: info.nativeCurrency,
+            blockExplorerUrls: [info.blockExplorerUrls],
+          }
+          console.log("switch2")
+          await connector.activate(addChainParameter)
+        } else {
+          await connector.activate()
+        }
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const [toasts, setToasts] = useState<any>([]);
+
+  const showToast = (message:string, type:string, link?:string) => {
+    const toast = {
+      id: Date.now(),
+      message,
+      link,
+      type,
+    };
+
+    setToasts((_toast:any)=>[toast,..._toast]);
+
+    let time:number = 3
+    if (type==="success"){
+      time = 6
+    }
+
+    setTimeout(() => {
+      removeToast(toast.id);
+    }, time * 1000);
+  };
+
+  const removeToast = (id:number) => {
+    setToasts((prevToasts:any) => prevToasts.filter((toast:any) => toast.id !== id))
+  };
+
+
+
   return (
     <Router>
       <div>
+        <ToastList data={toasts} position={"bottom-right"} removeToast={removeToast} />
         <Navb
           PURSEPrice={PURSEPrice}
+          switchNetwork={switchNetwork}
         />
         <div className="container-fluid mt-4">
           <div className="row">
@@ -62,6 +124,7 @@ export default function App() {
                     <Main 
                     bscProvider={bscProvider} 
                     account={account}
+                    PURSEPrice={PURSEPrice}
                     />
                   }></Route>
                   
@@ -71,6 +134,8 @@ export default function App() {
                     bscProvider={bscProvider}
                     farmNetwork={farmNetwork}
                     signer={signer}
+                    switchNetwork={switchNetwork}
+                    showToast={showToast}
                     />
                   }></Route>
 
@@ -91,6 +156,8 @@ export default function App() {
                     <Reward
                     bscProvider={bscProvider}
                     PURSEPrice={PURSEPrice}
+                    switchNetwork={switchNetwork}
+                    showToast={showToast}
                     />
                   }></Route>
 
@@ -99,6 +166,8 @@ export default function App() {
                     bscProvider={bscProvider}
                     signer={signer}
                     PURSEPrice={PURSEPrice}
+                    switchNetwork={switchNetwork}
+                    showToast={showToast}
                     />
                   }></Route>
                   

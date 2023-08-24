@@ -1,10 +1,9 @@
 
 import { MetaMask } from '@web3-react/metamask'
 import type { Connector } from '@web3-react/types'
-import { hooks, metaMask } from './connectors/metamask'
-import { useEffect, useState } from 'react'
+import { metaMask } from './connectors/metamask'
 import PurseFarm from '../farm/farmPurse.json'
-import { BigNumber, Signer, ethers } from 'ethers'
+import { Signer, ethers } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
 export function getName(connector: Connector) {
@@ -23,10 +22,8 @@ export async function connect(connector: Connector) {
   try {
     if (connector.connectEagerly) {
       await connector.connectEagerly()
-      console.log(1)
     } else {
       await connector.activate()
-      console.log(2)
     }
   } catch (error) {
     console.debug(`web3-react eager connection error: ${error}`)
@@ -41,6 +38,16 @@ export function getShortAccount(account: string | undefined){
   const last4Account = account.slice(-4)
   const _shortAccount = first4Account + '...' + last4Account
   return _shortAccount
+}
+
+export function getShortTxHash(txHash: string | undefined){
+  if (!txHash){
+    return ''
+  }
+  const first5 = txHash.substring(0, 5)
+  const last5 = txHash.slice(-5)
+  const _short = first5 + '....' + last5
+  return _short
 }
 
 export function chainId2NetworkName(chainId:number){
@@ -119,7 +126,7 @@ export function formatBigNumber(bignumber:any,units:string){
 }
 
 export function isSupportedChain(chainId:number|undefined){
-  if (chainId!=56){
+  if (chainId!==56){
     return false
   } else {
     return true
@@ -127,23 +134,27 @@ export function isSupportedChain(chainId:number|undefined){
 }
 
 export function supportedChain(chainId:number|undefined){
-  if (chainId!=56){
+  if (chainId!==56){
     return 56
   } else {
     return chainId
   }
 }
 
-export async function callContract(signer:Signer, contract:ethers.Contract,method:string,...args:any[]){
+export async function callContract(signer:Signer, contract:ethers.Contract|null,method:string,...args:any[]){
   try{
-    const tx = await contract.connect(signer)[method](...args)
-    await tx.wait()
+    const tx = await contract?.connect(signer)[method](...args)
+    return tx
   } catch (err: any) {
-    if (err.code === 4001) {
-      alert("Something went wrong. Code: 4001 User rejected the request.")
-    } else {
-      alert("Something went wrong.")
-      console.log(err)
-    }
+    console.log(err)
   }
+}
+
+export async function switchNetwork(){
+  
+}
+
+export const fetcher = (library:any) => (args:any) => {
+  const {method, params} = args
+  return library[method](...params)
 }

@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import MediaQuery from 'react-responsive';
 import { IoStar } from 'react-icons/io5'
 import PurseFarm from '../../farm/farmPurse.json'
 import RestakingFarm from '../../abis/RestakingFarm.json'
-import IPancakePair from '../../abis/IPancakePair.json'
 import PurseTokenUpgradable from '../../abis/PurseTokenUpgradable.json'
 import { BigNumber, ethers } from 'ethers'
 import * as Constants from "../../constants"
 import { formatBigNumber } from '../utils';
 import { useWeb3React } from '@web3-react/core';
+import { Loading } from '../Loading';
 
 export default function FarmInfo(props: any) {
   let {
@@ -23,9 +23,10 @@ export default function FarmInfo(props: any) {
   const [poolCapRewardToken, setPoolCapRewardToken] = useState('0')
   const [poolMintedRewardToken, setPoolMintedRewardToken] = useState('0')
   const [poolRewardToken, setPoolRewardToken] = useState('0')
+  const [isLoading, setIsLoading] = useState(true)
 
-  const restakingFarm = new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS, RestakingFarm.abi, bscProvider)
-  const purseTokenUpgradable = new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider)
+  const restakingFarm = useMemo(()=> new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS, RestakingFarm.abi, bscProvider), [bscProvider])
+  const purseTokenUpgradable = useMemo(()=> new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider), [bscProvider])
 
   useEffect(()=>{
     async function loadData(){
@@ -43,7 +44,7 @@ export default function FarmInfo(props: any) {
       setPoolMintedRewardToken(_poolMintedRewardToken)
 
       const _poolRewardToken = await purseTokenUpgradable.balanceOf(Constants.RESTAKING_FARM_ADDRESS)
-      setPoolRewardToken(_poolRewardToken.toString())
+      setPoolRewardToken(_poolRewardToken)
 
       let _totalRewardPerBlock: number = 0
       const farm = PurseFarm.farm
@@ -56,10 +57,11 @@ export default function FarmInfo(props: any) {
       }
 
       setTotalRewardPerBlock(BigNumber.from(_totalRewardPerBlock.toString()))
+      setIsLoading(false)
 
     }
     loadData()
-  },[account])
+  },[account,purseTokenUpgradable,restakingFarm])
 
 
   return (
@@ -77,11 +79,19 @@ export default function FarmInfo(props: any) {
                 </tr>
               </thead>
               <tbody>
+                {isLoading ?
+                <tr>
+                  <td><Loading/></td>
+                  <td><Loading/></td>
+                  <td><Loading/></td>
+                </tr>
+                :
                 <tr>
                   <td>{poolLength.toString()}</td>
                   <td>{parseFloat(formatBigNumber(purseTokenTotalSupply, 'ether')).toLocaleString('en-US', {maximumFractionDigits:0})} Purse</td>
                   <td>{formatBigNumber(totalRewardPerBlock, 'ether')} Purse per block</td>
                 </tr>
+                }
               </tbody>
               <thead><tr><td></td></tr></thead>
               <thead>
@@ -92,11 +102,19 @@ export default function FarmInfo(props: any) {
                 </tr>
               </thead>
               <tbody>
+              {isLoading ?
+                <tr>
+                  <td><Loading/></td>
+                  <td><Loading/></td>
+                  <td><Loading/></td>
+                </tr>
+                :
                 <tr>
                   <td>{parseFloat(formatBigNumber(poolCapRewardToken, 'ether')).toLocaleString('en-US', {maximumFractionDigits:0})} Purse</td>
                   <td>{parseFloat(formatBigNumber(poolMintedRewardToken, 'ether')).toLocaleString('en-US', {maximumFractionDigits:0})} Purse</td>
                   <td>{parseFloat(formatBigNumber(poolRewardToken, 'ether')).toLocaleString('en-US', {maximumFractionDigits:0})} Purse</td>
                 </tr>
+              }
               </tbody>
             </table>
           

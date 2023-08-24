@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import Popup from 'reactjs-popup';
 import { BsFillQuestionCircleFill } from 'react-icons/bs';
 import MediaQuery from 'react-responsive';
@@ -8,10 +8,12 @@ import PurseTokenUpgradable from '../../abis/PurseTokenUpgradable.json'
 import { BigNumber, ethers } from 'ethers'
 import * as Constants from "../../constants"
 import { useWeb3React } from '@web3-react/core';
+import { Loading } from '../Loading';
 
 export default function Main(props: any) {
   let {
-    bscProvider
+    bscProvider,
+    PURSEPrice
 } = props
 
   const {isActive,account} = useWeb3React()
@@ -23,9 +25,9 @@ export default function Main(props: any) {
   const [sum30TransferAmount, setSum30TransferAmount] = useState('0')
   const [cumulateTransfer, setCumulateTransfer] = useState<{Sum: number; Date: string}[]>([])
   const [cumulateBurn, setCumulateBurn] = useState<{Sum: number; Date: string}[]>([])
-  const [PURSEPrice, setPURSEPrice] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const purseTokenUpgradable = new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider)
+  const purseTokenUpgradable = useMemo(()=> new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider), [bscProvider])
 
   useEffect(()=>{
     async function loadData(){
@@ -46,11 +48,6 @@ export default function Main(props: any) {
 
       const _sum30BurnAmount = myJson0["Burn30Days"][0]
       setSum30BurnAmount(_sum30BurnAmount)
-      
-
-      let coingeckoResponse = await fetch(Constants.COINGECKO_API);
-      const coingeckoJson: any = await coingeckoResponse.json()
-      setPURSEPrice(coingeckoJson["pundi-x-purse"]["usd"])
 
       let _cumulateTransfer: {Sum: number; Date: string}[] = []
       let _cumulateBurn: {Sum: number; Date: string}[] = []
@@ -63,9 +60,10 @@ export default function Main(props: any) {
       
       setCumulateTransfer(_cumulateTransfer)
       setCumulateBurn(_cumulateBurn)
+      setIsLoading(false)
     }
     loadData()
-  },[isActive,account])
+  },[isActive,account,purseTokenUpgradable])
 
   
 
@@ -108,11 +106,20 @@ export default function Main(props: any) {
               </tr>
             </thead>
             <tbody>
+              {isLoading ?
+              <tr>
+                <td><Loading/></td>
+                <td><Loading/></td>
+                <td><Loading/></td>
+              </tr>
+              :
               <tr>
                 <td>${(parseFloat(formatUnits(purseTokenTotalSupply, 'ether')) * PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
                 <td>{parseFloat(formatUnits(purseTokenTotalSupply, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
                 <td>${parseFloat(PURSEPrice.toString()).toLocaleString('en-US', { maximumFractionDigits: 6 })}</td>
               </tr>
+              }
+              
             </tbody>
             <thead><tr><td></td></tr></thead>
             <thead>
@@ -162,11 +169,19 @@ export default function Main(props: any) {
               </tr>
             </tbody>
             <tbody>
+              {isLoading ?
+              <tr>
+                <td><Loading/></td>
+                <td><Loading/></td>
+                <td><Loading/></td>
+              </tr>
+              :
               <tr>
                 <td>{parseFloat(formatUnits(totalBurnAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })} / $ {(parseFloat(formatUnits(totalBurnAmount, 'ether')) * PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
                 <td>{parseFloat(formatUnits(totalTransferAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })} / $ {(parseFloat(formatUnits(totalTransferAmount, 'ether')) * PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
                 <td>{parseFloat(formatUnits(totalTransferAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })} / $ {(parseFloat(formatUnits(totalTransferAmount, 'ether')) * PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
               </tr>
+              }
             </tbody>
             <thead>
               <tr>
@@ -176,11 +191,19 @@ export default function Main(props: any) {
               </tr>
             </thead>
             <tbody>
+              {isLoading ?
+              <tr>
+                <td><Loading/></td>
+                <td><Loading/></td>
+                <td><Loading/></td>
+              </tr>
+              :
               <tr>
                 <td>{parseFloat(formatUnits(sum30BurnAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })} / $ {(parseFloat(formatUnits(sum30BurnAmount, 'ether')) * PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
                 <td>{parseFloat(formatUnits(sum30TransferAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })} / $ {(parseFloat(formatUnits(sum30TransferAmount, 'ether')) * PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
                 <td>{parseFloat(formatUnits(sum30TransferAmount, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })} / $ {(parseFloat(formatUnits(sum30TransferAmount, 'ether')) * PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 0 })}</td>
               </tr>
+              }
             </tbody>
           </table>
         </div>

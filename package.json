@@ -47,6 +47,7 @@
     "reactjs-popup": "^2.0.5",
     "recharts": "^2.1.8",
     "styled-components": "^5.3.1",
+    "swr": "^2.2.1",
     "truffle": "5.1.39",
     "truffle-hdwallet-provider": "^1.0.17",
     "typescript": "^4.9.5",
