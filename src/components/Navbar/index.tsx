@@ -22,7 +22,7 @@ import {
 
 
 export default function Navb({
-    PURSEPrice, switchNetwork
+    PURSEPrice, switchNetwork, showToast
 }:any) {
   const {chainId,account} = useWeb3React()
 
@@ -90,6 +90,7 @@ export default function Navb({
       }
     } else if (!isActivating) {
       try{
+        showToast("If WalletConnect doesn't pop up, try to refresh the page.","warning")
         await walletConnectV2.activate()
         localStorage.setItem('isWalletConnected','wc2')
       } catch (err){
@@ -102,9 +103,9 @@ export default function Navb({
   const disconnect = async () => {
     if (isActive) {
       if (connector?.deactivate){
-        connector.deactivate()
+        await connector.deactivate()
       } else {
-        connector.resetState()
+        await connector.resetState()
       }
       localStorage.setItem('isWalletConnected','false')
     }

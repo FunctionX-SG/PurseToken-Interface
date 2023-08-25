@@ -35,7 +35,7 @@ export default function Stake(props:any) {
     const [purseStakingUserWithdrawReward, setPurseStakingUserWithdrawReward] = useState(0)
     const [purseStakingRemainingTime, setPurseStakingRemainingTime] = useState(0)
     const [purseStakingLockPeriod, setPurseStakingLockPeriod] = useState(0)
-    const [stakeLoading, setStakeLoading] = useState(true)
+    const [stakeLoading, setStakeLoading] = useState(false)
     const [sum30TransferAmount, setSum30TransferAmount] = useState(0)
     const [trigger, setTrigger] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
@@ -197,7 +197,7 @@ export default function Stake(props:any) {
         if (amount.gt(purseStakingUserAllowance)){
           await approvePurse()
         }
-        setStakeLoading(false)
+        setStakeLoading(true)
         try{
           const tx:any = await callContract(signer,purseStaking,"enter",amount)
           onChangeHandler('')
@@ -217,13 +217,13 @@ export default function Stake(props:any) {
           console.log(err)
         }
         
-        setStakeLoading(true)
+        setStakeLoading(false)
       }
     }
 
     const unstake = async (receipt:BigNumber) => {
       if (isActive) {
-        setStakeLoading(false)
+        setStakeLoading(true)
         try{
           const tx:any = await callContract(signer,purseStaking,"leave",receipt)
           onChangeHandler('')
@@ -243,13 +243,13 @@ export default function Stake(props:any) {
           console.log(err)
         }
         
-        setStakeLoading(true)
+        setStakeLoading(false)
       }
     }
 
     const withdrawLocked = async () => {
       if (isActive) {
-        setStakeLoading(false)
+        setStakeLoading(true)
         try{
           const tx:any = await callContract(signer,purseStaking,"withdrawLockedAmount")
           if (tx?.hash){
@@ -268,7 +268,7 @@ export default function Stake(props:any) {
           console.log(err)
         }
         
-        setStakeLoading(true)
+        setStakeLoading(false)
       }
     }
 
@@ -357,7 +357,7 @@ export default function Stake(props:any) {
                 </div>
               </div>
             </div>
-            <ConnectWallet trigger={trigger} setTrigger={setTrigger}/>
+            <ConnectWallet trigger={trigger} setTrigger={setTrigger} showToast={showToast}/>
           </div>
           :
           !isSupportedChain(chainId)?
@@ -444,7 +444,6 @@ export default function Stake(props:any) {
                   </div>
                 </div>
   
-                {stakeLoading ?
                   <div>
                     {purseStakingUserWithdrawReward>0 ?
                       <div>
@@ -770,14 +769,11 @@ export default function Stake(props:any) {
                   }
                     
                   </div>
-                :
-                  <div className='center' style={{padding: "95px 0px"}}><ReactLoading type={"spin"} height={100} width={100}/></div>
-                }
+                
               </div>
   
 
                 <div>
-                  {stakeLoading ?
                   <div>
                     <div className="center">
                       <div className="input-group mb-0" style={{width: "95%"}} >
@@ -794,6 +790,7 @@ export default function Stake(props:any) {
                             onChangeHandler(value)
                           }}
                           value={amount}
+                          disabled={stakeLoading}
                           required
                         />
                         <div className="input-group-append">
@@ -805,7 +802,7 @@ export default function Stake(props:any) {
   
                   <div className="center mt-3 mb-3">
                     <ButtonGroup>
-                      <Button type="submit" style={{ width : "140px" }} onClick={async(event) => {
+                      <Button type="submit" style={{ width : "140px" }} disabled={stakeLoading} onClick={async(event) => {
                         if (valid){
                             if (mode==='Stake') {
                                 await onClickHandlerDeposit()
@@ -815,9 +812,9 @@ export default function Stake(props:any) {
                                 await onClickHandlerCheck()
                             }
                         }
-                      }}>{mode}</Button>
+                      }}>{stakeLoading?<Loading/>:mode}</Button>
   
-                      <Button type="button" variant="outline-primary" style={{ width : "140px" }} onClick={(event) => {
+                      <Button type="button" variant="outline-primary" style={{ width : "140px" }} disabled={stakeLoading} onClick={(event) => {
                         if (mode==='Stake') {
                             onChangeHandler(formatBigNumber(purseTokenUpgradableBalance,'ether'))
                         } else if (mode==='Unstake') {
@@ -837,7 +834,6 @@ export default function Stake(props:any) {
                   :
                   <div></div>}
                   </div>
-                  : <div></div>}
                 </div>
 
               </div>

@@ -16,6 +16,7 @@ import { callContract, formatBigNumber, getShortTxHash, isSupportedChain, fetche
 import * as Constants from "../../constants"
 import ConnectWallet from '../ConnectWallet'
 import useSWR from 'swr'
+import { Loading } from '../Loading';
 
 
 export default function Deposit(props: any) {
@@ -38,6 +39,9 @@ export default function Deposit(props: any) {
     const [message, setMessage] = useState('')
     const [amount, setAmount] = useState('')
     const [valid, setValid] = useState(true)
+    const [isDeposit,setIsDeposit] = useState(false)
+    const [isWithdraw,setIsWithdraw] = useState(false)
+    const [isHarvest,setIsHarvest] = useState(false)
     const lpTokenContract = lpTokenAddress ? new ethers.Contract(lpTokenAddress, IPancakePair.abi, bscProvider) : null
 
     const {data:lpTokenBalance} = useSWR({
@@ -86,7 +90,9 @@ export default function Deposit(props: any) {
         } else if (amountWei.gt(lpTokenBalance)) {
           showToast("Not enough funds","failure")
         } else {
+          setIsDeposit(true)
           await deposit(amountWei)
+          setIsDeposit(false)
         }
     }
     
@@ -100,7 +106,9 @@ export default function Deposit(props: any) {
         } else if (amountWei.gt(lpStaked?.amount)) {
           showToast("Withdraw tokens more than deposit LP tokens","failure")
         } else {
-            await withdraw(amountWei)
+          setIsWithdraw(true)
+          await withdraw(amountWei)
+          setIsWithdraw(false)
         }
     }
 
@@ -201,9 +209,12 @@ export default function Deposit(props: any) {
                 type="submit"
                 className="btn btn-success btn-sm float-right center mb-3"
                 style={{ position:'absolute', right:'20px' }}
+                disabled={isHarvest}
                 onClick={async(event) => {
                   event.preventDefault()
+                  setIsHarvest(true)
                   await harvest()
+                  setIsHarvest(false)
                 }}>
                 <small>Harvest</small>
               </button>  <br />  <br />
@@ -275,6 +286,7 @@ export default function Deposit(props: any) {
                                 onChangeHandler(value)
                               }}
                               value={amount}
+                              disabled={isDeposit||isWithdraw}
                               required />
                             <div className="input-group-append">
                               <div className="input-group-text cardbody" style={{ color: 'silver', fontSize: '15px' }}>
@@ -287,19 +299,19 @@ export default function Deposit(props: any) {
   
                           <div className="row center mt-3">
                             <ButtonGroup className='mt-2 ml-3'>
-                              <Button type="submit" className="btn btn-primary"  style={{width:"105px"}} onClick={async (event) => {
+                              <Button type="submit" className="btn btn-primary" disabled={isDeposit||isWithdraw} style={{width:"105px"}} onClick={async (event) => {
                                 if (valid) await onClickHandlerDeposit()
-                              }}>Deposit</Button>
-                              <Button type="text" variant="outline-primary" className="btn" onClick={(event) => {
+                              }}>{isDeposit?<Loading/>:<div>Deposit</div>}</Button>
+                              <Button type="text" variant="outline-primary" className="btn" disabled={isDeposit||isWithdraw} onClick={(event) => {
                                 setAmount(formatUnits(lpTokenBalance, 'ether'))
                                 onChangeHandler(formatUnits(lpTokenBalance, 'ether'))
                               }}>Max</Button>&nbsp;&nbsp;&nbsp;
                             </ButtonGroup>
                             <ButtonGroup  className='mt-2 ml-3'>
-                              <Button type="submit" className="btn btn-primary" style={{width:"105px"}} onClick={async (event) => {
+                              <Button type="submit" className="btn btn-primary" disabled={isDeposit||isWithdraw} style={{width:"105px"}} onClick={async (event) => {
                                 if (valid) await onClickHandlerWithdraw()
-                              }}>Withdraw</Button>
-                              <Button type="text" variant="outline-primary" className="btn" onClick={(event) => {
+                              }}>{isWithdraw?<Loading/>:<div>Withdraw</div>}</Button>
+                              <Button type="text" variant="outline-primary" disabled={isDeposit||isWithdraw} className="btn" onClick={(event) => {
                                 setMessage('')
                                 onChangeHandler(formatUnits(lpStaked?.amount,'ether'))
                               }}>Max</Button>&nbsp;&nbsp;&nbsp;
@@ -315,7 +327,7 @@ export default function Deposit(props: any) {
           </div>
           </div>
           <div className="text-center" style={{ color: 'silver' }}><img src={asterisk} alt={"*"} height='15' />&nbsp;<small>Every time you stake & unstake LP tokens, the contract will automatically harvest PURSE rewards for you!</small></div>
-          <ConnectWallet trigger={trigger} setTrigger={setTrigger}/>
+          <ConnectWallet trigger={trigger} setTrigger={setTrigger} showToast={showToast}/>
         </div>
   
     );

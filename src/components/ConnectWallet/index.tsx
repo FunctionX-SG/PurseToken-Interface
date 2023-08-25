@@ -8,9 +8,8 @@ import { metaMask } from '../connectors/metamask'
 import { walletConnectV2 } from '../connectors/walletConnect'
 
 export default function ConnectWallet(props:any) {
-    const { trigger, setTrigger } = props
+    const { trigger, setTrigger, showToast } = props
     const { isActive, isActivating } = useWeb3React()
-
 
     const metamaskConnect = async () => {
         if (isActive) {
@@ -39,6 +38,7 @@ export default function ConnectWallet(props:any) {
           }
         } else if (!isActivating) {
           try{
+            if (showToast) showToast("If WalletConnect doesn't pop up, try to refresh the page.","warning")
             await walletConnectV2.activate()
             localStorage.setItem('isWalletConnected','wc2')
           } catch (err){

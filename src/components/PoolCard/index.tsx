@@ -37,6 +37,7 @@ export default function PoolCard(props:any){
     } = props
     const {account,isActive,chainId} = useWeb3React()
     const [trigger,setTrigger] = useState(false)
+    const [isHarvest,setIsHarvest] = useState(false)
     const lpTokenAddress = poolInfo.lpAddresses[chainId?.toString() as keyof typeof poolInfo.lpAddresses]
 
     const restakingFarm = new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS, RestakingFarm.abi, bscProvider)
@@ -197,11 +198,14 @@ export default function PoolCard(props:any){
                                     type="submit"
                                     size="sm"
                                     style={{ minWidth: '80px' }}
+                                    disabled={isHarvest}
                                     onClick={async(event) => {
                                         event.preventDefault()
+                                        setIsHarvest(true)
                                         await harvest()
+                                        setIsHarvest(false)
                                     }}>
-                                    Harvest
+                                    {isHarvest?<Loading/>:<div>Harvest</div>}
                                 </Buttons>
                             </div>
                         </div>

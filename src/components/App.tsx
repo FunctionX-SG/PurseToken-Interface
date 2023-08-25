@@ -28,7 +28,7 @@ export default function App() {
   const bscProvider = new ethers.providers.JsonRpcProvider(Constants.BSC_MAINNET_RPCURL)
   const fxProvider = new ethers.providers.JsonRpcProvider(Constants.PROVIDER)
   
-  const { account, provider, connector } = useWeb3React()
+  const { account, provider, connector, isActive } = useWeb3React()
   const [signer, setSigner] = useState<Signer>()
   const [PURSEPrice, setPURSEPrice] = useState('0')
 
@@ -50,7 +50,9 @@ export default function App() {
 
   async function switchNetwork(chainId:number=56) {
     try{
-      if (!isSupportedChain(chainId)){
+      if (!isActive){
+        showToast("Connect wallet to proceed.","failure")
+      } else if (!isSupportedChain(chainId)){
         console.log("Not supported chain")
       } else {
         if (connector===walletConnectV2){
@@ -86,7 +88,7 @@ export default function App() {
 
     setToasts((_toast:any)=>[toast,..._toast]);
 
-    let time:number = 3
+    let time:number = 5
     if (type==="success"){
       time = 8
     }
@@ -109,6 +111,7 @@ export default function App() {
         <Navb
           PURSEPrice={PURSEPrice}
           switchNetwork={switchNetwork}
+          showToast={showToast}
         />
         <div className="container-fluid mt-4">
           <div className="row">

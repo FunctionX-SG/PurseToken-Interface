@@ -28,6 +28,7 @@ export default function Rewards(props: any) {
     const [retroactiveRewardsEndTime, setRetroactiveRewardsEndTime] = useState<number>(0)
     const [trigger, setTrigger] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
+    const [isClaim, setIsClaim] = useState(false)
 
     const signer = bscProvider.getSigner()
 
@@ -312,10 +313,12 @@ export default function Rewards(props: any) {
                                                     variant="success"
                                                     size="sm"
                                                     style={{ minWidth: '80px' }}
-                                                    onClick={(event) => {
+                                                    onClick={async(event) => {
                                                         event.preventDefault()
-                                                        claimRetroactiveRewardsAmount()
-                                                    }}>Claim
+                                                        setIsClaim(true)
+                                                        await claimRetroactiveRewardsAmount()
+                                                        setIsClaim(false)
+                                                    }}>{isClaim?<Loading/>:<div>Claim</div>}
                                                 </Button>
                                             </div>          
                                         )
@@ -365,7 +368,7 @@ export default function Rewards(props: any) {
                         </div>
                     </div>
                 }
-            <ConnectWallet trigger={trigger} setTrigger={setTrigger}/>
+            <ConnectWallet trigger={trigger} setTrigger={setTrigger} showToast={showToast}/>
             </div>
         </div >
 
