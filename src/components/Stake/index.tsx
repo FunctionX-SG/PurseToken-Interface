@@ -13,7 +13,7 @@ import { formatUnits, parseUnits } from 'ethers/lib/utils'
 import PurseStaking from '../../abis/PurseStaking.json'
 import PurseTokenUpgradable from '../../abis/PurseTokenUpgradable.json'
 import { BigNumber, ethers } from 'ethers'
-import { fetcher, callContract, formatBigNumber, isSupportedChain, getShortTxHash } from '../utils'
+import { fetcher, callContract, formatBigNumber, isSupportedChain, getShortTxHash, secondsToDhms } from '../utils'
 import ConnectWallet from '../ConnectWallet'
 
 import '../App.css';
@@ -39,13 +39,11 @@ export default function Stake(props:any) {
     const [sum30TransferAmount, setSum30TransferAmount] = useState(0)
     const [trigger, setTrigger] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
-    const [valid, setValid] = useState(true)
+    const [valid, setValid] = useState(false)
     
     const purseStaking = useMemo(()=>new ethers.Contract(Constants.PURSE_STAKING_ADDRESS, PurseStaking.abi, bscProvider),[bscProvider])
     const purseTokenUpgradable = useMemo(()=>new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider),[bscProvider])
     
-
-
     const {data:purseStakingTotalStake} = useSWR({
       contract:"purseTokenUpgradable",
       method:"balanceOf",
@@ -139,7 +137,6 @@ export default function Stake(props:any) {
         let _sum30TransferAmount = myJson["Transfer30Days"][0]
         setSum30TransferAmount(parseFloat(formatUnits(_sum30TransferAmount,'ether')))
 
-
         setIsLoading(false)
       }
       loadData()
@@ -173,7 +170,6 @@ export default function Stake(props:any) {
 
     const onClickHandlerWithdraw = async () => {
         let receiptWei = parseUnits(amount, 'ether')
-        console.log(amount,purseStakingTotalReceipt)
         if ( amount > purseStakingUserTotalReceipt ) {
           showToast("Insufficient Share to unstake!","failure")
         } else {
@@ -209,9 +205,11 @@ export default function Stake(props:any) {
             const link = `https://bscscan.com/tx/${tx.hash}`
             showToast("Transaction sent!","success",link)
             await tx.wait()
-            const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+            const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
             showToast(message,"success",link)
-          }else{
+          }else if(tx?.message.includes("user rejected transaction")){
+            showToast(`User rejected transaction.`,"failure")
+          }else {
               showToast("Something went wrong.","failure")
           }
         } catch(err) {
@@ -233,10 +231,12 @@ export default function Stake(props:any) {
             const link = `https://bscscan.com/tx/${tx.hash}`
             showToast("Transaction sent!","success",link)
             await tx.wait()
-            const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+            const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
             showToast(message,"success",link)
-          }else{
-              showToast("Something went wrong.","failure")
+          }else if(tx?.message.includes("user rejected transaction")){
+            showToast(`User rejected transaction.`,"failure")
+          }else {
+            showToast("Something went wrong.","failure")
           }
         } catch(err) {
           showToast("Something went wrong.","failure")
@@ -256,10 +256,12 @@ export default function Stake(props:any) {
             const link = `https://bscscan.com/tx/${tx.hash}`
             showToast("Transaction sent!","success",link)
             await tx.wait()
-            const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+            const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
             showToast(message,"success",link)
-          }else{
-              showToast("Something went wrong.","failure")
+          }else if(tx?.message.includes("user rejected transaction")){
+            showToast(`User rejected transaction.`,"failure")
+          }else {
+            showToast("Something went wrong.","failure")
           }
         } catch(err) {
           showToast("Something went wrong.","failure")
@@ -278,9 +280,11 @@ export default function Stake(props:any) {
             const link = `https://bscscan.com/tx/${tx.hash}`
             showToast("Transaction sent!","success",link)
             await tx.wait()
-            const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+            const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
             showToast(message,"success",link)
-          }else{
+          }else if(tx?.message.includes("user rejected transaction")){
+            showToast(`User rejected transaction.`,"failure")
+          }else {
             showToast("Something went wrong.","failure")
           }
         } catch(err) {
@@ -315,26 +319,12 @@ export default function Stake(props:any) {
       return newArray
     }
 
-
+    useEffect(()=>{},[])
     let purseStakingAPR = (sum30TransferAmount*12*100/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let purseStakingUserTotalReceipt = (purseStakingUserReceipt + purseStakingUserNewReceipt).toString()
     let sharePercent = (purseStakingUserReceipt*100/parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let sharePercent1 = (purseStakingUserNewReceipt*100/parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let sharePercent2 = (parseFloat(purseStakingUserTotalReceipt)*100/parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
-
-    
-    
-    const secondsToDhms = (seconds: number) => {
-      seconds = purseStakingLockPeriod - Number(seconds);
-      let d = Math.floor(seconds / (3600*24));
-      let h = Math.floor(seconds % (3600*24) / 3600);
-      let m = Math.floor(seconds % 3600 / 60);
-
-      let dDisplay = d > 0 ? d + ("d ") : "";
-      let hDisplay = h > 0 ? h + ("h ") : "";
-      let mDisplay = m > 0 ? m + ("m ") : "";
-      return seconds > 60 ? dDisplay + hDisplay + mDisplay : "< 1m";
-    }
 
     let retroactiveAPR = (((
         (Constants.RETROACTIVE_INITIAL_REWARDS + Constants.RETROACTIVE_AUG23_REWARDS)
@@ -478,7 +468,7 @@ export default function Stake(props:any) {
                               </div>
                               <div style={{width:"50%", minWidth:"250px"}}>
                                 <div className="mb-1">Remaining Lock Time:</div>
-                                <div className="mb-3" style={{ color : "#B0C4DE" }}><MdLockClock/>&nbsp;&nbsp;<b>{secondsToDhms(purseStakingRemainingTime)}</b></div>
+                                <div className="mb-3" style={{ color : "#B0C4DE" }}><MdLockClock/>&nbsp;&nbsp;<b>{secondsToDhms(purseStakingLockPeriod,purseStakingRemainingTime)}</b></div>
                               </div>
                             </div>
                           </div>

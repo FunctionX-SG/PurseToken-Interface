@@ -1,33 +1,15 @@
 
 import { MetaMask } from '@web3-react/metamask'
+import { WalletConnect } from '@web3-react/walletconnect-v2'
 import type { Connector } from '@web3-react/types'
-import { metaMask } from './connectors/metamask'
 import PurseFarm from '../farm/farmPurse.json'
 import { Signer, ethers } from 'ethers'
 import { formatUnits } from 'ethers/lib/utils'
 
 export function getName(connector: Connector) {
   if (connector instanceof MetaMask) return 'MetaMask'
+  else if (connector instanceof WalletConnect) return 'WalletConnectV2'
   return 'Unknown'
-}
-
-export function connectWallet(){
-  metaMask.connectEagerly().catch(() => {
-      console.debug('Failed to connect eagerly to metamask')
-  })
-  console.log("connect successful")
-}
-
-export async function connect(connector: Connector) {
-  try {
-    if (connector.connectEagerly) {
-      await connector.connectEagerly()
-    } else {
-      await connector.activate()
-    }
-  } catch (error) {
-    console.debug(`web3-react eager connection error: ${error}`)
-  }
 }
 
 export function getShortAccount(account: string | undefined){
@@ -89,6 +71,18 @@ export function timeConverter(UNIX_timestamp:number) {
   return time;
 }
 
+export function secondsToDhms(lockPeriod:number,remainingTime: number) {
+  remainingTime = lockPeriod - Number(remainingTime);
+  let d = Math.floor(remainingTime / (3600*24));
+  let h = Math.floor(remainingTime % (3600*24) / 3600);
+  let m = Math.floor(remainingTime % 3600 / 60);
+
+  let dDisplay = d > 0 ? d + ("d ") : "";
+  let hDisplay = h > 0 ? h + ("h ") : "";
+  let mDisplay = m > 0 ? m + ("m ") : "";
+  return remainingTime > 60 ? dDisplay + hDisplay + mDisplay : "< 1m";
+}
+
 
 export function getPoolSegmentInfo(_poolLength:number) {
   const farm = PurseFarm.farm
@@ -147,11 +141,8 @@ export async function callContract(signer:Signer, contract:ethers.Contract|null,
     return tx
   } catch (err: any) {
     console.log(err)
+    return err
   }
-}
-
-export async function switchNetwork(){
-  
 }
 
 export const fetcher = (library:any) => (args:any) => {

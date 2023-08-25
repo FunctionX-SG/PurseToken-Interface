@@ -246,7 +246,7 @@ export default function FarmMenu(props: any) {
                     
                     {poolInfos.map((poolInfo:any, key:number) => 
                         <PoolCard
-                            key={key}
+                            key={`${poolInfos[key].token[farmNetwork]["symbol"]}-${poolInfos[key].quoteToken[farmNetwork]["symbol"]}`}
                             pairName={`${poolInfos[key].token[farmNetwork]["symbol"]}-${poolInfos[key].quoteToken[farmNetwork]["symbol"]}`}
                             aprloading={aprloading}
                             apr={apr[key]}

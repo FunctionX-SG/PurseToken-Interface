@@ -124,14 +124,16 @@ export default function Rewards(props: any) {
                         const link = `https://bscscan.com/tx/${tx.hash}`
                         showToast("Transaction sent!","success",link)
                         await tx.wait()
-                        const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+                        const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
                         showToast(message,"success",link)
-                      }else{
+                    }else if(tx?.message.includes("user rejected transaction")){
+                        showToast(`User rejected transaction.`,"failure")
+                    }else {
                         showToast("Something went wrong.","failure")
-                      }
-                    } catch(err) {
-                      showToast("Something went wrong.","failure")
-                      console.log(err)
+                    }
+                } catch(err) {
+                    showToast("Something went wrong.","failure")
+                    console.log(err)
                 }
             }
           }
@@ -159,7 +161,7 @@ export default function Rewards(props: any) {
 
     const onClickCheck = async () => {
         if (addValid === false) {
-            alert("Invalid input! Please check your input again")
+            showToast("Invalid input! Please check your input again","failure")
         } else {
             let claimMessage = await checkRetroactiveRewardsAmount(otherAddress)
             let otherAddressAmount = parseFloat(formatUnits(claimMessage, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 6 }) + " PURSE (" + (parseFloat(formatUnits(claimMessage, 'ether'))*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"

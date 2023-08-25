@@ -9,7 +9,7 @@ export default function Footer(){
     return (
         <div style={{width:"100%", backgroundColor:"#28313b", textAlign:"center", color: "silver", padding:"35px 10px", marginTop:"100px"}}>
         <div className="mb-3" style={{fontSize:"12px"}}>Copyright © 2023 Pundi X Labs Pte. Ltd. ® All rights reserved.</div>
-        <div style={{fontSize:"20px"}}>
+        <div style={{fontSize:"20px",cursor: "pointer"}}>
           <AiFillMail onClick={() => {
             window.open(`mailto:contact@pundix.com`, '_blank')
             }}/>&nbsp;&nbsp;

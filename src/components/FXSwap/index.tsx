@@ -14,14 +14,13 @@ import { ethers } from 'ethers';
 import * as Constants from "../../constants"
 import MasterChefV2 from '../../abis/MasterChefV2.json'
 import FIP20Upgradable from '../../abis/FIP20Upgradable.json'
-import { formatBigNumber, readContract } from '../utils';
+import { fetcher, formatBigNumber } from '../utils';
 import { Loading } from '../Loading';
+import useSWR from 'swr';
 
 export default function FXSwap(props: any) {
     const {account} = useWeb3React()
     const {fxProvider} = props
-
-    const [purseTotalSupplyOnFXCore, setPurseTotalSupplyOnFXCore] = useState('')
     const [fxRewardPerWeek, setFxRewardPerWeek] = useState('')
 
     const [aprloading, setAprLoading] = useState(false)
@@ -30,23 +29,48 @@ export default function FXSwap(props: any) {
     const [fxswapTvl, setFxswapTvl] = useState('0')
     const [fxswapApr, setFxswapApr] = useState('0')
     const [fxswapApy, setFxswapApy] = useState('0')
-    const [purseBalanceOnFXCore, setPurseBalanceOnFXCore] = useState('0')
-    const [earnedAmountOnFXCore, setEarnedAmountOnFXCore] = useState('0')
     const [isLoading, setIsLoading] = useState(true)
 
     const tokenOnFXCore = useMemo(()=> new ethers.Contract(Constants.FIP20UPGRADABLE_ADDRESS, FIP20Upgradable.abi, fxProvider), [fxProvider])
     const masterChef = useMemo(()=> new ethers.Contract(Constants.MASTERCHEFV2_ADDRESS, MasterChefV2.abi, fxProvider), [fxProvider])
 
+    const {data:purseTotalSupplyOnFXCore} = useSWR({
+        contract:"tokenOnFXCore",
+        method:"totalSupply",
+        params:[]
+    },{
+        fetcher: fetcher(tokenOnFXCore),
+        refreshInterval:5000
+    })
+
+    const {data:purseBalanceOnFXCore} = useSWR({
+        contract:"tokenOnFXCore",
+        method:"balanceOf",
+        params:[account]
+    },{
+        fetcher: fetcher(tokenOnFXCore),
+        refreshInterval:5000
+    })
+
+    const {data:earnedAmountOnFXCore} = useSWR({
+        contract:"masterChef",
+        method:"pendingReward",
+        params:[2, account]
+    },{
+        fetcher: fetcher(masterChef),
+        refreshInterval:5000
+    })
+
     useEffect(()=>{
         async function loadData(){
-            let _purseTotalSupplyOnFXCore = await tokenOnFXCore.totalSupply()
-            setPurseTotalSupplyOnFXCore(_purseTotalSupplyOnFXCore)
+            // let _purseTotalSupplyOnFXCore = await tokenOnFXCore.totalSupply()
+            // setPurseTotalSupplyOnFXCore(_purseTotalSupplyOnFXCore)
 
-            let _purseBalanceOnFXCore = await readContract(tokenOnFXCore,"balanceOf",account)
-            setPurseBalanceOnFXCore(_purseBalanceOnFXCore)
+            // let _purseBalanceOnFXCore = await readContract(tokenOnFXCore,"balanceOf",account)
+            // setPurseBalanceOnFXCore(_purseBalanceOnFXCore)
 
-            let _earnedAmountOnFXCore = await readContract(masterChef,"pendingReward",2, account)
-            setEarnedAmountOnFXCore(_earnedAmountOnFXCore)
+            // let _earnedAmountOnFXCore = await readContract(masterChef,"pendingReward",2, account)
+            // setEarnedAmountOnFXCore(_earnedAmountOnFXCore)
             setIsLoading(false)
             setFarmLoading(true)
             let totalAllocPoint = await masterChef.totalAllocPoint()

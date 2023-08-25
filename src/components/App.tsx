@@ -20,6 +20,7 @@ import { metaMask } from './connectors/metamask'
 import { walletConnectV2 } from './connectors/walletConnect'
 import { getChainInfo } from './chains'
 import ToastList from './ToastList/ToastList'
+import useSWR from 'swr'
 
 
 export default function App() {
@@ -31,14 +32,14 @@ export default function App() {
   const [signer, setSigner] = useState<Signer>()
   const [PURSEPrice, setPURSEPrice] = useState('0')
 
+  const fetcher = (...args:any) => fetch(args).then((res) => res.json());
+  const {data:PURSEPriceJson} = useSWR(Constants.COINGECKO_API,fetcher)
+
   useEffect(()=>{
-    async function loadBlockchainData() {
-      let coingeckoResponse = await fetch(Constants.COINGECKO_API);
-      let myJson3 = await coingeckoResponse.json();
-      let _PURSEPrice = myJson3["pundi-x-purse"]["usd"]
-      setPURSEPrice(_PURSEPrice.toFixed(7))
-    }
-    loadBlockchainData()
+    if (PURSEPriceJson) setPURSEPrice(PURSEPriceJson["pundi-x-purse"]["usd"])
+  },[PURSEPriceJson])
+
+  useEffect(()=>{
   },[])
 
   useEffect(()=>{
@@ -63,14 +64,13 @@ export default function App() {
             nativeCurrency: info.nativeCurrency,
             blockExplorerUrls: [info.blockExplorerUrls],
           }
-          console.log("switch2")
           await connector.activate(addChainParameter)
         } else {
           await connector.activate()
         }
       }
-    } catch (err) {
-      console.log(err)
+    } catch (err:any) {
+      showToast(err?.message,"failure")
     }
   }
 
@@ -88,7 +88,7 @@ export default function App() {
 
     let time:number = 3
     if (type==="success"){
-      time = 6
+      time = 8
     }
 
     setTimeout(() => {

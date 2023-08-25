@@ -18,7 +18,6 @@ import * as Constants from "../../constants"
 
 export default function PoolCard(props:any){
     const {
-        key,
         pairName,
         aprloading,
         apr,
@@ -41,10 +40,8 @@ export default function PoolCard(props:any){
     const lpTokenAddress = poolInfo.lpAddresses[chainId?.toString() as keyof typeof poolInfo.lpAddresses]
 
     const restakingFarm = new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS, RestakingFarm.abi, bscProvider)
-    // const lpTokenContract = new ethers.Contract(lpTokenAddress, IPancakePair.abi, bscProvider)
     const purseTokenUpgradable = new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider)
     const pancakeContract = new ethers.Contract(Constants.PANCAKE_PAIR_ADDRESS, IPancakePair.abi, bscProvider)
-
     const {data:purseEarned} = useSWR({
         contract:"restakingFarm",
         method:"pendingReward",
@@ -92,14 +89,15 @@ export default function PoolCard(props:any){
             } else if (isActive && poolInfo && chainId) {
                 try{
                     const tx:any = await callContract(signer,restakingFarm,"claimReward",poolInfo.lpAddresses[chainId])
-                    console.log('tx',tx)
                     if (tx?.hash){
                         const link = `https://bscscan.com/tx/${tx.hash}`
                         showToast("Transaction sent!","success",link)
                         await tx.wait()
-                        const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+                        const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
                         showToast(message,"success",link)
-                    }else{
+                    }else if(tx?.message.includes("user rejected transaction")){
+                        showToast(`User rejected transaction.`,"failure")
+                    }else {
                         showToast("Something went wrong.","failure")
                     }
                 } catch(err) {
@@ -117,7 +115,7 @@ export default function PoolCard(props:any){
 
     return (
         <div>
-        <div key={key}>
+        <div>
             <div className="col">
                 <div className="card mb-4 cardbody card-body text-center" style={{ maxWidth: '230px', color: 'white' }}>
                     <span>

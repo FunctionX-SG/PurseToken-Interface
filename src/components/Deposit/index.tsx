@@ -117,9 +117,11 @@ export default function Deposit(props: any) {
             const link = `https://bscscan.com/tx/${tx.hash}`
             showToast("Transaction sent!","success",link)
             await tx.wait()
-            const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+            const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
             showToast(message,"success",link)
-          }else{
+          }else if(tx?.message.includes("user rejected transaction")){
+            showToast(`User rejected transaction.`,"failure")
+          }else {
               showToast("Something went wrong.","failure")
           }
         } catch(err) {
@@ -140,9 +142,11 @@ export default function Deposit(props: any) {
             const link = `https://bscscan.com/tx/${tx.hash}`
             showToast("Transaction sent!","success",link)
             await tx.wait()
-            const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+            const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
             showToast(message,"success",link)
-          }else{
+          }else if(tx?.message.includes("user rejected transaction")){
+            showToast(`User rejected transaction.`,"failure")
+          }else {
               showToast("Something went wrong.","failure")
           }
         } catch(err) {
@@ -160,9 +164,11 @@ export default function Deposit(props: any) {
             const link = `https://bscscan.com/tx/${tx.hash}`
             showToast("Transaction sent!","success",link)
             await tx.wait()
-            const message = `Transaction is confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+            const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
             showToast(message,"success",link)
-          }else{
+          }else if(tx?.message.includes("user rejected transaction")){
+            showToast(`User rejected transaction.`,"failure")
+          }else {
               showToast("Something went wrong.","failure")
           }
         } catch(err) {
