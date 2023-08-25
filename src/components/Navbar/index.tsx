@@ -224,7 +224,7 @@ export default function Navb({
                         <div className='dropdown' onClick={async () => {
                             await WalletConnectV2()
                           }
-                          }><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect v2</div>
+                          }><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect</div>
                         </Dropdown.Item>
                         </Dropdown.Menu>
                       </Dropdown>

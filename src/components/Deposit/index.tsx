@@ -65,10 +65,11 @@ export default function Deposit(props: any) {
 
     const onChangeHandler = (event: string) => {
       setAmount(event)
-        let result = !isNaN(parseFloat(event))
         const amountRegex = /^\d+(\.\d{1,18})?$/
-        result = amountRegex.test(event)
-        if (!result) {
+        let result = amountRegex.test(event)
+        if (event===""){
+          setMessage("")
+        } else if(!result) {
           setMessage("Not a valid number")
         } else {
           setMessage("")

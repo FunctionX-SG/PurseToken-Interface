@@ -70,7 +70,7 @@ export default function ConnectWallet(props:any) {
                         setTrigger(false)
                     }}>
                         <img src={walletconnectLogo} width="26" height="23" alt=""/>
-                        &nbsp;WalletConnectV2
+                        &nbsp;WalletConnect
                     </Button>
                     </div>
                 </div>
