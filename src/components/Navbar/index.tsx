@@ -14,19 +14,23 @@ import { metaMask } from '../connectors/metamask'
 import { walletConnectV2 } from '../connectors/walletConnect'
 import { getShortAccount, chainId2NetworkName, isSupportedChain } from '../utils'
 import { Link } from "react-router-dom";
+import { useToast } from '../state/toast/hooks';
 
 import {
   NavLink,
   NavLinkHome,
 } from './NavMenu'
+import { usePursePrice } from '../state/PursePrice/hooks'
 
 
 export default function Navb({
-    PURSEPrice, switchNetwork, showToast
+    switchNetwork
 }:any) {
   const {chainId,account} = useWeb3React()
 
   const {connector, hooks} = useWeb3React()
+  const [PURSEPrice] = usePursePrice()
+  const [,showToast] = useToast()
   const {useSelectedIsActive,useSelectedIsActivating} = hooks
   const isActive = useSelectedIsActive(connector)
   const isActivating = useSelectedIsActivating(connector)

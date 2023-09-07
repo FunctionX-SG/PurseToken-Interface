@@ -9,6 +9,9 @@ import type { MetaMask } from '@web3-react/metamask'
 import { hooks as metaMaskHooks, metaMask } from './components/connectors/metamask'
 import { WalletConnect } from '@web3-react/walletconnect-v2'
 import { hooks as walletConnectV2Hooks, walletConnectV2 } from './components/connectors/walletConnect'
+import { store } from './components/state/store'
+import { Provider } from 'react-redux'
+import { SWRConfig } from "swr";
 
 const connectors: [MetaMask|WalletConnect, Web3ReactHooks][] = [
     [walletConnectV2,walletConnectV2Hooks],
@@ -20,9 +23,13 @@ function Child() {
 
 const container = document.getElementById('root') as HTMLElement
 createRoot(container).render(
-    <Web3ReactProvider connectors={connectors}>
-        <Child />
-        <App />
-    </Web3ReactProvider>
+    <Provider store={store}>
+        <SWRConfig value={{provider:()=>new Map()}}>
+            <Web3ReactProvider connectors={connectors}>
+                <Child />
+                <App />
+            </Web3ReactProvider>
+        </SWRConfig>
+    </Provider>
 );
 serviceWorker.unregister();

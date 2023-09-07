@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo, useCallback} from 'react'
+import React, {useEffect, useState, useCallback} from 'react'
 import { Link } from 'react-router-dom';
 import purse2 from '../../assets/images/purse2.png'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
@@ -8,27 +8,18 @@ import {Popup as ReactPopup} from 'reactjs-popup';
 import { BsFillQuestionCircleFill } from 'react-icons/bs';
 import { FaExclamationCircle } from 'react-icons/fa';
 import PurseFarm from '../../farm/farmPurse.json'
-import RestakingFarm from '../../abis/RestakingFarm.json'
-import IPancakePair from '../../abis/IPancakePair.json'
-import PurseTokenUpgradable from '../../abis/PurseTokenUpgradable.json'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber } from 'ethers'
 import * as Constants from "../../constants"
 import { formatBigNumber, readContract, supportedChain, fetcher } from '../utils';
 import { useWeb3React } from '@web3-react/core';
-import ConnectWallet from '../ConnectWallet'
 import { Loading } from '../Loading';
 import PoolCard from '../PoolCard'
 import useSWR from 'swr'
+import { useContract } from '../state/contract/hooks';
 
 export default function FarmMenu(props: any) {
-    let {
-        bscProvider,
-        farmNetwork,
-        signer,
-        switchNetwork,
-        showToast,
-    } = props
-
+    let {switchNetwork} = props
+    const farmNetwork = "MAINNET"
     const {account,isActive,chainId} = useWeb3React()
     const [totalPendingReward, setTotalPendingReward] = useState<BigNumber>(BigNumber.from("0"))
     const [tvl, setTvl] = useState<number[]>([])
@@ -43,13 +34,10 @@ export default function FarmMenu(props: any) {
     const [userInfos, setUserInfos] = useState<any>([])
     const [farmLoading, setFarmLoading] = useState<Boolean>(false)
 
-    const [triggerWallet, setTriggerWallet] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [isUserLoading,setIsUserLoading] = useState(true)
 
-    const restakingFarm = useMemo(()=>new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS, RestakingFarm.abi, bscProvider),[bscProvider])
-    const pancakeContract = useMemo(()=>new ethers.Contract(Constants.PANCAKE_PAIR_ADDRESS, IPancakePair.abi, bscProvider),[bscProvider])
-    const purseTokenUpgradable = useMemo(()=>new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider),[bscProvider])
+    const {restakingFarm,pancakeContract,purseTokenUpgradable} = useContract()
     
     const {data:purseTokenUpgradableBalance} = useSWR({
         contract:"purseTokenUpgradable",
@@ -257,12 +245,7 @@ export default function FarmMenu(props: any) {
                             userInfo={userInfos[key]}
                             isUserLoading={isUserLoading}
                             tvl={tvl[key]}
-                            bscProvider={bscProvider}
                             switchNetwork={switchNetwork}
-                            triggerWallet={triggerWallet}
-                            setTriggerWallet={setTriggerWallet}
-                            signer={signer}
-                            showToast={showToast}
                         />
                     )}
                 </div>
@@ -272,7 +255,6 @@ export default function FarmMenu(props: any) {
                     <div className="textLoadingSmall">NETWORK IS Loading...</div>
                 </div>
             }
-            <ConnectWallet trigger={triggerWallet} setTrigger={setTriggerWallet}/>
         </div >
         </div>
     );

@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useCallback } from "react";
 import PropTypes from "prop-types";
 import Toast from "../Toast/Toast";
 import "./ToastList.css";
+import { useToast } from "../state/toast/hooks";
 
 export default function ToastList(props:any){
-    const { data, position, removeToast } = props
+    const { position } = props
+    const [toast, , removeToast] = useToast()
     const listRef = useRef(null);
 
     const handleScrolling = useCallback((el:any) => {
@@ -18,11 +20,11 @@ export default function ToastList(props:any){
 
     useEffect(() => {
         handleScrolling(listRef.current);
-    }, [position, data, handleScrolling]);
+    }, [position, toast, handleScrolling]);
 
     const sortedData = position.includes("bottom")
-        ? [...data].reverse()
-        : [...data];
+        ? [...toast].reverse()
+        : [...toast];
 
     return (
         <div>
@@ -32,13 +34,13 @@ export default function ToastList(props:any){
                 aria-live="assertive"
                 ref={listRef}
             >
-                {sortedData.map((toast) => (
+                {sortedData.map((_toast) => (
                 <Toast
-                    key={toast.id}
-                    message={toast.message}
-                    type={toast.type}
-                    link={toast.link}
-                    onClose={() => removeToast(toast.id)}
+                    key={_toast.id}
+                    message={_toast.message}
+                    type={_toast.type}
+                    link={_toast.link}
+                    onClose={() => removeToast(_toast.id)}
                 />
                 ))}
             </div>
@@ -54,8 +56,6 @@ ToastList.defaultProps = {
 };
 
 ToastList.propTypes = {
-  data: PropTypes.array.isRequired,
   position: PropTypes.string.isRequired,
-  removeToast: PropTypes.func.isRequired,
 };
 

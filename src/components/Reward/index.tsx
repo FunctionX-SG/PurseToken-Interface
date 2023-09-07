@@ -2,22 +2,27 @@ import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import '../App.css';
 import { isAddress, formatUnits, getAddress, solidityPack } from 'ethers/lib/utils'
-import * as Constants from "../../constants"
-import RetroactiveRewards from '../../abis/RetroactiveRewards.json'
 import UserAmount from '../../abis/userAmount.json'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber } from 'ethers'
 import keccak256 from "keccak256";
 import MerkleTree from "merkletreejs";
 import { timeConverter, isSupportedChain, callContract, getShortTxHash } from '../utils';
 import { useWeb3React } from '@web3-react/core';
-import ConnectWallet from '../ConnectWallet'
 import { Loading } from '../Loading';
+import { useToast } from '../state/toast/hooks';
+import { useProvider } from '../state/provider/hooks';
+import { usePursePrice } from '../state/PursePrice/hooks';
+import { useContract } from '../state/contract/hooks';
+import { useWalletTrigger } from '../state/walletTrigger/hooks';
+
 
 export default function Rewards(props: any) {
-    const {PURSEPrice, bscProvider, switchNetwork, showToast} = props
+    const {switchNetwork} = props
 
     const {isActive, account, chainId} = useWeb3React()
-    
+    const [PURSEPrice] = usePursePrice()
+    const {signer} = useProvider()
+    const [,showToast] = useToast()
     const [message, setMessage] = useState('')
     const [addValid, setAddValid] = useState(false)
     const [otherAddress, setOtherAddress] = useState('')
@@ -26,11 +31,11 @@ export default function Rewards(props: any) {
     const [retroactiveRewardsIsClaim, setRetroactiveRewardsIsClaim] = useState<Boolean>(false)
     const [retroactiveRewardsStartTime, setRetroactiveRewardsStartTime] = useState<number>(0)
     const [retroactiveRewardsEndTime, setRetroactiveRewardsEndTime] = useState<number>(0)
-    const [trigger, setTrigger] = useState(false)
+    const [, setTrigger] = useWalletTrigger()
     const [isLoading, setIsLoading] = useState(true)
     const [isClaim, setIsClaim] = useState(false)
 
-    const signer = bscProvider.getSigner()
+    const {retroactiveRewards} = useContract()
 
     const checkRetroactiveRewardsAmount = (address:string|undefined) => {
 
@@ -47,7 +52,6 @@ export default function Rewards(props: any) {
 
     useEffect(() => {
         async function getRewardData(){
-            const retroactiveRewards = new ethers.Contract(Constants.RETROACTIVE_REWARDS_ADDRESS, RetroactiveRewards.abi, bscProvider)
             const _retroactiveRewardsStartTime = await retroactiveRewards.rewardStartTime()
             const _retroactiveRewardsEndTime = await retroactiveRewards.rewardEndTime()
             setRetroactiveRewardsStartTime(_retroactiveRewardsStartTime)
@@ -61,7 +65,7 @@ export default function Rewards(props: any) {
             setIsLoading(false)
         }
         getRewardData()
-    },[isActive, account, bscProvider])
+    },[isActive, account, retroactiveRewards])
 
     const getMerkleProof = async (account: string) => {
         const keys = Object.keys(UserAmount)
@@ -117,7 +121,6 @@ export default function Rewards(props: any) {
           } else {
             let address = getAddress(account||'')
             let merkleProof = await getMerkleProof(address)
-            let retroactiveRewards = new ethers.Contract(Constants.RETROACTIVE_REWARDS_ADDRESS, RetroactiveRewards.abi, bscProvider)
             if (isActive === true) {
                 try{
                     const tx:any = await callContract(signer,retroactiveRewards,"claimRewards",retroactiveRewardsAmount,merkleProof)
@@ -129,6 +132,8 @@ export default function Rewards(props: any) {
                         showToast(message,"success",link)
                     }else if(tx?.message.includes("user rejected transaction")){
                         showToast(`User rejected transaction.`,"failure")
+                    }else if(tx?.reason){
+                        showToast(`Execution reverted: ${tx.reason}`,"failure")
                     }else {
                         showToast("Something went wrong.","failure")
                     }
@@ -368,7 +373,6 @@ export default function Rewards(props: any) {
                         </div>
                     </div>
                 }
-            <ConnectWallet trigger={trigger} setTrigger={setTrigger} showToast={showToast}/>
             </div>
         </div >
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom';
 import purse from '../../assets/images/purse.png'
 import purse2 from '../../assets/images/purse2.png'
@@ -10,17 +10,14 @@ import { BsFillQuestionCircleFill } from 'react-icons/bs';
 import { FaExclamationCircle, FaCheck } from 'react-icons/fa';
 import { HiExternalLink } from 'react-icons/hi';
 import { useWeb3React } from '@web3-react/core';
-import { ethers } from 'ethers';
 import * as Constants from "../../constants"
-import MasterChefV2 from '../../abis/MasterChefV2.json'
-import FIP20Upgradable from '../../abis/FIP20Upgradable.json'
 import { fetcher, formatBigNumber } from '../utils';
 import { Loading } from '../Loading';
 import useSWR from 'swr';
+import { useContract } from '../state/contract/hooks';
 
 export default function FXSwap(props: any) {
     const {account} = useWeb3React()
-    const {fxProvider} = props
     const [fxRewardPerWeek, setFxRewardPerWeek] = useState('')
 
     const [aprloading, setAprLoading] = useState(false)
@@ -31,9 +28,8 @@ export default function FXSwap(props: any) {
     const [fxswapApy, setFxswapApy] = useState('0')
     const [isLoading, setIsLoading] = useState(true)
 
-    const tokenOnFXCore = useMemo(()=> new ethers.Contract(Constants.FIP20UPGRADABLE_ADDRESS, FIP20Upgradable.abi, fxProvider), [fxProvider])
-    const masterChef = useMemo(()=> new ethers.Contract(Constants.MASTERCHEFV2_ADDRESS, MasterChefV2.abi, fxProvider), [fxProvider])
-
+    const {tokenOnFXCore,masterChef} = useContract()
+    
     const {data:purseTotalSupplyOnFXCore} = useSWR({
         contract:"tokenOnFXCore",
         method:"totalSupply",
@@ -63,14 +59,7 @@ export default function FXSwap(props: any) {
 
     useEffect(()=>{
         async function loadData(){
-            // let _purseTotalSupplyOnFXCore = await tokenOnFXCore.totalSupply()
-            // setPurseTotalSupplyOnFXCore(_purseTotalSupplyOnFXCore)
 
-            // let _purseBalanceOnFXCore = await readContract(tokenOnFXCore,"balanceOf",account)
-            // setPurseBalanceOnFXCore(_purseBalanceOnFXCore)
-
-            // let _earnedAmountOnFXCore = await readContract(masterChef,"pendingReward",2, account)
-            // setEarnedAmountOnFXCore(_earnedAmountOnFXCore)
             setIsLoading(false)
             setFarmLoading(true)
             let totalAllocPoint = await masterChef.totalAllocPoint()

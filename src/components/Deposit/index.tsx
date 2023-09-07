@@ -17,31 +17,32 @@ import * as Constants from "../../constants"
 import ConnectWallet from '../ConnectWallet'
 import useSWR from 'swr'
 import { Loading } from '../Loading';
+import { useToast } from '../state/toast/hooks'
+import { useProvider } from '../state/provider/hooks'
+import { useWalletTrigger } from '../state/walletTrigger/hooks'
 
 
 export default function Deposit(props: any) {
     const {account,isActive,chainId} = useWeb3React()
     const {
       selectedPoolInfo, 
-      signer, 
-      bscProvider, 
       pairName,
       harvest,
-      trigger,
-      setTrigger,
       switchNetwork,
       lpTokenAddress,
-      showToast,
       purseTokenUpgradableBalance,
       lpStaked,
       purseEarned
     } = props
+    const {bscProvider,signer} = useProvider()
     const [message, setMessage] = useState('')
     const [amount, setAmount] = useState('')
     const [valid, setValid] = useState(true)
     const [isDeposit,setIsDeposit] = useState(false)
     const [isWithdraw,setIsWithdraw] = useState(false)
     const [isHarvest,setIsHarvest] = useState(false)
+    const [,showToast] = useToast()
+    const [,setTrigger] = useWalletTrigger()
     const lpTokenContract = lpTokenAddress ? new ethers.Contract(lpTokenAddress, IPancakePair.abi, bscProvider) : null
 
     const {data:lpTokenBalance} = useSWR({
@@ -88,8 +89,8 @@ export default function Deposit(props: any) {
         const amountWei = parseUnits(amount, 'ether')
         if (amountWei.lte(0)) {
           showToast("Amount cannot less than or equal to 0","failure")
-        } else if (amountWei.gt(lpTokenBalance)) {
-          showToast("Not enough funds","failure")
+        // } else if (amountWei.gt(lpTokenBalance)) {
+        //   showToast("Not enough funds","failure")
         } else {
           setIsDeposit(true)
           await deposit(amountWei)
@@ -104,8 +105,8 @@ export default function Deposit(props: any) {
         const amountWei = parseUnits(amount, 'ether')
         if (amountWei.lte(0)) {
           showToast("Amount cannot less than or equal to 0","failure")
-        } else if (amountWei.gt(lpStaked?.amount)) {
-          showToast("Withdraw tokens more than deposit LP tokens","failure")
+        // } else if (amountWei.gt(lpStaked?.amount)) {
+        //   showToast("Withdraw tokens more than deposit LP tokens","failure")
         } else {
           setIsWithdraw(true)
           await withdraw(amountWei)
@@ -130,8 +131,10 @@ export default function Deposit(props: any) {
             showToast(message,"success",link)
           }else if(tx?.message.includes("user rejected transaction")){
             showToast(`User rejected transaction.`,"failure")
+          }else if(tx?.reason){
+            showToast(`Execution reverted: ${tx.reason}`,"failure")
           }else {
-              showToast("Something went wrong.","failure")
+            showToast("Something went wrong.","failure")
           }
         } catch(err) {
           showToast("Something went wrong.","failure")
@@ -155,8 +158,10 @@ export default function Deposit(props: any) {
             showToast(message,"success",link)
           }else if(tx?.message.includes("user rejected transaction")){
             showToast(`User rejected transaction.`,"failure")
+          }else if(tx?.reason){
+            showToast(`Execution reverted: ${tx.reason}`,"failure")
           }else {
-              showToast("Something went wrong.","failure")
+            showToast("Something went wrong.","failure")
           }
         } catch(err) {
           showToast("Something went wrong.","failure")
@@ -177,8 +182,10 @@ export default function Deposit(props: any) {
             showToast(message,"success",link)
           }else if(tx?.message.includes("user rejected transaction")){
             showToast(`User rejected transaction.`,"failure")
+          }else if(tx?.reason){
+            showToast(`Execution reverted: ${tx.reason}`,"failure")
           }else {
-              showToast("Something went wrong.","failure")
+            showToast("Something went wrong.","failure")
           }
         } catch(err) {
           showToast("Something went wrong.","failure")
@@ -328,7 +335,7 @@ export default function Deposit(props: any) {
           </div>
           </div>
           <div className="text-center" style={{ color: 'silver' }}><img src={asterisk} alt={"*"} height='15' />&nbsp;<small>Every time you stake & unstake LP tokens, the contract will automatically harvest PURSE rewards for you!</small></div>
-          <ConnectWallet trigger={trigger} setTrigger={setTrigger} showToast={showToast}/>
+          <ConnectWallet/>
         </div>
   
     );

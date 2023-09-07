@@ -6,10 +6,13 @@ import walletconnectLogo from '../../assets/images/walletconnect-logo.svg'
 import { useWeb3React } from '@web3-react/core'
 import { metaMask } from '../connectors/metamask'
 import { walletConnectV2 } from '../connectors/walletConnect'
+import { useToast } from '../state/toast/hooks';
+import { useWalletTrigger } from '../state/walletTrigger/hooks'
 
 export default function ConnectWallet(props:any) {
-    const { trigger, setTrigger, showToast } = props
+    const [trigger, setTrigger] = useWalletTrigger()
     const { isActive, isActivating } = useWeb3React()
+    const [,showToast] = useToast()
 
     const metamaskConnect = async () => {
         if (isActive) {

@@ -1,22 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import Popup from 'reactjs-popup';
 import { BsFillQuestionCircleFill } from 'react-icons/bs';
 import MediaQuery from 'react-responsive';
 import { AreaChart, Area, YAxis, XAxis, CartesianGrid, Tooltip, Legend } from 'recharts'
 import { formatUnits } from 'ethers/lib/utils'
-import PurseTokenUpgradable from '../../abis/PurseTokenUpgradable.json'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber } from 'ethers'
 import * as Constants from "../../constants"
 import { useWeb3React } from '@web3-react/core';
 import { Loading } from '../Loading';
+import { usePursePrice } from '../state/PursePrice/hooks';
+import { useContract } from '../state/contract/hooks';
 
 export default function Main(props: any) {
-  let {
-    bscProvider,
-    PURSEPrice
-} = props
 
   const {isActive,account} = useWeb3React()
+  const [PURSEPrice] = usePursePrice()
 
   const [purseTokenTotalSupply, setPurseTokenTotalSupply] = useState<BigNumber>(BigNumber.from("0"))
   const [totalBurnAmount, setTotalBurnAmount] = useState('0')
@@ -27,7 +25,7 @@ export default function Main(props: any) {
   const [cumulateBurn, setCumulateBurn] = useState<{Sum: number; Date: string}[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  const purseTokenUpgradable = useMemo(()=> new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider), [bscProvider])
+  const {purseTokenUpgradable} = useContract()
 
   useEffect(()=>{
     async function loadData(){

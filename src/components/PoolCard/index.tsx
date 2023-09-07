@@ -8,13 +8,14 @@ import Popup from '../Popup'
 import Buttons from 'react-bootstrap/Button'
 import Deposit from "../Deposit";
 import useSWR from 'swr'
-import RestakingFarm from '../../abis/RestakingFarm.json'
-import IPancakePair from '../../abis/IPancakePair.json'
-import PurseTokenUpgradable from '../../abis/PurseTokenUpgradable.json'
 import { useWeb3React } from '@web3-react/core'
 import { callContract, formatBigNumber, getShortTxHash, isSupportedChain, fetcher } from '../utils'
-import { ethers } from "ethers";
 import * as Constants from "../../constants"
+import { useToast } from '../state/toast/hooks';
+import { useProvider } from "../state/provider/hooks";
+import { useContract } from "../state/contract/hooks";
+import { useWalletTrigger } from "../state/walletTrigger/hooks";
+
 
 export default function PoolCard(props:any){
     const {
@@ -28,21 +29,18 @@ export default function PoolCard(props:any){
         userInfo,
         isUserLoading,
         tvl,
-        bscProvider,
-        signer,
-        triggerWallet,
-        setTriggerWallet,
         switchNetwork,
-        showToast,
     } = props
     const {account,isActive,chainId} = useWeb3React()
-    const [trigger,setTrigger] = useState(false)
+    const {signer} = useProvider()
+    const [,showToast] = useToast()
+    const [,setTrigger] = useWalletTrigger()
+    const [depositTrigger,setDepositTrigger] = useState(false)
     const [isHarvest,setIsHarvest] = useState(false)
     const lpTokenAddress = poolInfo.lpAddresses[chainId?.toString() as keyof typeof poolInfo.lpAddresses]
 
-    const restakingFarm = new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS, RestakingFarm.abi, bscProvider)
-    const purseTokenUpgradable = new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider)
-    const pancakeContract = new ethers.Contract(Constants.PANCAKE_PAIR_ADDRESS, IPancakePair.abi, bscProvider)
+    const {restakingFarm,purseTokenUpgradable,pancakeContract} = useContract()
+    
     const {data:purseEarned} = useSWR({
         contract:"restakingFarm",
         method:"pendingReward",
@@ -82,7 +80,7 @@ export default function PoolCard(props:any){
     const harvest = async () => {
         if (!isActive) {
             showToast("Connect wallet to try again.","warning")
-            await setTriggerWallet(true)
+            setTrigger(true)
         } else {
             if (!isSupportedChain(chainId)) {
                 showToast("Switch chain to try again.","warning")
@@ -98,6 +96,8 @@ export default function PoolCard(props:any){
                         showToast(message,"success",link)
                     }else if(tx?.message.includes("user rejected transaction")){
                         showToast(`User rejected transaction.`,"failure")
+                    }else if(tx?.reason){
+                        showToast(`Execution reverted: ${tx.reason}`,"failure")
                     }else {
                         showToast("Something went wrong.","failure")
                     }
@@ -107,7 +107,7 @@ export default function PoolCard(props:any){
                 }
                 
             } else {
-                setTriggerWallet(true)
+                setTrigger(true)
             }
         }
     }
@@ -190,7 +190,7 @@ export default function PoolCard(props:any){
                                     <span className="lds-dual-ring"><div></div><div></div><div></div></span>
                                 </div>} </small></span>
                             <Buttons variant="outline-info" size="sm" style={{ minWidth: '80px', marginTop: '10px' }} className="mb-2" onClick={() => {
-                                setTrigger(true)
+                                setDepositTrigger(true)
                             }}>Select</Buttons>
                             <div >
                                 <Buttons
@@ -214,21 +214,16 @@ export default function PoolCard(props:any){
             </div>
         </div>
             <div className="content mr-auto ml-auto" id="content">
-                <Popup trigger={trigger} setTrigger={setTrigger}>
+                <Popup trigger={depositTrigger} setTrigger={setDepositTrigger}>
                     <div className="container-fluid">
                         <Deposit
                             selectedPoolInfo={poolInfo}
                             selectedPoolUserInfo={userInfo}
-                            bscProvider={bscProvider}
                             pairName={pairName}
                             purseTokenUpgradableBalance={purseTokenUpgradableBalance}
                             harvest={harvest}
-                            signer={signer}
-                            trigger={triggerWallet}
-                            setTrigger={setTriggerWallet}
                             switchNetwork={switchNetwork}
                             lpTokenAddress={lpTokenAddress}
-                            showToast={showToast}
                             lpStaked={lpStaked}
                             purseEarned={purseEarned}
                         />

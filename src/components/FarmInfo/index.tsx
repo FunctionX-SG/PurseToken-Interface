@@ -1,22 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect } from 'react'
 import MediaQuery from 'react-responsive';
 import { IoStar } from 'react-icons/io5'
 import PurseFarm from '../../farm/farmPurse.json'
-import RestakingFarm from '../../abis/RestakingFarm.json'
-import PurseTokenUpgradable from '../../abis/PurseTokenUpgradable.json'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber } from 'ethers'
 import * as Constants from "../../constants"
 import { formatBigNumber } from '../utils';
 import { useWeb3React } from '@web3-react/core';
 import { Loading } from '../Loading';
+import { useContract } from '../state/contract/hooks';
 
 export default function FarmInfo(props: any) {
-  let {
-    bscProvider,
-} = props
 
   const {account} = useWeb3React()
-
   const [totalRewardPerBlock, setTotalRewardPerBlock] = useState<BigNumber>(BigNumber.from("0"))
   const [purseTokenTotalSupply, setPurseTokenTotalSupply] = useState<BigNumber>(BigNumber.from("0"))
   const [poolLength, setPoolLength] = useState<number>(0)
@@ -25,9 +20,8 @@ export default function FarmInfo(props: any) {
   const [poolRewardToken, setPoolRewardToken] = useState('0')
   const [isLoading, setIsLoading] = useState(true)
 
-  const restakingFarm = useMemo(()=> new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS, RestakingFarm.abi, bscProvider), [bscProvider])
-  const purseTokenUpgradable = useMemo(()=> new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider), [bscProvider])
-
+  const {restakingFarm,purseTokenUpgradable} = useContract()
+  
   useEffect(()=>{
     async function loadData(){
       let _poolLength = await restakingFarm.poolLength()

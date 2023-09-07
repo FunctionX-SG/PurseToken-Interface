@@ -135,12 +135,13 @@ export function supportedChain(chainId:number|undefined){
   }
 }
 
-export async function callContract(signer:Signer, contract:ethers.Contract|null,method:string,...args:any[]){
+export async function callContract(signer:Signer|undefined, contract:ethers.Contract|null,method:string,...args:any[]){
   try{
-    const tx = await contract?.connect(signer)[method](...args)
+    await contract?.connect(signer!).callStatic[method](...args)
+    const tx = await contract?.connect(signer!)[method](...args)
     return tx
   } catch (err: any) {
-    console.log(err)
+    console.log(err?.reason)
     return err
   }
 }

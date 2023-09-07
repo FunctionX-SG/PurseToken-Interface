@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import {Popup as ReactPopup} from 'reactjs-popup';
@@ -7,23 +7,27 @@ import { IoStar } from 'react-icons/io5'
 import { MdLockClock } from 'react-icons/md'
 import { AiFillAlert } from 'react-icons/ai'
 import { RiArrowRightFill } from 'react-icons/ri'
-import ReactLoading from 'react-loading'
 import * as Constants from "../../constants";
 import { formatUnits, parseUnits } from 'ethers/lib/utils'
-import PurseStaking from '../../abis/PurseStaking.json'
-import PurseTokenUpgradable from '../../abis/PurseTokenUpgradable.json'
-import { BigNumber, ethers } from 'ethers'
+import { BigNumber } from 'ethers'
 import { fetcher, callContract, formatBigNumber, isSupportedChain, getShortTxHash, secondsToDhms } from '../utils'
-import ConnectWallet from '../ConnectWallet'
 
 import '../App.css';
 import { useWeb3React } from '@web3-react/core'
 import { Loading } from '../Loading';
 import useSWR from 'swr'
+import { useToast } from '../state/toast/hooks';
+import { useProvider } from '../state/provider/hooks';
+import { usePursePrice } from '../state/PursePrice/hooks';
+import { useContract } from '../state/contract/hooks';
+import { useWalletTrigger } from '../state/walletTrigger/hooks';
 
 export default function Stake(props:any) {
-    const {PURSEPrice, bscProvider, signer, switchNetwork, showToast} = props
+    const {switchNetwork} = props
     const {isActive, account, chainId } = useWeb3React()
+    const [PURSEPrice] = usePursePrice()
+    const {signer} = useProvider()
+    const [,showToast] = useToast()
     const [mode, setMode] = useState('Stake')
     const [amount, setAmount] = useState('')
     const [message, setMessage] = useState('')
@@ -37,12 +41,11 @@ export default function Stake(props:any) {
     const [purseStakingLockPeriod, setPurseStakingLockPeriod] = useState(0)
     const [stakeLoading, setStakeLoading] = useState(false)
     const [sum30TransferAmount, setSum30TransferAmount] = useState(0)
-    const [trigger, setTrigger] = useState(false)
+    const [, setTrigger] = useWalletTrigger()
     const [isLoading, setIsLoading] = useState(true)
     const [valid, setValid] = useState(false)
     
-    const purseStaking = useMemo(()=>new ethers.Contract(Constants.PURSE_STAKING_ADDRESS, PurseStaking.abi, bscProvider),[bscProvider])
-    const purseTokenUpgradable = useMemo(()=>new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS, PurseTokenUpgradable.abi, bscProvider),[bscProvider])
+    const {purseStaking,purseTokenUpgradable} = useContract()
     
     const {data:purseStakingTotalStake} = useSWR({
       contract:"purseTokenUpgradable",
@@ -210,8 +213,10 @@ export default function Stake(props:any) {
             showToast(message,"success",link)
           }else if(tx?.message.includes("user rejected transaction")){
             showToast(`User rejected transaction.`,"failure")
+          }else if(tx?.reason){
+            showToast(`Execution reverted: ${tx.reason}`,"failure")
           }else {
-              showToast("Something went wrong.","failure")
+            showToast("Something went wrong.","failure")
           }
         } catch(err) {
           showToast("Something went wrong.","failure")
@@ -236,6 +241,8 @@ export default function Stake(props:any) {
             showToast(message,"success",link)
           }else if(tx?.message.includes("user rejected transaction")){
             showToast(`User rejected transaction.`,"failure")
+          }else if(tx?.reason){
+            showToast(`Execution reverted: ${tx.reason}`,"failure")
           }else {
             showToast("Something went wrong.","failure")
           }
@@ -261,6 +268,8 @@ export default function Stake(props:any) {
             showToast(message,"success",link)
           }else if(tx?.message.includes("user rejected transaction")){
             showToast(`User rejected transaction.`,"failure")
+          }else if(tx?.reason){
+            showToast(`Execution reverted: ${tx.reason}`,"failure")
           }else {
             showToast("Something went wrong.","failure")
           }
@@ -285,6 +294,8 @@ export default function Stake(props:any) {
             showToast(message,"success",link)
           }else if(tx?.message.includes("user rejected transaction")){
             showToast(`User rejected transaction.`,"failure")
+          }else if(tx?.reason){
+            showToast(`Execution reverted: ${tx.reason}`,"failure")
           }else {
             showToast("Something went wrong.","failure")
           }
@@ -358,7 +369,6 @@ export default function Stake(props:any) {
                 </div>
               </div>
             </div>
-            <ConnectWallet trigger={trigger} setTrigger={setTrigger} showToast={showToast}/>
           </div>
           :
           !isSupportedChain(chainId)?
