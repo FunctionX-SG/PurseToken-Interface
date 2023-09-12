@@ -10,11 +10,14 @@ import { useWeb3React } from '@web3-react/core';
 import { Loading } from '../Loading';
 import { usePursePrice } from '../state/PursePrice/hooks';
 import { useContract } from '../state/contract/hooks';
+import { DataFormater, NumberFormater } from '../utils';
 
-export default function Main(props: any) {
+export default function Main() {
 
   const {isActive,account} = useWeb3React()
   const [PURSEPrice] = usePursePrice()
+
+  const {purseTokenUpgradable} = useContract()
 
   const [purseTokenTotalSupply, setPurseTokenTotalSupply] = useState<BigNumber>(BigNumber.from("0"))
   const [totalBurnAmount, setTotalBurnAmount] = useState('0')
@@ -24,8 +27,6 @@ export default function Main(props: any) {
   const [cumulateTransfer, setCumulateTransfer] = useState<{Sum: number; Date: string}[]>([])
   const [cumulateBurn, setCumulateBurn] = useState<{Sum: number; Date: string}[]>([])
   const [isLoading, setIsLoading] = useState(true)
-
-  const {purseTokenUpgradable} = useContract()
 
   useEffect(()=>{
     async function loadData(){
@@ -63,22 +64,6 @@ export default function Main(props: any) {
     loadData()
   },[isActive,account,purseTokenUpgradable])
 
-  
-
-  const DataFormater = (number: number) => {
-    if(number > 1000000000){
-      return (number/1000000000).toString() + 'B';
-    }else if(number > 1000000){
-      return (number/1000000).toString() + 'M';
-    }else if(number > 1000){
-      return (number/1000).toString() + 'K';
-    }else{
-      return number.toString();
-    }
-  }
-  const NumberFormater = (number:string) => {
-    return parseFloat(number).toLocaleString('en-US', { maximumFractionDigits: 2 })
-  }
   return (
     <div id="content" className="mt-4">
       <label className="textWhite center mb-5" style={{fontSize:"40px",textAlign:"center"}}><big><b>PURSE Dashboard</b></big></label>
@@ -342,6 +327,7 @@ export default function Main(props: any) {
       </div><br/><br/>
       <div className="container" style={{ width: 'fit-content' }}>
         <div className="row center" style={{borderRadius:"15px",padding:"15px 15px 0px 0px", backgroundColor: "rgba(106, 90, 205, 0.2)" }}>
+          {cumulateBurn?
           <div>
             <AreaChart width={290} height={250} data={cumulateBurn}>
               <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>
@@ -351,7 +337,7 @@ export default function Main(props: any) {
               <Legend verticalAlign="top" height={50} formatter={() => ("Burn")} wrapperStyle={{fontSize: "20px"}}/>
               <Area type="monotone" dataKey="Sum" stroke="#8884d8" fillOpacity={0.5} fill="#8884d8" />
             </AreaChart><li style={{color:'transparent'}}/>
-          </div>
+          </div>:<div></div>}
           <div>  
             <AreaChart width={290} height={250} data={cumulateTransfer}>
               <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>

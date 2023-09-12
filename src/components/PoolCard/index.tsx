@@ -15,6 +15,7 @@ import { useToast } from '../state/toast/hooks';
 import { useProvider } from "../state/provider/hooks";
 import { useContract } from "../state/contract/hooks";
 import { useWalletTrigger } from "../state/walletTrigger/hooks";
+import { useNetwork } from "../state/network/hooks";
 
 
 export default function PoolCard(props:any){
@@ -29,18 +30,20 @@ export default function PoolCard(props:any){
         userInfo,
         isUserLoading,
         tvl,
-        switchNetwork,
     } = props
+
     const {account,isActive,chainId} = useWeb3React()
+    const [,switchNetwork] = useNetwork()
     const {signer} = useProvider()
     const [,showToast] = useToast()
     const [,setTrigger] = useWalletTrigger()
+
+    const {restakingFarm,purseTokenUpgradable,pancakeContract} = useContract()
+
     const [depositTrigger,setDepositTrigger] = useState(false)
     const [isHarvest,setIsHarvest] = useState(false)
     const lpTokenAddress = poolInfo.lpAddresses[chainId?.toString() as keyof typeof poolInfo.lpAddresses]
 
-    const {restakingFarm,purseTokenUpgradable,pancakeContract} = useContract()
-    
     const {data:purseEarned} = useSWR({
         contract:"restakingFarm",
         method:"pendingReward",
@@ -84,7 +87,7 @@ export default function PoolCard(props:any){
         } else {
             if (!isSupportedChain(chainId)) {
                 showToast("Switch chain to try again.","warning")
-                await switchNetwork()
+                switchNetwork()
             } else if (isActive && poolInfo && chainId) {
                 try{
                     const tx:any = await callContract(signer,restakingFarm,"claimReward",poolInfo.lpAddresses[chainId])
@@ -111,8 +114,6 @@ export default function PoolCard(props:any){
             }
         }
     }
-
-    
 
     return (
         <div>
@@ -198,7 +199,7 @@ export default function PoolCard(props:any){
                                     type="submit"
                                     size="sm"
                                     style={{ minWidth: '80px' }}
-                                    disabled={isHarvest}
+                                    disabled={isHarvest||!isSupportedChain(chainId)}
                                     onClick={async(event) => {
                                         event.preventDefault()
                                         setIsHarvest(true)
@@ -222,7 +223,6 @@ export default function PoolCard(props:any){
                             pairName={pairName}
                             purseTokenUpgradableBalance={purseTokenUpgradableBalance}
                             harvest={harvest}
-                            switchNetwork={switchNetwork}
                             lpTokenAddress={lpTokenAddress}
                             lpStaked={lpStaked}
                             purseEarned={purseEarned}

@@ -21,11 +21,10 @@ import {
   NavLinkHome,
 } from './NavMenu'
 import { usePursePrice } from '../state/PursePrice/hooks'
+import { useNetwork } from '../state/network/hooks'
 
 
-export default function Navb({
-    switchNetwork
-}:any) {
+export default function Navb() {
   const {chainId,account} = useWeb3React()
 
   const {connector, hooks} = useWeb3React()
@@ -35,6 +34,7 @@ export default function Navb({
   const isActive = useSelectedIsActive(connector)
   const isActivating = useSelectedIsActivating(connector)
   const [networkName, setNetworkName] = useState('BSC')
+  const [,switchNetwork] = useNetwork()
   
   useEffect(()=>{
     const connectWalletOnPageLoad = async () => {
@@ -66,6 +66,12 @@ export default function Navb({
       setNetworkName("BSC")
     }
   },[chainId])
+
+  useEffect(()=>{
+    if (isActive && !isSupportedChain(chainId)){
+      switchNetwork()
+    }
+  },[isActive,switchNetwork])
 
   const metamaskConnect = async () => {
     if (isActive) {
@@ -114,6 +120,7 @@ export default function Navb({
       localStorage.setItem('isWalletConnected','false')
     }
   }
+
 
     return (
       <nav className="navbar navbar-dark top bg-dark flex-md-nowrap p-0 shadow" style={{height:"50px",position:"fixed",width:"100%", top:"0",zIndex:"9999"}}>
@@ -185,7 +192,7 @@ export default function Navb({
                 <div className='center'>
                   <Buttons variant="info" size="sm" onClick={async() => {
                     if (!isSupportedChain(chainId)){
-                      await switchNetwork(56)
+                      switchNetwork(56)
                     }
                   }}>{networkName}
                   </Buttons>
@@ -248,7 +255,7 @@ export default function Navb({
                     <Dropdown.Item>
                       <Buttons variant="info" size="sm" style={{width:"100%"}} onClick={async () => {
                         if (!isSupportedChain(chainId)){
-                          await switchNetwork()
+                          switchNetwork()
                         }
                       }}>{networkName}
                       </Buttons>
@@ -277,7 +284,7 @@ export default function Navb({
                           <Dropdown.Item>
                             <Buttons variant="secondary" size="sm" style={{width:"100%", marginBottom:"10px"}} onClick={async () => {
                               await WalletConnectV2()
-                              }}><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect v1
+                              }}><img src={walletconnectLogo} width="26" height="23" className="d-inline-block" alt="" />&nbsp; WalletConnect
                             </Buttons>
                           </Dropdown.Item>
                     </div>}

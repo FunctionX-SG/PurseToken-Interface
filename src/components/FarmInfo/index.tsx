@@ -9,9 +9,11 @@ import { useWeb3React } from '@web3-react/core';
 import { Loading } from '../Loading';
 import { useContract } from '../state/contract/hooks';
 
-export default function FarmInfo(props: any) {
-
+export default function FarmInfo() {
   const {account} = useWeb3React()
+
+  const {restakingFarm,purseTokenUpgradable} = useContract()
+
   const [totalRewardPerBlock, setTotalRewardPerBlock] = useState<BigNumber>(BigNumber.from("0"))
   const [purseTokenTotalSupply, setPurseTokenTotalSupply] = useState<BigNumber>(BigNumber.from("0"))
   const [poolLength, setPoolLength] = useState<number>(0)
@@ -20,8 +22,6 @@ export default function FarmInfo(props: any) {
   const [poolRewardToken, setPoolRewardToken] = useState('0')
   const [isLoading, setIsLoading] = useState(true)
 
-  const {restakingFarm,purseTokenUpgradable} = useContract()
-  
   useEffect(()=>{
     async function loadData(){
       let _poolLength = await restakingFarm.poolLength()
@@ -44,10 +44,8 @@ export default function FarmInfo(props: any) {
       const farm = PurseFarm.farm
 
       for (let i=0; i < _poolLength; i++){
-        
         let _poolInfo = farm[i]
         _totalRewardPerBlock += parseInt(_poolInfo.pursePerBlock) * _poolInfo.bonusMultiplier
-    
       }
 
       setTotalRewardPerBlock(BigNumber.from(_totalRewardPerBlock.toString()))

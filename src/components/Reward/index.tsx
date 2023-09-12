@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import '../App.css';
-import { isAddress, formatUnits, getAddress, solidityPack } from 'ethers/lib/utils'
+import { isAddress, formatUnits, getAddress } from 'ethers/lib/utils'
 import UserAmount from '../../abis/userAmount.json'
 import { BigNumber } from 'ethers'
-import keccak256 from "keccak256";
-import MerkleTree from "merkletreejs";
-import { timeConverter, isSupportedChain, callContract, getShortTxHash } from '../utils';
+import { timeConverter, isSupportedChain, callContract, getShortTxHash, getMerkleProof } from '../utils';
 import { useWeb3React } from '@web3-react/core';
 import { Loading } from '../Loading';
 import { useToast } from '../state/toast/hooks';
@@ -14,15 +12,18 @@ import { useProvider } from '../state/provider/hooks';
 import { usePursePrice } from '../state/PursePrice/hooks';
 import { useContract } from '../state/contract/hooks';
 import { useWalletTrigger } from '../state/walletTrigger/hooks';
+import { useNetwork } from '../state/network/hooks';
 
 
-export default function Rewards(props: any) {
-    const {switchNetwork} = props
-
+export default function Rewards() {
     const {isActive, account, chainId} = useWeb3React()
+    const [,switchNetwork] = useNetwork()
     const [PURSEPrice] = usePursePrice()
     const {signer} = useProvider()
     const [,showToast] = useToast()
+
+    const {retroactiveRewards} = useContract()
+
     const [message, setMessage] = useState('')
     const [addValid, setAddValid] = useState(false)
     const [otherAddress, setOtherAddress] = useState('')
@@ -34,21 +35,6 @@ export default function Rewards(props: any) {
     const [, setTrigger] = useWalletTrigger()
     const [isLoading, setIsLoading] = useState(true)
     const [isClaim, setIsClaim] = useState(false)
-
-    const {retroactiveRewards} = useContract()
-
-    const checkRetroactiveRewardsAmount = (address:string|undefined) => {
-
-        if (!address) return BigNumber.from('0')
-        let newAddress = getAddress(address)
-        let retroactiveRewardsAmount: any
-        if(UserAmount[newAddress as keyof typeof UserAmount] !== undefined){
-          retroactiveRewardsAmount = UserAmount[newAddress as keyof typeof UserAmount]["Amount"]
-        } else{
-          retroactiveRewardsAmount = BigNumber.from("0")
-        }
-        return retroactiveRewardsAmount
-    }
 
     useEffect(() => {
         async function getRewardData(){
@@ -67,47 +53,16 @@ export default function Rewards(props: any) {
         getRewardData()
     },[isActive, account, retroactiveRewards])
 
-    const getMerkleProof = async (account: string) => {
-        const keys = Object.keys(UserAmount)
-        const values = Object.values(UserAmount)
-        const balances: {address: string, amount: any}[] = []
-        let address: string
-        let amount: string
-        for (let i = 0; i < keys.length; i++) {
-          address = keys[i]
-          amount = values[i]["Amount"]
-          if (parseFloat(amount) !== 0){
-            balances.push({
-                address: address,
-                amount: solidityPack(
-                    ["uint256"],
-                    [amount]
-              )
-            })
-          }
+    const checkRetroactiveRewardsAmount = (address:string|undefined) => {
+        if (!address) return BigNumber.from('0')
+        let newAddress = getAddress(address)
+        let retroactiveRewardsAmount: any
+        if(UserAmount[newAddress as keyof typeof UserAmount] !== undefined){
+          retroactiveRewardsAmount = UserAmount[newAddress as keyof typeof UserAmount]["Amount"]
+        } else{
+          retroactiveRewardsAmount = BigNumber.from("0")
         }
-        const newValues = Object.values(balances)
-        const array: {address:string,id:number}[] = []
-        for (let i = 0; i < Object.keys(balances).length; i++) {
-          address = newValues[i]["address"];
-          amount = values[i]["Amount"]
-          array.push({
-            address: newValues[i]["address"],
-            id: i
-          })
-        } 
-        const index = Object.assign({}, ...array.map((x) => ({[x.address]: x.id})));
-        const leafNodes = balances.map((balance) =>
-          keccak256( 
-            Buffer.concat([
-              Buffer.from(balance.address.replace("0x", ""), "hex"),
-              Buffer.from(balance.amount.replace("0x", ""), "hex"),
-            ])
-          )
-        )
-        const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true })
-        const merkleProof = merkleTree.getHexProof(leafNodes[index[account]])
-        return merkleProof
+        return retroactiveRewardsAmount
     }
     
     const claimRetroactiveRewardsAmount = async () => {
@@ -145,7 +100,6 @@ export default function Rewards(props: any) {
           }
         }
     }
-
 
     const onChangeHandler = (event: string) => {
         if (event === "") {
@@ -238,7 +192,7 @@ export default function Rewards(props: any) {
                     <div style={{transform: "translate(0%, 150%)"}}>
                         <div className="center textWhiteMedium"><b>Switch chain to claim PURSE</b></div>
                         <div className="center"><button type="submit" className="btn btn-primary mt-4" onClick={async () => {
-                            await switchNetwork()
+                            switchNetwork()
                         }}>Switch</button></div>
                         </div>
                     </div>

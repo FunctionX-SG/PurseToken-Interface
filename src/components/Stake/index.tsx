@@ -21,13 +21,17 @@ import { useProvider } from '../state/provider/hooks';
 import { usePursePrice } from '../state/PursePrice/hooks';
 import { useContract } from '../state/contract/hooks';
 import { useWalletTrigger } from '../state/walletTrigger/hooks';
+import { useNetwork } from '../state/network/hooks';
 
-export default function Stake(props:any) {
-    const {switchNetwork} = props
+export default function Stake() {
     const {isActive, account, chainId } = useWeb3React()
+    const [,switchNetwork] = useNetwork()
     const [PURSEPrice] = usePursePrice()
     const {signer} = useProvider()
     const [,showToast] = useToast()
+
+    const {purseStaking,purseTokenUpgradable} = useContract()
+
     const [mode, setMode] = useState('Stake')
     const [amount, setAmount] = useState('')
     const [message, setMessage] = useState('')
@@ -44,8 +48,6 @@ export default function Stake(props:any) {
     const [, setTrigger] = useWalletTrigger()
     const [isLoading, setIsLoading] = useState(true)
     const [valid, setValid] = useState(false)
-    
-    const {purseStaking,purseTokenUpgradable} = useContract()
     
     const {data:purseStakingTotalStake} = useSWR({
       contract:"purseTokenUpgradable",
@@ -128,7 +130,6 @@ export default function Stake(props:any) {
         setPurseStakingRemainingTime(_purseStakingRemainingTime)
       }
     },[purseStakingUserInfo,purseStakingLockPeriod])
-
 
     useEffect(()=>{
       async function loadData(){
@@ -331,13 +332,11 @@ export default function Stake(props:any) {
       return newArray
     }
 
-    useEffect(()=>{},[])
     let purseStakingAPR = (sum30TransferAmount*12*100/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let purseStakingUserTotalReceipt = (purseStakingUserReceipt + purseStakingUserNewReceipt).toString()
     let sharePercent = (purseStakingUserReceipt*100/parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let sharePercent1 = (purseStakingUserNewReceipt*100/parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let sharePercent2 = (parseFloat(purseStakingUserTotalReceipt)*100/parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
-
     let retroactiveAPR = (((
         (Constants.RETROACTIVE_INITIAL_REWARDS + Constants.RETROACTIVE_AUG23_REWARDS)
         / parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))

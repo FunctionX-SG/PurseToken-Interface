@@ -4,7 +4,10 @@ import { WalletConnect } from '@web3-react/walletconnect-v2'
 import type { Connector } from '@web3-react/types'
 import PurseFarm from '../farm/farmPurse.json'
 import { Signer, ethers } from 'ethers'
-import { formatUnits } from 'ethers/lib/utils'
+import { formatUnits, solidityPack } from 'ethers/lib/utils'
+import keccak256 from "keccak256";
+import MerkleTree from "merkletreejs";
+import UserAmount from '../abis/userAmount.json'
 
 export function getName(connector: Connector) {
   if (connector instanceof MetaMask) return 'MetaMask'
@@ -149,4 +152,63 @@ export async function callContract(signer:Signer|undefined, contract:ethers.Cont
 export const fetcher = (library:any) => (args:any) => {
   const {method, params} = args
   return library[method](...params)
+}
+
+export const DataFormater = (number: number) => {
+  if(number > 1000000000){
+    return (number/1000000000).toString() + 'B';
+  }else if(number > 1000000){
+    return (number/1000000).toString() + 'M';
+  }else if(number > 1000){
+    return (number/1000).toString() + 'K';
+  }else{
+    return number.toString();
+  }
+}
+
+export const NumberFormater = (number:string) => {
+  return parseFloat(number).toLocaleString('en-US', { maximumFractionDigits: 2 })
+}
+
+export const getMerkleProof = async (account: string) => {
+  const keys = Object.keys(UserAmount)
+  const values = Object.values(UserAmount)
+  const balances: {address: string, amount: any}[] = []
+  let address: string
+  let amount: string
+  for (let i = 0; i < keys.length; i++) {
+    address = keys[i]
+    amount = values[i]["Amount"]
+    if (parseFloat(amount) !== 0){
+      balances.push({
+          address: address,
+          amount: solidityPack(
+              ["uint256"],
+              [amount]
+        )
+      })
+    }
+  }
+  const newValues = Object.values(balances)
+  const array: {address:string,id:number}[] = []
+  for (let i = 0; i < Object.keys(balances).length; i++) {
+    address = newValues[i]["address"];
+    amount = values[i]["Amount"]
+    array.push({
+      address: newValues[i]["address"],
+      id: i
+    })
+  } 
+  const index = Object.assign({}, ...array.map((x) => ({[x.address]: x.id})));
+  const leafNodes = balances.map((balance) =>
+    keccak256( 
+      Buffer.concat([
+        Buffer.from(balance.address.replace("0x", ""), "hex"),
+        Buffer.from(balance.amount.replace("0x", ""), "hex"),
+      ])
+    )
+  )
+  const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true })
+  const merkleProof = merkleTree.getHexProof(leafNodes[index[account]])
+  return merkleProof
 }

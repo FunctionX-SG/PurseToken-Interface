@@ -4,6 +4,7 @@ import providerReducer from './provider/reducer'
 import contractReducer from './contract/reducer'
 import toastReducer from './toast/reducer'
 import pursePriceReducer from './PursePrice/reducer'
+import networkReducer from './network/reducer'
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     provider: providerReducer,
     contract: contractReducer,
     toast: toastReducer,
-    pursePrice:pursePriceReducer
+    pursePrice:pursePriceReducer,
+    network: networkReducer
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
     serializableCheck: false,

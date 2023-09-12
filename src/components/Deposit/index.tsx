@@ -20,31 +20,35 @@ import { Loading } from '../Loading';
 import { useToast } from '../state/toast/hooks'
 import { useProvider } from '../state/provider/hooks'
 import { useWalletTrigger } from '../state/walletTrigger/hooks'
+import { useNetwork } from '../state/network/hooks'
 
 
 export default function Deposit(props: any) {
-    const {account,isActive,chainId} = useWeb3React()
     const {
       selectedPoolInfo, 
       pairName,
       harvest,
-      switchNetwork,
       lpTokenAddress,
       purseTokenUpgradableBalance,
       lpStaked,
       purseEarned
     } = props
+
+    const {account,isActive,chainId} = useWeb3React()
     const {bscProvider,signer} = useProvider()
+    const [,switchNetwork] = useNetwork()
+    const [,showToast] = useToast()
+    const [,setTrigger] = useWalletTrigger()
+
+    const lpTokenContract = lpTokenAddress ? new ethers.Contract(lpTokenAddress, IPancakePair.abi, bscProvider) : null
+
     const [message, setMessage] = useState('')
     const [amount, setAmount] = useState('')
     const [valid, setValid] = useState(true)
     const [isDeposit,setIsDeposit] = useState(false)
     const [isWithdraw,setIsWithdraw] = useState(false)
     const [isHarvest,setIsHarvest] = useState(false)
-    const [,showToast] = useToast()
-    const [,setTrigger] = useWalletTrigger()
-    const lpTokenContract = lpTokenAddress ? new ethers.Contract(lpTokenAddress, IPancakePair.abi, bscProvider) : null
-
+    
     const {data:lpTokenBalance} = useSWR({
       contract:"lpTokenContract",
       method:"balanceOf",
@@ -62,7 +66,6 @@ export default function Deposit(props: any) {
       fetcher: fetcher(lpTokenContract),
       refreshInterval:5000
     })
-
 
     const onChangeHandler = (event: string) => {
       setAmount(event)
@@ -217,7 +220,7 @@ export default function Deposit(props: any) {
                 type="submit"
                 className="btn btn-success btn-sm float-right center mb-3"
                 style={{ position:'absolute', right:'20px' }}
-                disabled={isHarvest}
+                disabled={isHarvest||!isSupportedChain(chainId)}
                 onClick={async(event) => {
                   event.preventDefault()
                   setIsHarvest(true)
@@ -259,7 +262,7 @@ export default function Deposit(props: any) {
                   !isSupportedChain(chainId)?
                   <div className="rowC center">
                   <button className="btn btn-primary" onClick={async () => {
-                    await switchNetwork()
+                    switchNetwork()
                   }}>Switch Chain</button>
                   </div> 
                   : 

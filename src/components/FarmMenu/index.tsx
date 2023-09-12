@@ -17,10 +17,12 @@ import PoolCard from '../PoolCard'
 import useSWR from 'swr'
 import { useContract } from '../state/contract/hooks';
 
-export default function FarmMenu(props: any) {
-    let {switchNetwork} = props
+export default function FarmMenu() {
     const farmNetwork = "MAINNET"
     const {account,isActive,chainId} = useWeb3React()
+
+    const {restakingFarm,pancakeContract,purseTokenUpgradable} = useContract()
+
     const [totalPendingReward, setTotalPendingReward] = useState<BigNumber>(BigNumber.from("0"))
     const [tvl, setTvl] = useState<number[]>([])
     const [apr, setApr] = useState<number[]>([])
@@ -33,12 +35,9 @@ export default function FarmMenu(props: any) {
     const [poolInfos, setPoolInfos] = useState<any>([])
     const [userInfos, setUserInfos] = useState<any>([])
     const [farmLoading, setFarmLoading] = useState<Boolean>(false)
-
     const [isLoading, setIsLoading] = useState(true)
     const [isUserLoading,setIsUserLoading] = useState(true)
 
-    const {restakingFarm,pancakeContract,purseTokenUpgradable} = useContract()
-    
     const {data:purseTokenUpgradableBalance} = useSWR({
         contract:"purseTokenUpgradable",
         method:"balanceOf",
@@ -48,7 +47,6 @@ export default function FarmMenu(props: any) {
         refreshInterval:5000
     })
 
-    
     const loadData = useCallback(async() => {
         let _poolLength = await restakingFarm.poolLength()
         _poolLength = parseFloat(_poolLength.toString())
@@ -114,9 +112,6 @@ export default function FarmMenu(props: any) {
     useEffect(()=>{
         loadData()
     },[account,isActive,chainId,pancakeContract,purseTokenUpgradable,restakingFarm,loadData])
-
-
-    
 
     return (
         <div>
@@ -245,7 +240,6 @@ export default function FarmMenu(props: any) {
                             userInfo={userInfos[key]}
                             isUserLoading={isUserLoading}
                             tvl={tvl[key]}
-                            switchNetwork={switchNetwork}
                         />
                     )}
                 </div>
