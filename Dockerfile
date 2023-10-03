@@ -5,13 +5,13 @@ COPY package* ./
 COPY . .
 
 # Set the desired port (replace 3000 with your custom port)
-ENV PORT=2001
+ENV PORT=2000
 
 # Install `serve` to run the application.
 RUN npm install -g serve
 
 # Uses port which is used by the actual application
-EXPOSE 2001
+EXPOSE 2000
 
 # Run application
 #CMD [ "npm", "start" ]
