@@ -1,22 +1,24 @@
 {
-  "main.css": "/static/css/main.6181a8df.chunk.css",
-  "main.js": "/static/js/main.226f29c0.chunk.js",
-  "main.js.map": "/static/js/main.226f29c0.chunk.js.map",
-  "static/css/1.1e464657.chunk.css": "/static/css/1.1e464657.chunk.css",
-  "static/js/1.618ae3d2.chunk.js": "/static/js/1.618ae3d2.chunk.js",
-  "static/js/1.618ae3d2.chunk.js.map": "/static/js/1.618ae3d2.chunk.js.map",
-  "runtime~main.js": "/static/js/runtime~main.229c360f.js",
-  "runtime~main.js.map": "/static/js/runtime~main.229c360f.js.map",
-  "static/media/purse.png": "/static/media/purse.43f5489d.png",
-  "static/media/metamask-fox.svg": "/static/media/metamask-fox.c06f3a3e.svg",
-  "static/media/walletconnect-logo.svg": "/static/media/walletconnect-logo.37f2bc6e.svg",
-  "static/media/purse2.png": "/static/media/purse2.67f06d02.png",
-  "static/media/pancakeswap.png": "/static/media/pancakeswap.bdd7c45a.png",
-  "static/media/Blockchain.png": "/static/media/Blockchain.6e74b3ec.png",
-  "static/media/asterisk.png": "/static/media/asterisk.d69fefca.png",
-  "static/css/1.1e464657.chunk.css.map": "/static/css/1.1e464657.chunk.css.map",
-  "static/css/main.6181a8df.chunk.css.map": "/static/css/main.6181a8df.chunk.css.map",
-  "index.html": "/index.html",
-  "precache-manifest.87f2b58b753ec02e64b7170e3a134678.js": "/precache-manifest.87f2b58b753ec02e64b7170e3a134678.js",
-  "service-worker.js": "/service-worker.js"
+  "files": {
+    "main.css": "/static/css/main.51141ef4.css",
+    "main.js": "/static/js/main.5a99fcee.js",
+    "static/js/774.555a8177.chunk.js": "/static/js/774.555a8177.chunk.js",
+    "static/js/459.2651939b.chunk.js": "/static/js/459.2651939b.chunk.js",
+    "static/media/Blockchain.png": "/static/media/Blockchain.c477a9e30a1ab770c08f.png",
+    "static/media/pancakeswap.png": "/static/media/pancakeswap.e1d4dec34dc4d1c73553.png",
+    "static/media/purse2.png": "/static/media/purse2.9c40f1904cd669ea89e0.png",
+    "static/media/purse.png": "/static/media/purse.6c1a11d5002b1252f63b.png",
+    "static/media/asterisk.png": "/static/media/asterisk.42450bac1da29d88321b.png",
+    "static/media/metamask-fox.svg": "/static/media/metamask-fox.7db94670ec6dc4d4c6c9e18af96281d8.svg",
+    "static/media/walletconnect-logo.svg": "/static/media/walletconnect-logo.dfa25e470b69d81428be54242b6c9bd1.svg",
+    "index.html": "/index.html",
+    "main.51141ef4.css.map": "/static/css/main.51141ef4.css.map",
+    "main.5a99fcee.js.map": "/static/js/main.5a99fcee.js.map",
+    "774.555a8177.chunk.js.map": "/static/js/774.555a8177.chunk.js.map",
+    "459.2651939b.chunk.js.map": "/static/js/459.2651939b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.51141ef4.css",
+    "static/js/main.5a99fcee.js"
+  ]
 }
