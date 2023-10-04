@@ -51,7 +51,7 @@
     "recharts": "^2.8.0",
     "styled-components": "^5.3.1",
     "swr": "^2.2.1",
-    "truffle": "5.1.39",
+    "truffle": "5.11.5",
     "truffle-hdwallet-provider": "^1.0.17",
     "typescript": "^4.9.5",
     "web3": "^1.2.11",
