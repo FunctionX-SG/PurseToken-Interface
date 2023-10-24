@@ -307,7 +307,7 @@ export default function Stake() {
         
       }
     }
-    console.log(purseStakingRemainingTime,secondsToDhms(purseStakingLockPeriod,purseStakingRemainingTime))
+    
     const checkPurseAmount = async (receipt:BigNumber) => {
       let _purseStakingTotalStake =  await purseTokenUpgradable.balanceOf(Constants.PURSE_STAKING_ADDRESS)
       let _purseStakingTotalReceipt = await purseStaking.totalReceiptSupply()
