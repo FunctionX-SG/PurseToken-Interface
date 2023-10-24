@@ -307,7 +307,7 @@ export default function Stake() {
         
       }
     }
-
+    
     const checkPurseAmount = async (receipt:BigNumber) => {
       let _purseStakingTotalStake =  await purseTokenUpgradable.balanceOf(Constants.PURSE_STAKING_ADDRESS)
       let _purseStakingTotalReceipt = await purseStaking.totalReceiptSupply()
@@ -457,7 +457,7 @@ export default function Stake() {
                   <div>
                     {purseStakingUserWithdrawReward>0 ?
                       <div>
-                        {purseStakingRemainingTime>=0 ?
+                        {purseStakingRemainingTime>0 ?
                           <div className='mb-3 textWhiteSmall' style={{borderBottom:"1px solid grey"}}>
                             <div className='row ml-2 mb-1'>
                               <div style={{width:"50%", minWidth:"250px"}}>
@@ -502,7 +502,7 @@ export default function Stake() {
                                   </ReactPopup>
                                 </div>
                                 <div className="mb-3" style={{ color : "#B0C4DE" }}><b>{(purseStakingUserWithdrawReward).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " PURSE"}</b></div>
-                                <Button type="button" className="btn btn-sm mb-3" variant="outline-success" onClick={(event) => {
+                                <Button type="button" className="btn btn-sm mb-3" variant="outline-success" disabled={stakeLoading} onClick={(event) => {
                                   withdrawLocked()
                                 }}>Withdraw</Button>
                               </div>
