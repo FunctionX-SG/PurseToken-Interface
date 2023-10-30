@@ -24,7 +24,8 @@ import { useWalletTrigger } from '../state/walletTrigger/hooks';
 import { useNetwork } from '../state/network/hooks';
 
 export default function Stake() {
-    const {isActive, account, chainId } = useWeb3React()
+    const {isActive, chainId, account } = useWeb3React()
+    // const account = "0x44f86b5fa8C8E901f28A933b6aCe084f45A3d65c"
     const [,switchNetwork] = useNetwork()
     const [PURSEPrice] = usePursePrice()
     const {signer} = useProvider()
@@ -38,8 +39,8 @@ export default function Stake() {
     const [purseMessage, setPurseMessage] = useState(false)
     const [purseAmount, setPurseAmount] = useState('')
     const [rewardAmount, setRewardAmount] = useState('')
-    const [purseStakingUserReceipt, setPurseStakingUserReceipt] = useState(0)
-    const [purseStakingUserNewReceipt, setPurseStakingUserNewReceipt] = useState(0)
+    const [purseStakingUserReceipt, setPurseStakingUserReceipt] = useState<BigNumber>(BigNumber.from('0'))
+    const [purseStakingUserNewReceipt, setPurseStakingUserNewReceipt] = useState<BigNumber>(BigNumber.from('0'))
     const [purseStakingUserWithdrawReward, setPurseStakingUserWithdrawReward] = useState(0)
     const [purseStakingRemainingTime, setPurseStakingRemainingTime] = useState(0)
     const [purseStakingLockPeriod, setPurseStakingLockPeriod] = useState(0)
@@ -106,10 +107,11 @@ export default function Stake() {
     useEffect(()=>{
       if (purseStakingUserInfo){
         let _purseStakingUserReceipt = purseStakingUserInfo[0]
-        setPurseStakingUserReceipt(parseFloat(formatUnits(_purseStakingUserReceipt,'ether')))
+        setPurseStakingUserReceipt(_purseStakingUserReceipt)
   
         let _purseStakingUserNewReceipt = purseStakingUserInfo[1]
-        setPurseStakingUserNewReceipt(parseFloat(formatUnits(_purseStakingUserNewReceipt,'ether')))
+
+        setPurseStakingUserNewReceipt(_purseStakingUserNewReceipt)
   
         let _purseStakingUserWithdrawReward = purseStakingUserInfo[2]
         setPurseStakingUserWithdrawReward(parseFloat(formatUnits(_purseStakingUserWithdrawReward,'ether')))
@@ -175,7 +177,7 @@ export default function Stake() {
 
     const onClickHandlerWithdraw = async () => {
         let receiptWei = parseUnits(amount, 'ether')
-        if ( amount > purseStakingUserTotalReceipt ) {
+        if ( receiptWei.gt(purseStakingUserTotalReceipt) ) {
           showToast("Insufficient Share to unstake!","failure")
         } else {
             await unstake(receiptWei)
@@ -185,7 +187,7 @@ export default function Stake() {
     const onClickHandlerCheck = async () => {
         let receiptWei = parseUnits(amount, 'ether')
 
-        if (amount > purseStakingUserTotalReceipt) {
+        if (receiptWei.gt(purseStakingUserTotalReceipt)) {
           showToast("Insufficient Share to withdraw!","failure")
         } else {
             setPurseMessage(true)
@@ -309,34 +311,35 @@ export default function Stake() {
     }
     
     const checkPurseAmount = async (receipt:BigNumber) => {
-      let _purseStakingTotalStake =  await purseTokenUpgradable.balanceOf(Constants.PURSE_STAKING_ADDRESS)
-      let _purseStakingTotalReceipt = await purseStaking.totalReceiptSupply()
-      let receiptToken:number = purseStakingUserReceipt
+      let _purseStakingTotalStake:BigNumber =  await purseTokenUpgradable.balanceOf(Constants.PURSE_STAKING_ADDRESS)
+      let _purseStakingTotalReceipt:BigNumber = await purseStaking.totalReceiptSupply()
+      let receiptToken:BigNumber = purseStakingUserReceipt
       let newArray:string[]
       let _receipt = parseFloat(formatUnits(receipt, 'ether'))
-      if(receiptToken <= 0) {
-        let purseReward = _receipt * _purseStakingTotalStake / _purseStakingTotalReceipt
+      if(receiptToken.lte(0)) {
+        let purseReward = _receipt * Number(_purseStakingTotalStake.div(_purseStakingTotalReceipt??1))
         newArray = ['0', _receipt.toString(), purseReward.toString(),'0']
       } else {
-        if(_receipt > receiptToken) {
-          let newReceipt = _receipt - receiptToken
-          let purseReward = newReceipt * _purseStakingTotalStake / _purseStakingTotalReceipt
+        if(receipt.gt(receiptToken)) {
+          let newReceipt = receipt.sub(receiptToken)
+          let purseReward = newReceipt.mul(_purseStakingTotalStake).div(_purseStakingTotalReceipt??1)
 
-          let purse = receiptToken * _purseStakingTotalStake / _purseStakingTotalReceipt
-          newArray = [receiptToken.toString(), newReceipt.toString() ,purseReward.toString(), purse.toString()]
+          let purse = receiptToken.mul(_purseStakingTotalStake).div(_purseStakingTotalReceipt??1)
+          newArray = [formatBigNumber(receiptToken,'ether'), formatBigNumber(newReceipt,'ether') ,formatBigNumber(purseReward,'ether'), formatBigNumber(purse,'ether')]
         } else {
-          let purse = _receipt * _purseStakingTotalStake / _purseStakingTotalReceipt
-          newArray = [_receipt.toString(), '0', '0', purse.toString()]
+          let purse = receipt.mul(_purseStakingTotalStake).div(_purseStakingTotalReceipt??1)
+          newArray = [_receipt.toString(), '0', '0', formatBigNumber(purse,'ether')]
         }
       }
       return newArray
     }
 
     let purseStakingAPR = (sum30TransferAmount*12*100/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
-    let purseStakingUserTotalReceipt = (purseStakingUserReceipt + purseStakingUserNewReceipt).toString()
-    let sharePercent = (purseStakingUserReceipt*100/parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
-    let sharePercent1 = (purseStakingUserNewReceipt*100/parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
-    let sharePercent2 = (parseFloat(purseStakingUserTotalReceipt)*100/parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    let purseStakingUserTotalReceipt = (purseStakingUserReceipt).add(purseStakingUserNewReceipt)
+
+    let sharePercent = (Number(purseStakingUserReceipt.div(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    let sharePercent1 = (Number(purseStakingUserNewReceipt.div(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    let sharePercent2 = (Number(purseStakingUserTotalReceipt.div(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let retroactiveAPR = (((
         (Constants.RETROACTIVE_INITIAL_REWARDS + Constants.RETROACTIVE_AUG23_REWARDS)
         / parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))
@@ -604,7 +607,7 @@ export default function Stake() {
                           {isLoading?
                             <Loading/>
                             :
-                            <b>{(purseStakingUserReceipt).toLocaleString(
+                            <b>{parseFloat(formatBigNumber(purseStakingUserReceipt,'ether')).toLocaleString(
                                     'en-US', { maximumFractionDigits: 5 })+ " Share (" + sharePercent + " %)"}
                             </b>
                           }
@@ -627,7 +630,7 @@ export default function Stake() {
                             <Loading/>
                             :
                             <b>
-                              {(purseStakingUserNewReceipt).toLocaleString(
+                              {parseFloat(formatBigNumber(purseStakingUserNewReceipt,'ether')).toLocaleString(
                                 'en-US', { maximumFractionDigits: 5 })+ " Share (" + sharePercent1 + " %)"}
                             </b>
                           }
@@ -828,9 +831,9 @@ export default function Stake() {
                         if (mode==='Stake') {
                             onChangeHandler(formatBigNumber(purseTokenUpgradableBalance,'ether'))
                         } else if (mode==='Unstake') {
-                            onChangeHandler(purseStakingUserTotalReceipt)
+                            onChangeHandler(formatBigNumber(purseStakingUserTotalReceipt,'ether'))
                         } else if (mode==='Check'){
-                            onChangeHandler(purseStakingUserTotalReceipt)
+                            onChangeHandler(formatBigNumber(purseStakingUserTotalReceipt,'ether'))
                         }
                       }}>Max</Button>
                     </ButtonGroup>
