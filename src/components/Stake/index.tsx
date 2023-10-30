@@ -25,7 +25,6 @@ import { useNetwork } from '../state/network/hooks';
 
 export default function Stake() {
     const {isActive, chainId, account } = useWeb3React()
-    // const account = "0x44f86b5fa8C8E901f28A933b6aCe084f45A3d65c"
     const [,switchNetwork] = useNetwork()
     const [PURSEPrice] = usePursePrice()
     const {signer} = useProvider()
