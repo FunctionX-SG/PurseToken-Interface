@@ -571,7 +571,7 @@ export default function Stake() {
                           
                           <div className="textWhiteSmall mb-1" >
                             <b>Reward:&nbsp;&nbsp;</b>
-                            <ReactPopup trigger={open => (
+                            {/* <ReactPopup trigger={open => (
                               <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
                               )}
                               on="hover"
@@ -581,7 +581,7 @@ export default function Stake() {
                               contentStyle={{ padding: '3px' }}>
                               <span className="textInfo">Represents the total amount of PURSE in the PURSE Staking contract</span>
                               <span className="textInfo mt-2">Total Share (Pool) ≡ Total Staked (Pool)</span>
-                            </ReactPopup>
+                            </ReactPopup> */}
                           </div>
                           <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
                           {isLoading?
