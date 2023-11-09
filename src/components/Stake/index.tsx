@@ -191,8 +191,8 @@ export default function Stake() {
         } else {
             setPurseMessage(true)
             let _checkPurseAmount:string[] = await checkPurseAmount(receiptWei)
-            let getPurseAmount = _checkPurseAmount[0] + " Share : " + parseFloat(_checkPurseAmount[3]).toLocaleString('en-US', { maximumFractionDigits: 18 })  + " PURSE (" + (parseFloat(_checkPurseAmount[3])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
-            let getRewardAmount = _checkPurseAmount[1] + " Share : " + parseFloat(_checkPurseAmount[2]).toLocaleString('en-US', { maximumFractionDigits: 18 })   + " PURSE (" + (parseFloat(_checkPurseAmount[2])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
+            let getPurseAmount = _checkPurseAmount[0] + " Share : " + parseFloat(_checkPurseAmount[3]).toLocaleString('en-US', { maximumFractionDigits: 5 })  + " PURSE (" + (parseFloat(_checkPurseAmount[3])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
+            let getRewardAmount = _checkPurseAmount[1] + " Share : " + parseFloat(_checkPurseAmount[2]).toLocaleString('en-US', { maximumFractionDigits: 5 })   + " PURSE (" + (parseFloat(_checkPurseAmount[2])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
             setPurseAmount(getPurseAmount)
             setRewardAmount(getRewardAmount)
         }
@@ -310,23 +310,23 @@ export default function Stake() {
     }
     
     const checkPurseAmount = async (receipt:BigNumber) => {
-      let _purseStakingTotalStake:BigNumber =  await purseTokenUpgradable.balanceOf(Constants.PURSE_STAKING_ADDRESS)
+      let _purseStakingAvailableSupply:BigNumber = await purseStaking.availablePurseSupply()
       let _purseStakingTotalReceipt:BigNumber = await purseStaking.totalReceiptSupply()
       let receiptToken:BigNumber = purseStakingUserReceipt
       let newArray:string[]
       let _receipt = parseFloat(formatUnits(receipt, 'ether'))
       if(receiptToken.lte(0)) {
-        let purseReward = _receipt * Number(_purseStakingTotalStake.div(_purseStakingTotalReceipt??1))
-        newArray = ['0', _receipt.toString(), purseReward.toString(),'0']
+        let purseReward = receipt.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
+        newArray = ['0', _receipt.toString(), formatBigNumber(purseReward,'ether').toString(),'0']
       } else {
         if(receipt.gt(receiptToken)) {
           let newReceipt = receipt.sub(receiptToken)
-          let purseReward = newReceipt.mul(_purseStakingTotalStake).div(_purseStakingTotalReceipt??1)
+          let purseReward = newReceipt.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
 
-          let purse = receiptToken.mul(_purseStakingTotalStake).div(_purseStakingTotalReceipt??1)
+          let purse = receiptToken.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
           newArray = [formatBigNumber(receiptToken,'ether'), formatBigNumber(newReceipt,'ether') ,formatBigNumber(purseReward,'ether'), formatBigNumber(purse,'ether')]
         } else {
-          let purse = receipt.mul(_purseStakingTotalStake).div(_purseStakingTotalReceipt??1)
+          let purse = receipt.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
           newArray = [_receipt.toString(), '0', '0', formatBigNumber(purse,'ether')]
         }
       }
@@ -336,9 +336,10 @@ export default function Stake() {
     let purseStakingAPR = (sum30TransferAmount*12*100/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let purseStakingUserTotalReceipt = (purseStakingUserReceipt).add(purseStakingUserNewReceipt)
 
-    let sharePercent = (Number(purseStakingUserReceipt.div(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
-    let sharePercent1 = (Number(purseStakingUserNewReceipt.div(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
-    let sharePercent2 = (Number(purseStakingUserTotalReceipt.div(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    let unlockSharePercent = ((Number(purseStakingUserReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    let lockSharePercent = ((Number(purseStakingUserNewReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    let balanceSharePercent = ((Number(purseStakingUserTotalReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+
     let retroactiveAPR = (((
         (Constants.RETROACTIVE_INITIAL_REWARDS + Constants.RETROACTIVE_AUG23_REWARDS)
         / parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))
@@ -584,8 +585,8 @@ export default function Stake() {
                             <Loading/>
                             :
                             <b>
-                              {parseFloat(purseStakingUserTotalReceipt.toString()).toLocaleString(
-                                  'en-US', { maximumFractionDigits: 5 })+ " Share (" + sharePercent2 + " %)"}
+                              {parseFloat(formatBigNumber(purseStakingUserTotalReceipt,'ether').toString()).toLocaleString(
+                                  'en-US', { maximumFractionDigits: 5 })+ " Share (" + balanceSharePercent + " %)"}
                             </b>
                           }
                           </div>
@@ -607,7 +608,7 @@ export default function Stake() {
                             <Loading/>
                             :
                             <b>{parseFloat(formatBigNumber(purseStakingUserReceipt,'ether')).toLocaleString(
-                                    'en-US', { maximumFractionDigits: 5 })+ " Share (" + sharePercent + " %)"}
+                                    'en-US', { maximumFractionDigits: 5 })+ " Share (" + unlockSharePercent + " %)"}
                             </b>
                           }
                           </div>
@@ -630,7 +631,7 @@ export default function Stake() {
                             :
                             <b>
                               {parseFloat(formatBigNumber(purseStakingUserNewReceipt,'ether')).toLocaleString(
-                                'en-US', { maximumFractionDigits: 5 })+ " Share (" + sharePercent1 + " %)"}
+                                'en-US', { maximumFractionDigits: 5 })+ " Share (" + lockSharePercent + " %)"}
                             </b>
                           }
                           </div>
