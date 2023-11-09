@@ -308,6 +308,33 @@ export default function Stake() {
         
       }
     }
+
+    const claim = async () => {
+      if (isActive) {
+        setStakeLoading(true)
+        try{
+          // const tx:any = await callContract(signer,purseStaking,"withdrawLockedAmount")
+          // if (tx?.hash){
+          //   const link = `https://bscscan.com/tx/${tx.hash}`
+          //   showToast("Transaction sent!","success",link)
+          //   await tx.wait()
+          //   const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+          //   showToast(message,"success",link)
+          // }else if(tx?.message.includes("user rejected transaction")){
+          //   showToast(`User rejected transaction.`,"failure")
+          // }else if(tx?.reason){
+          //   showToast(`Execution reverted: ${tx.reason}`,"failure")
+          // }else {
+          //   showToast("Something went wrong.","failure")
+          // }
+        } catch(err) {
+          showToast("Something went wrong.","failure")
+          console.log(err)
+        }
+        
+        setStakeLoading(false)
+      }
+    }
     
     const checkPurseAmount = async (receipt:BigNumber) => {
       let _purseStakingAvailableSupply:BigNumber = await purseStaking.availablePurseSupply()
@@ -541,6 +568,41 @@ export default function Stake() {
                             </b>
                             }
                           </div>
+                          
+                          <div className="textWhiteSmall mb-1" >
+                            <b>Reward:&nbsp;&nbsp;</b>
+                            <ReactPopup trigger={open => (
+                              <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
+                              )}
+                              on="hover"
+                              position="top center"
+                              offsetY={20}
+                              offsetX={0}
+                              contentStyle={{ padding: '3px' }}>
+                              <span className="textInfo">Represents the total amount of PURSE in the PURSE Staking contract</span>
+                              <span className="textInfo mt-2">Total Share (Pool) ≡ Total Staked (Pool)</span>
+                            </ReactPopup>
+                          </div>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          {isLoading?
+                            <Loading/>
+                            :
+                            <b>
+                              {/* {parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether')).toLocaleString(
+                                  'en-US', { maximumFractionDigits: 5 })} */}
+                              0 PURSE
+                            </b>
+                          }
+                          </div>
+                          <Button type="button" className="btn btn-sm mb-3" variant="outline-success" disabled onClick={(event) => {
+                                  claim()
+                                }}>Claim</Button>
+                          
+                      </div>
+    
+                      <div style={{width:"50%", minWidth:"250px"}}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <div>
                           <div className="textWhiteSmall mb-1" >
                             <b>Staked Balance:&nbsp;&nbsp;</b>
                             <ReactPopup trigger={open => (
@@ -635,44 +697,52 @@ export default function Stake() {
                             </b>
                           }
                           </div>
-                      </div>
-    
-                      <div style={{width:"50%", minWidth:"250px"}}>
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <div>
-                            <div className="textWhiteSmall mb-1" >
-                              <b>APR:&nbsp;&nbsp;</b>
-                              <ReactPopup
-                                  trigger={open => (
-                                      <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
-                                  )}
-                                  on="hover"
-                                  position="right center"
-                                  offsetY={-23}
-                                  offsetX={0}
-                                  contentStyle={{ padding: '3px' }}
-                              >
-                                <span className="textInfo">
-                                  Percentage of past 30 days distribution sum x 12 / Total staked (Pool) + <br/>
-                                  Percentage of total rewards disbursed and to disburse / Total staked (Pool)
-                                </span>
-                              </ReactPopup>
-                            </div>
-                            <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
-                            {isLoading?
-                            <Loading/>
-                            :
-                              <b>
-                                {
-                                  isNaN(combinedAPR) ?
-                                      "0 %" :
-                                      `${combinedAPR.toLocaleString('en-US', { maximumFractionDigits: 5 })} %`
-                                }
-                              </b>
-                            }
-                            </div>
+
                           </div>
                         </div>
+                          
+                      </div>
+                    </div>
+
+                    <div style={{borderTop:"1px solid grey"}}></div>
+                    <div className="row mt-3 ml-2">
+                      
+                      <div style={{width:"50%", minWidth:"250px"}}>
+
+                        <div>
+                          <div className="textWhiteSmall mb-1" >
+                            <b>APR:&nbsp;&nbsp;</b>
+                            <ReactPopup
+                                trigger={open => (
+                                    <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
+                                )}
+                                on="hover"
+                                position="right center"
+                                offsetY={-23}
+                                offsetX={0}
+                                contentStyle={{ padding: '3px' }}
+                            >
+                              <span className="textInfo">
+                                Percentage of past 30 days distribution sum x 12 / Total staked (Pool) + <br/>
+                                Percentage of total rewards disbursed and to disburse / Total staked (Pool)
+                              </span>
+                            </ReactPopup>
+                          </div>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          {isLoading?
+                          <Loading/>
+                          :
+                            <b>
+                              {
+                                isNaN(combinedAPR) ?
+                                    "0 %" :
+                                    `${combinedAPR.toLocaleString('en-US', { maximumFractionDigits: 5 })} %`
+                              }
+                            </b>
+                          }
+                          </div>
+                        </div>
+                          
                         <div style={{paddingRight:"2px", width:"50%", minWidth:"250px"}}>
                           <div className="textWhiteSmall mb-1"><b>Past 30 Days Distribution Sum:</b></div>
                           <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
@@ -683,6 +753,12 @@ export default function Stake() {
                           }
                           </div>
                         </div>
+
+                      </div>
+    
+                      <div style={{width:"50%", minWidth:"250px"}}>
+
+                        
                         <div className="textWhiteSmall mb-1" >
                           <b>Total Staked (Pool):&nbsp;&nbsp;</b>
                           <ReactPopup trigger={open => (
