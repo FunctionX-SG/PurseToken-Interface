@@ -4,7 +4,7 @@ import fox from '../../assets/images/metamask-fox.svg'
 import walletconnectLogo from '../../assets/images/walletconnect-logo.svg'
 import Buttons from 'react-bootstrap/Button'
 import 'reactjs-popup/dist/index.css'
-import MediaQuery from 'react-responsive'
+import MediaQuery, {useMediaQuery} from 'react-responsive'
 import { FaWallet } from 'react-icons/fa'
 import { slide as Menu } from 'react-burger-menu'
 import Dropdown from 'react-bootstrap/Dropdown'
@@ -15,6 +15,7 @@ import { walletConnectV2 } from '../connectors/walletConnect'
 import { getShortAccount, chainId2NetworkName, isSupportedChain } from '../utils'
 import { Link } from "react-router-dom";
 import { useToast } from '../state/toast/hooks';
+import CloseButton from 'react-bootstrap/CloseButton'
 
 import {
   NavLink,
@@ -121,9 +122,47 @@ export default function Navb() {
     }
   }
 
+  const [notice,setNotice] = useState(true)
+  const [navbarTop,setNavbarTop] = useState('38px')
+  const closeNotice = () => {
+    setNotice(false)
+    setNavbarTop('0')
+  }
+
+  const isNavbarTop = useMediaQuery({minWidth:961})
+  useEffect(()=>{
+    if (!isNavbarTop) setNavbarTop('0')
+    else {
+      if (notice) setNavbarTop('38px')
+    }
+  },[isNavbarTop,notice])
 
     return (
-      <nav className="navbar navbar-dark top bg-dark flex-md-nowrap p-0 shadow" style={{height:"50px",position:"fixed",width:"100%", top:"0",zIndex:"9999"}}>
+      <>
+      {/* Notice */}
+      {notice?
+      <>
+      <MediaQuery minWidth={961}>
+      <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"38px",position:"fixed",width:"100%", top:"0",zIndex:"9999",backgroundColor:"#A82762",color:"white",fontSize:'15px'}}>
+        <span className="center" style={{width:'100%'}}>
+          Check out the new roadmap of Purse at &nbsp;<a href="https://www.purse.land" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>www.purse.land</u></a>
+        </span>
+        <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2" style={{color:'white',fontSize:'30px',width:"30px",height:"30px"}}/>
+      </nav>
+      </MediaQuery>
+      <MediaQuery maxWidth={960}>
+      <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"38px",position:"fixed",width:"100%", bottom:"0",zIndex:"9999",backgroundColor:"#A82762",color:"white",fontSize:'15px'}}>
+        <span className="center" style={{width:'100%'}}>
+          Check out the new roadmap of Purse at &nbsp;<a href="https://www.purse.land" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>www.purse.land</u></a>
+        </span>
+        <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2" style={{color:'white',fontSize:'30px',width:"30px",height:"30px"}}/>
+      </nav>
+      </MediaQuery>
+
+      </>
+      :<></>}
+      {/* Navbar top:38px if there is notice */}
+      <nav className="navbar navbar-dark top bg-dark flex-md-nowrap p-0 shadow" style={{height:"50px",position:"fixed",width:"100%", top:navbarTop,zIndex:"9999"}}>
         <div className="navbar-brand col-sm-3 col-md-2 mt-1 md-1 mr-0 rowB">
           <MediaQuery maxWidth={960}>
             <Menu>
@@ -296,6 +335,6 @@ export default function Navb() {
           </ul>
         </span>
       </nav>
-
+      </>
     );
   }
