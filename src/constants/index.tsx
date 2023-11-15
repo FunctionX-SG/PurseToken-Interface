@@ -20,7 +20,6 @@ export const COINGECKO_API = `https://api.coingecko.com/api/v3/simple/price?ids=
 export const MONGO_RESPONSE_0_API = `https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/PundiX`;
 export const MONGO_RESPONSE_1_API = `https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/CumulativeTransfer`;
 export const MONGO_RESPONSE_2_API = `https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/CumulativeBurn`;
-export const MONGO_TVLAPR_RESPONSE_API = `https://ap-southeast-1.aws.data.mongodb-api.com/app/application-0-iqgbt/endpoint/PundiX`;
 export const MONGO_FXSWAP_RESPONSE_API = `https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/tvl_prod`;
 
 //RPC URLs

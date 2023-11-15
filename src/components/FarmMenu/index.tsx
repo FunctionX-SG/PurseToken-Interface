@@ -63,7 +63,7 @@ export default function FarmMenu() {
         let _poolInfos: any[] = []
         let _userInfos: any[] = []
 
-        let response = await fetch(Constants.MONGO_TVLAPR_RESPONSE_API);
+        let response = await fetch(Constants.MONGO_RESPONSE_0_API);
         const myJson = await response.json();
         let tvlArray = myJson["TVL"]
         let aprArray = myJson["APR"]
@@ -88,11 +88,11 @@ export default function FarmMenu() {
             const _userInfo = await readContract(restakingFarm,"userInfo",_lpAddress, account)
             _userInfos.push(_userInfo ? _userInfo.amount : 'NaN')
 
-            _tvl.push(tvlArray)
-            _apr.push(aprArray)
-            _apyDaily.push((Math.pow((1 + 0.8 * aprArray / 36500), 365) - 1) * 100)
-            _apyWeekly.push((Math.pow((1 + 0.8 * aprArray / 5200), 52) - 1) * 100)
-            _apyMonthly.push((Math.pow((1 + 0.8 * aprArray / 1200), 12) - 1) * 100)
+            _tvl.push(tvlArray[i].tvl)
+            _apr.push(aprArray[i].apr)
+            _apyDaily.push((Math.pow((1 + 0.8 * aprArray[i].apr / 36500), 365) - 1) * 100)
+            _apyWeekly.push((Math.pow((1 + 0.8 * aprArray[i].apr / 5200), 52) - 1) * 100)
+            _apyMonthly.push((Math.pow((1 + 0.8 * aprArray[i].apr / 1200), 12) - 1) * 100)
         }
         setTotalPendingReward(_totalPendingReward)
         setTotalRewardPerBlock(BigNumber.from(_totalRewardPerBlock.toString()))
