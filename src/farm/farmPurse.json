@@ -31,6 +31,38 @@
             "name": "BUSD Token"            
           }
         }
+      },
+      {
+        "pid": 1,
+        "lpTokenPairsymbol": "Cake-LP",
+        "lpName": "PURSE-USDT",
+        "lpAddresses": {
+          "56": "0xfc450e16016aF4e4197f5dB5Ca0d262fF8fD735a"
+        },
+        "icon": "Cake-LP",
+        "platform": "PancakeSwap",
+        "pursePerBlock": "400000000000000000000",
+        "bonusMultiplier": 1,
+        "getLPLink": "https://pancakeswap.finance/v2/add/0x55d398326f99059fF775485246999027B3197955/0x29a63F4B209C29B4DC47f06FFA896F32667DAD2C",
+        "lpContract": "https://bscscan.com/address/0xfc450e16016aF4e4197f5dB5Ca0d262fF8fD735a",
+        "token": {
+          "MAINNET": {
+            "chainId": "56",
+            "address": "0x29a63F4B209C29B4DC47f06FFA896F32667DAD2C",
+            "decimals": "18",
+            "symbol": "PURSE",
+            "name": "Purse Token"
+          }
+        },
+        "quoteToken": {
+          "MAINNET": {
+            "chainId": "56",
+            "address": "0x55d398326f99059fF775485246999027B3197955",
+            "decimals": "18",
+            "symbol": "USDT",
+            "name": "Tether USDT"
+          }
+        }
       }
     ]
   }

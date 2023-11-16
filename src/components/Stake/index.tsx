@@ -25,7 +25,6 @@ import { useNetwork } from '../state/network/hooks';
 
 export default function Stake() {
     const {isActive, chainId, account } = useWeb3React()
-    // const account = "0x44f86b5fa8C8E901f28A933b6aCe084f45A3d65c"
     const [,switchNetwork] = useNetwork()
     const [PURSEPrice] = usePursePrice()
     const {signer} = useProvider()
@@ -192,8 +191,8 @@ export default function Stake() {
         } else {
             setPurseMessage(true)
             let _checkPurseAmount:string[] = await checkPurseAmount(receiptWei)
-            let getPurseAmount = _checkPurseAmount[0] + " Share : " + parseFloat(_checkPurseAmount[3]).toLocaleString('en-US', { maximumFractionDigits: 18 })  + " PURSE (" + (parseFloat(_checkPurseAmount[3])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
-            let getRewardAmount = _checkPurseAmount[1] + " Share : " + parseFloat(_checkPurseAmount[2]).toLocaleString('en-US', { maximumFractionDigits: 18 })   + " PURSE (" + (parseFloat(_checkPurseAmount[2])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
+            let getPurseAmount = _checkPurseAmount[0] + " Share : " + parseFloat(_checkPurseAmount[3]).toLocaleString('en-US', { maximumFractionDigits: 5 })  + " PURSE (" + (parseFloat(_checkPurseAmount[3])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
+            let getRewardAmount = _checkPurseAmount[1] + " Share : " + parseFloat(_checkPurseAmount[2]).toLocaleString('en-US', { maximumFractionDigits: 5 })   + " PURSE (" + (parseFloat(_checkPurseAmount[2])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
             setPurseAmount(getPurseAmount)
             setRewardAmount(getRewardAmount)
         }
@@ -309,25 +308,52 @@ export default function Stake() {
         
       }
     }
+
+    const claim = async () => {
+      if (isActive) {
+        setStakeLoading(true)
+        try{
+          // const tx:any = await callContract(signer,purseStaking,"withdrawLockedAmount")
+          // if (tx?.hash){
+          //   const link = `https://bscscan.com/tx/${tx.hash}`
+          //   showToast("Transaction sent!","success",link)
+          //   await tx.wait()
+          //   const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+          //   showToast(message,"success",link)
+          // }else if(tx?.message.includes("user rejected transaction")){
+          //   showToast(`User rejected transaction.`,"failure")
+          // }else if(tx?.reason){
+          //   showToast(`Execution reverted: ${tx.reason}`,"failure")
+          // }else {
+          //   showToast("Something went wrong.","failure")
+          // }
+        } catch(err) {
+          showToast("Something went wrong.","failure")
+          console.log(err)
+        }
+        
+        setStakeLoading(false)
+      }
+    }
     
     const checkPurseAmount = async (receipt:BigNumber) => {
-      let _purseStakingTotalStake:BigNumber =  await purseTokenUpgradable.balanceOf(Constants.PURSE_STAKING_ADDRESS)
+      let _purseStakingAvailableSupply:BigNumber = await purseStaking.availablePurseSupply()
       let _purseStakingTotalReceipt:BigNumber = await purseStaking.totalReceiptSupply()
       let receiptToken:BigNumber = purseStakingUserReceipt
       let newArray:string[]
       let _receipt = parseFloat(formatUnits(receipt, 'ether'))
       if(receiptToken.lte(0)) {
-        let purseReward = _receipt * Number(_purseStakingTotalStake.div(_purseStakingTotalReceipt??1))
-        newArray = ['0', _receipt.toString(), purseReward.toString(),'0']
+        let purseReward = receipt.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
+        newArray = ['0', _receipt.toString(), formatBigNumber(purseReward,'ether').toString(),'0']
       } else {
         if(receipt.gt(receiptToken)) {
           let newReceipt = receipt.sub(receiptToken)
-          let purseReward = newReceipt.mul(_purseStakingTotalStake).div(_purseStakingTotalReceipt??1)
+          let purseReward = newReceipt.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
 
-          let purse = receiptToken.mul(_purseStakingTotalStake).div(_purseStakingTotalReceipt??1)
+          let purse = receiptToken.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
           newArray = [formatBigNumber(receiptToken,'ether'), formatBigNumber(newReceipt,'ether') ,formatBigNumber(purseReward,'ether'), formatBigNumber(purse,'ether')]
         } else {
-          let purse = receipt.mul(_purseStakingTotalStake).div(_purseStakingTotalReceipt??1)
+          let purse = receipt.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
           newArray = [_receipt.toString(), '0', '0', formatBigNumber(purse,'ether')]
         }
       }
@@ -337,9 +363,10 @@ export default function Stake() {
     let purseStakingAPR = (sum30TransferAmount*12*100/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let purseStakingUserTotalReceipt = (purseStakingUserReceipt).add(purseStakingUserNewReceipt)
 
-    let sharePercent = (Number(purseStakingUserReceipt.div(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
-    let sharePercent1 = (Number(purseStakingUserNewReceipt.div(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
-    let sharePercent2 = (Number(purseStakingUserTotalReceipt.div(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    let unlockSharePercent = ((Number(purseStakingUserReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    let lockSharePercent = ((Number(purseStakingUserNewReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    let balanceSharePercent = ((Number(purseStakingUserTotalReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
+
     let retroactiveAPR = (((
         (Constants.RETROACTIVE_INITIAL_REWARDS + Constants.RETROACTIVE_AUG23_REWARDS)
         / parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))
@@ -541,6 +568,41 @@ export default function Stake() {
                             </b>
                             }
                           </div>
+                          
+                          <div className="textWhiteSmall mb-1" >
+                            <b>Reward:&nbsp;&nbsp;</b>
+                            {/* <ReactPopup trigger={open => (
+                              <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
+                              )}
+                              on="hover"
+                              position="top center"
+                              offsetY={20}
+                              offsetX={0}
+                              contentStyle={{ padding: '3px' }}>
+                              <span className="textInfo">Represents the total amount of PURSE in the PURSE Staking contract</span>
+                              <span className="textInfo mt-2">Total Share (Pool) ≡ Total Staked (Pool)</span>
+                            </ReactPopup> */}
+                          </div>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          {isLoading?
+                            <Loading/>
+                            :
+                            <b>
+                              {/* {parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether')).toLocaleString(
+                                  'en-US', { maximumFractionDigits: 5 })} */}
+                              0 PURSE
+                            </b>
+                          }
+                          </div>
+                          <Button type="button" className="btn btn-sm mb-3" variant="outline-success" disabled onClick={(event) => {
+                                  claim()
+                                }}>Claim</Button>
+                          
+                      </div>
+    
+                      <div style={{width:"50%", minWidth:"250px"}}>
+                        <div style={{ display: "flex", alignItems: "center" }}>
+                          <div>
                           <div className="textWhiteSmall mb-1" >
                             <b>Staked Balance:&nbsp;&nbsp;</b>
                             <ReactPopup trigger={open => (
@@ -585,8 +647,8 @@ export default function Stake() {
                             <Loading/>
                             :
                             <b>
-                              {parseFloat(purseStakingUserTotalReceipt.toString()).toLocaleString(
-                                  'en-US', { maximumFractionDigits: 5 })+ " Share (" + sharePercent2 + " %)"}
+                              {parseFloat(formatBigNumber(purseStakingUserTotalReceipt,'ether').toString()).toLocaleString(
+                                  'en-US', { maximumFractionDigits: 5 })+ " Share (" + balanceSharePercent + " %)"}
                             </b>
                           }
                           </div>
@@ -608,7 +670,7 @@ export default function Stake() {
                             <Loading/>
                             :
                             <b>{parseFloat(formatBigNumber(purseStakingUserReceipt,'ether')).toLocaleString(
-                                    'en-US', { maximumFractionDigits: 5 })+ " Share (" + sharePercent + " %)"}
+                                    'en-US', { maximumFractionDigits: 5 })+ " Share (" + unlockSharePercent + " %)"}
                             </b>
                           }
                           </div>
@@ -631,48 +693,56 @@ export default function Stake() {
                             :
                             <b>
                               {parseFloat(formatBigNumber(purseStakingUserNewReceipt,'ether')).toLocaleString(
-                                'en-US', { maximumFractionDigits: 5 })+ " Share (" + sharePercent1 + " %)"}
+                                'en-US', { maximumFractionDigits: 5 })+ " Share (" + lockSharePercent + " %)"}
                             </b>
                           }
                           </div>
-                      </div>
-    
-                      <div style={{width:"50%", minWidth:"250px"}}>
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <div>
-                            <div className="textWhiteSmall mb-1" >
-                              <b>APR:&nbsp;&nbsp;</b>
-                              <ReactPopup
-                                  trigger={open => (
-                                      <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
-                                  )}
-                                  on="hover"
-                                  position="right center"
-                                  offsetY={-23}
-                                  offsetX={0}
-                                  contentStyle={{ padding: '3px' }}
-                              >
-                                <span className="textInfo">
-                                  Percentage of past 30 days distribution sum x 12 / Total staked (Pool) + <br/>
-                                  Percentage of total rewards disbursed and to disburse / Total staked (Pool)
-                                </span>
-                              </ReactPopup>
-                            </div>
-                            <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
-                            {isLoading?
-                            <Loading/>
-                            :
-                              <b>
-                                {
-                                  isNaN(combinedAPR) ?
-                                      "0 %" :
-                                      `${combinedAPR.toLocaleString('en-US', { maximumFractionDigits: 5 })} %`
-                                }
-                              </b>
-                            }
-                            </div>
+
                           </div>
                         </div>
+                          
+                      </div>
+                    </div>
+
+                    <div style={{borderTop:"1px solid grey"}}></div>
+                    <div className="row mt-3 ml-2">
+                      
+                      <div style={{width:"50%", minWidth:"250px"}}>
+
+                        <div>
+                          <div className="textWhiteSmall mb-1" >
+                            <b>APR:&nbsp;&nbsp;</b>
+                            <ReactPopup
+                                trigger={open => (
+                                    <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
+                                )}
+                                on="hover"
+                                position="right center"
+                                offsetY={-23}
+                                offsetX={0}
+                                contentStyle={{ padding: '3px' }}
+                            >
+                              <span className="textInfo">
+                                Percentage of past 30 days distribution sum x 12 / Total staked (Pool) + <br/>
+                                Percentage of total rewards disbursed and to disburse / Total staked (Pool)
+                              </span>
+                            </ReactPopup>
+                          </div>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          {isLoading?
+                          <Loading/>
+                          :
+                            <b>
+                              {
+                                isNaN(combinedAPR) ?
+                                    "0 %" :
+                                    `${combinedAPR.toLocaleString('en-US', { maximumFractionDigits: 5 })} %`
+                              }
+                            </b>
+                          }
+                          </div>
+                        </div>
+                          
                         <div style={{paddingRight:"2px", width:"50%", minWidth:"250px"}}>
                           <div className="textWhiteSmall mb-1"><b>Past 30 Days Distribution Sum:</b></div>
                           <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
@@ -683,6 +753,12 @@ export default function Stake() {
                           }
                           </div>
                         </div>
+
+                      </div>
+    
+                      <div style={{width:"50%", minWidth:"250px"}}>
+
+                        
                         <div className="textWhiteSmall mb-1" >
                           <b>Total Staked (Pool):&nbsp;&nbsp;</b>
                           <ReactPopup trigger={open => (
