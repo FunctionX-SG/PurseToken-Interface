@@ -8,7 +8,7 @@ import {Popup as ReactPopup} from 'reactjs-popup';
 import { BsFillQuestionCircleFill } from 'react-icons/bs';
 import { FaExclamationCircle } from 'react-icons/fa';
 import PurseFarm from '../../farm/farmPurse.json'
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import * as Constants from "../../constants"
 import { formatBigNumber, readContract, supportedChain, fetcher } from '../utils';
 import { useWeb3React } from '@web3-react/core';
@@ -16,12 +16,15 @@ import { Loading } from '../Loading';
 import PoolCard from '../PoolCard'
 import useSWR from 'swr'
 import { useContract } from '../state/contract/hooks';
+import IPancakePair from '../../abis/IPancakePair.json'
+import { useProvider } from '../state/provider/hooks';
 
 export default function FarmMenu() {
     const farmNetwork = "MAINNET"
     const {account,isActive,chainId} = useWeb3React()
+    const {bscProvider} = useProvider()
 
-    const {restakingFarm,pancakeContract,purseTokenUpgradable} = useContract()
+    const {restakingFarm,purseTokenUpgradable} = useContract()
 
     const [totalPendingReward, setTotalPendingReward] = useState<BigNumber>(BigNumber.from("0"))
     const [tvl, setTvl] = useState<number[]>([])
@@ -34,6 +37,7 @@ export default function FarmMenu() {
     const [totalRewardPerBlock, setTotalRewardPerBlock] = useState<BigNumber>(BigNumber.from("0"))
     const [poolInfos, setPoolInfos] = useState<any>([])
     const [userInfos, setUserInfos] = useState<any>([])
+    const [stakeBalances, setStakeBalances] = useState<any>([])
     const [farmLoading, setFarmLoading] = useState<Boolean>(false)
     const [isLoading, setIsLoading] = useState(true)
     const [isUserLoading,setIsUserLoading] = useState(true)
@@ -65,13 +69,14 @@ export default function FarmMenu() {
 
         let response = await fetch(Constants.MONGO_RESPONSE_0_API);
         const myJson = await response.json();
-        let tvlArray = myJson["TVL"]
-        let aprArray = myJson["APR"]
+        let tvlArray = myJson["TVL"]?.["TVL"]
+        let aprArray = myJson["APR"]?.["APR"]
         let _tvl: number[] = []
         let _apr: number[] = []
         let _apyDaily: number[] = []
         let _apyWeekly: number[] = []
         let _apyMonthly: number[] = []
+        let _stakeBalances: BigNumber[] = []
 
         for (let i=0; i < _poolLength; i++){
 
@@ -79,6 +84,10 @@ export default function FarmMenu() {
             _totalRewardPerBlock += parseInt(_poolInfo.pursePerBlock) * _poolInfo.bonusMultiplier
         
             const _lpAddress = _poolInfo.lpAddresses[supportedChain(chainId).toString() as keyof typeof _poolInfo.lpAddresses]
+            
+            const lpContract = new ethers.Contract(_lpAddress, IPancakePair.abi, bscProvider)
+
+            const stakedBalance = await readContract(lpContract,"balanceOf",Constants.RESTAKING_FARM_ADDRESS)
 
             const _pendingReward = await readContract(restakingFarm,"pendingReward",_lpAddress, account)
             _pendingRewards.push(_pendingReward)
@@ -88,16 +97,18 @@ export default function FarmMenu() {
             const _userInfo = await readContract(restakingFarm,"userInfo",_lpAddress, account)
             _userInfos.push(_userInfo ? _userInfo.amount : 'NaN')
 
-            _tvl.push(tvlArray[i].tvl)
-            _apr.push(aprArray[i].apr)
-            _apyDaily.push((Math.pow((1 + 0.8 * aprArray[i].apr / 36500), 365) - 1) * 100)
-            _apyWeekly.push((Math.pow((1 + 0.8 * aprArray[i].apr / 5200), 52) - 1) * 100)
-            _apyMonthly.push((Math.pow((1 + 0.8 * aprArray[i].apr / 1200), 12) - 1) * 100)
+            _tvl.push(tvlArray?.[i].tvl||0)
+            _apr.push(aprArray?.[i].apr||0)
+            _stakeBalances.push(stakedBalance)
+            _apyDaily.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 36500), 365) - 1) * 100)
+            _apyWeekly.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 5200), 52) - 1) * 100)
+            _apyMonthly.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 1200), 12) - 1) * 100)
         }
         setTotalPendingReward(_totalPendingReward)
         setTotalRewardPerBlock(BigNumber.from(_totalRewardPerBlock.toString()))
         setPoolInfos(_poolInfos)
         setUserInfos(_userInfos)
+        setStakeBalances(_stakeBalances)
 
         setTvl(_tvl)
         setApr(_apr)
@@ -111,7 +122,7 @@ export default function FarmMenu() {
 
     useEffect(()=>{
         loadData()
-    },[account,isActive,chainId,pancakeContract,purseTokenUpgradable,restakingFarm,loadData])
+    },[account,isActive,chainId,purseTokenUpgradable,restakingFarm,loadData])
 
     return (
         <div>
@@ -231,6 +242,7 @@ export default function FarmMenu() {
                         <PoolCard
                             key={`${poolInfos[key].token[farmNetwork]["symbol"]}-${poolInfos[key].quoteToken[farmNetwork]["symbol"]}`}
                             pairName={`${poolInfos[key].token[farmNetwork]["symbol"]}-${poolInfos[key].quoteToken[farmNetwork]["symbol"]}`}
+                            stakeBalance={stakeBalances[key]}
                             aprloading={aprloading}
                             apr={apr[key]}
                             apyDaily={apyDaily[key]}

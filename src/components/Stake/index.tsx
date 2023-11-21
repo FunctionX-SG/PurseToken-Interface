@@ -30,7 +30,7 @@ export default function Stake() {
     const {signer} = useProvider()
     const [,showToast] = useToast()
 
-    const {purseStaking,purseTokenUpgradable} = useContract()
+    const {purseStaking,purseTokenUpgradable,treasuryContract,rewardDistributor} = useContract()
 
     const [mode, setMode] = useState('Stake')
     const [amount, setAmount] = useState('')
@@ -100,6 +100,24 @@ export default function Stake() {
       params:[account]
     },{
       fetcher: fetcher(purseStaking),
+      refreshInterval:5000
+    })
+
+    const {data:purseStakingReward} = useSWR({
+      contract:"purseStaking",
+      method:"previewClaimableRewards",
+      params:[account]
+    },{
+      fetcher: fetcher(purseStaking),
+      refreshInterval:5000
+    })
+
+    const {data:tokensPerInterval} = useSWR({
+      contract:"rewardDistributor",
+      method:"tokensPerInterval",
+      params:[]
+    },{
+      fetcher: fetcher(rewardDistributor),
       refreshInterval:5000
     })
 
@@ -313,20 +331,20 @@ export default function Stake() {
       if (isActive) {
         setStakeLoading(true)
         try{
-          // const tx:any = await callContract(signer,purseStaking,"withdrawLockedAmount")
-          // if (tx?.hash){
-          //   const link = `https://bscscan.com/tx/${tx.hash}`
-          //   showToast("Transaction sent!","success",link)
-          //   await tx.wait()
-          //   const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
-          //   showToast(message,"success",link)
-          // }else if(tx?.message.includes("user rejected transaction")){
-          //   showToast(`User rejected transaction.`,"failure")
-          // }else if(tx?.reason){
-          //   showToast(`Execution reverted: ${tx.reason}`,"failure")
-          // }else {
-          //   showToast("Something went wrong.","failure")
-          // }
+          const tx:any = await callContract(signer,treasuryContract,"claimRewards",account)
+          if (tx?.hash){
+            const link = `https://bscscan.com/tx/${tx.hash}`
+            showToast("Transaction sent!","success",link)
+            await tx.wait()
+            const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+            showToast(message,"success",link)
+          }else if(tx?.message.includes("user rejected transaction")){
+            showToast(`User rejected transaction.`,"failure")
+          }else if(tx?.reason){
+            showToast(`Execution reverted: ${tx.reason}`,"failure")
+          }else {
+            showToast("Something went wrong.","failure")
+          }
         } catch(err) {
           showToast("Something went wrong.","failure")
           console.log(err)
@@ -360,26 +378,28 @@ export default function Stake() {
       return newArray
     }
 
-    let purseStakingAPR = (sum30TransferAmount*12*100/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    // let purseStakingAPR = (sum30TransferAmount*12*100/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let purseStakingUserTotalReceipt = (purseStakingUserReceipt).add(purseStakingUserNewReceipt)
 
     let unlockSharePercent = ((Number(purseStakingUserReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let lockSharePercent = ((Number(purseStakingUserNewReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
     let balanceSharePercent = ((Number(purseStakingUserTotalReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
 
-    let retroactiveAPR = (((
-        (Constants.RETROACTIVE_INITIAL_REWARDS + Constants.RETROACTIVE_AUG23_REWARDS)
-        / parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))
-        )/Constants.RETROACTIVE_PERIOD_DAYS
-    ) * 365 * 100
-    ).toLocaleString(
-        'en-US',
-        { maximumFractionDigits: 5 }
-    );
+    // let retroactiveAPR = (((
+    //     (Constants.RETROACTIVE_INITIAL_REWARDS + Constants.RETROACTIVE_AUG23_REWARDS)
+    //     / parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))
+    //     )/Constants.RETROACTIVE_PERIOD_DAYS
+    // ) * 365 * 100
+    // ).toLocaleString(
+    //     'en-US',
+    //     { maximumFractionDigits: 5 }
+    // );
 
-    let combinedAPR = (
-        parseFloat(purseStakingAPR) + parseFloat(retroactiveAPR)
-    );
+    // let combinedAPR = (
+    //     parseFloat(purseStakingAPR) + parseFloat(retroactiveAPR)
+    // );
+
+    let apr = parseFloat(formatBigNumber(tokensPerInterval,'ether'))*31536000/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))*100
 
     return (
         <div id="content" className="mt-4">
@@ -471,16 +491,19 @@ export default function Stake() {
   
                 <div className="mb-4" style={{backgroundColor: "rgba(106, 90, 205, 0.2)", padding: "30px 40px"}}>
                   <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>Rewards are tokens from BDL deducted from each PURSE token transaction</b></div>
+                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>PURSE Staking rewards now focuses on the amount of PURSE tokens you stake</b></div>
                   </div>
                   <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>The more PURSE you stake,&nbsp;&nbsp;the more you earn as PURSE is continuously compounding</b></div>
+                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>The more PURSE you stake, the larger your claimable share of the rewards per time interval</b></div>
                   </div>
                   <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>Earn automatically as the PURSE rewards appear under your Staked Balance periodically</b></div>
+                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>Rewards based on your stake are claimable any time, and are accumulated since the last time you claim staking rewards</b></div>
                   </div>
                   <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>When you withdraw,&nbsp;&nbsp;you receive your original staked PURSE and PURSE rewards</b></div>
+                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>You can continuously earn rewards for your staked PURSE as long as they remain staked, and access these rewards whenever you choose to</b></div>
+                  </div>
+                  <div className="rowC textWhiteSmaller ml-2 mb-2">
+                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>Rewards stop accumulating once you withdraw completely from the staking pool</b></div>
                   </div>
                 </div>
   
@@ -588,13 +611,12 @@ export default function Stake() {
                             <Loading/>
                             :
                             <b>
-                              {/* {parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether')).toLocaleString(
-                                  'en-US', { maximumFractionDigits: 5 })} */}
-                              0 PURSE
+                              {parseFloat(formatBigNumber(purseStakingReward,'ether')).toLocaleString(
+                                  'en-US', { maximumFractionDigits: 5 })+" PURSE"}
                             </b>
                           }
                           </div>
-                          <Button type="button" className="btn btn-sm mb-3" variant="outline-success" disabled onClick={(event) => {
+                          <Button type="button" className="btn btn-sm mb-3" variant="outline-success" disabled={formatBigNumber(purseStakingReward,'ether')==="0"||stakeLoading} onClick={(event) => {
                                   claim()
                                 }}>Claim</Button>
                           
@@ -723,8 +745,7 @@ export default function Stake() {
                                 contentStyle={{ padding: '3px' }}
                             >
                               <span className="textInfo">
-                                Percentage of past 30 days distribution sum x 12 / Total staked (Pool) + <br/>
-                                Percentage of total rewards disbursed and to disburse / Total staked (Pool)
+                                Percentage of the amount of tokens to distribute per interval x 31,536,000 / Total staked (Pool)
                               </span>
                             </ReactPopup>
                           </div>
@@ -734,9 +755,7 @@ export default function Stake() {
                           :
                             <b>
                               {
-                                isNaN(combinedAPR) ?
-                                    "0 %" :
-                                    `${combinedAPR.toLocaleString('en-US', { maximumFractionDigits: 5 })} %`
+                                `${apr.toLocaleString('en-US', { maximumFractionDigits: 5 })} %`
                               }
                             </b>
                           }

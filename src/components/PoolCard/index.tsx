@@ -38,7 +38,7 @@ export default function PoolCard(props:any){
     const [,showToast] = useToast()
     const [,setTrigger] = useWalletTrigger()
 
-    const {restakingFarm,purseTokenUpgradable,pancakeContract} = useContract()
+    const {restakingFarm,purseTokenUpgradable} = useContract()
 
     const [depositTrigger,setDepositTrigger] = useState(false)
     const [isHarvest,setIsHarvest] = useState(false)
@@ -71,14 +71,14 @@ export default function PoolCard(props:any){
         refreshInterval:5000
     })
 
-    const {data:stakedBalance} = useSWR({
-        contract:"pancakeContract",
-        method:"balanceOf",
-        params:[Constants.RESTAKING_FARM_ADDRESS]
-    },{
-        fetcher: fetcher(pancakeContract),
-        refreshInterval:5000
-    })
+    // const {data:stakedBalance} = useSWR({
+    //     contract:"pancakeContract",
+    //     method:"balanceOf",
+    //     params:[Constants.RESTAKING_FARM_ADDRESS]
+    // },{
+    //     fetcher: fetcher(pancakeContract),
+    //     refreshInterval:5000
+    // })
 
     const harvest = async () => {
         if (!isActive) {
@@ -183,7 +183,7 @@ export default function PoolCard(props:any){
                                 <small>User LP Staked: {parseFloat(formatBigNumber(lpStaked?.amount,'ether')).toLocaleString('en-US', { maximumFractionDigits: 2 })}</small>
                                 }
                             </span><br />
-                            <span className=" "><small>Total LP Staked: {parseFloat(formatBigNumber(stakedBalance,'ether')).toLocaleString('en-US', { maximumFractionDigits: 0 })}</small></span><br />
+                            <span className=" "><small>Total LP Staked: {parseFloat(formatBigNumber(props.stakeBalance,'ether')).toLocaleString('en-US', { maximumFractionDigits: 1 })}</small></span><br />
                             <span className=" "><small>Purse Earned: {parseFloat(formatBigNumber(purseEarned,'ether')).toLocaleString('en-US', { maximumFractionDigits: 3 })}</small></span><br />
                             <span className=" "><small>{aprloading ? <div className="">TVL: $ {parseFloat(tvl.toString()).toLocaleString('en-US', { maximumFractionDigits: 0 })} </div> :
                                 <div className="">

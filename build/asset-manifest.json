@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.51141ef4.css",
-    "main.js": "/static/js/main.dac5b123.js",
+    "main.js": "/static/js/main.7082d26a.js",
     "static/js/774.555a8177.chunk.js": "/static/js/774.555a8177.chunk.js",
     "static/js/459.2651939b.chunk.js": "/static/js/459.2651939b.chunk.js",
     "static/media/Blockchain.png": "/static/media/Blockchain.c477a9e30a1ab770c08f.png",
@@ -13,12 +13,12 @@
     "static/media/walletconnect-logo.svg": "/static/media/walletconnect-logo.dfa25e470b69d81428be54242b6c9bd1.svg",
     "index.html": "/index.html",
     "main.51141ef4.css.map": "/static/css/main.51141ef4.css.map",
-    "main.dac5b123.js.map": "/static/js/main.dac5b123.js.map",
+    "main.7082d26a.js.map": "/static/js/main.7082d26a.js.map",
     "774.555a8177.chunk.js.map": "/static/js/774.555a8177.chunk.js.map",
     "459.2651939b.chunk.js.map": "/static/js/459.2651939b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.51141ef4.css",
-    "static/js/main.dac5b123.js"
+    "static/js/main.7082d26a.js"
   ]
 }
