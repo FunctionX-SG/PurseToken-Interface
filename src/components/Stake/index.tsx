@@ -399,7 +399,7 @@ export default function Stake() {
     //     parseFloat(purseStakingAPR) + parseFloat(retroactiveAPR)
     // );
 
-    let apr = parseFloat(formatBigNumber(tokensPerInterval,'ether'))*3156000/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))*100
+    let apr = parseFloat(formatBigNumber(tokensPerInterval,'ether'))*31536000/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))*100
 
     return (
         <div id="content" className="mt-4">
