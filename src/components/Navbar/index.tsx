@@ -122,7 +122,7 @@ export default function Navb() {
     }
   }
 
-  const [notice,setNotice] = useState(false)  // set to true to show notice
+  const [notice,setNotice] = useState(true)  // set to true to show notice
   const [navbarTop,setNavbarTop] = useState(notice?'38px':'0')
   const closeNotice = () => {
     setNotice(false)
