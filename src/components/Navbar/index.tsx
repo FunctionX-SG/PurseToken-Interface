@@ -145,7 +145,7 @@ export default function Navb() {
       <MediaQuery minWidth={961}>
       <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"38px",position:"fixed",width:"100%", top:"0",zIndex:"9999",backgroundColor:"#A82762",color:"white",fontSize:'15px'}}>
         <span className="center" style={{width:'100%'}}>
-          Check out the new roadmap of Purse at &nbsp;<a href="https://www.purse.land" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>www.purse.land</u></a>
+          Check out the new roadmap of Purse at &nbsp;<a href="https://purse.land/" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>purse.land</u></a>
         </span>
         <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2" style={{color:'white',fontSize:'30px',width:"30px",height:"30px"}}/>
       </nav>
@@ -153,7 +153,7 @@ export default function Navb() {
       <MediaQuery maxWidth={960}>
       <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"38px",position:"fixed",width:"100%", bottom:"0",zIndex:"9999",backgroundColor:"#A82762",color:"white",fontSize:'15px'}}>
         <span className="center" style={{width:'100%'}}>
-          Check out the new roadmap of Purse at &nbsp;<a href="https://www.purse.land" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>www.purse.land</u></a>
+          Check out the new roadmap of Purse at &nbsp;<a href="https://purse.land/" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>purse.land</u></a>
         </span>
         <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2" style={{color:'white',fontSize:'30px',width:"30px",height:"30px"}}/>
       </nav>

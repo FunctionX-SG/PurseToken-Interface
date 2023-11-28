@@ -505,3 +505,9 @@ tr:nth-child(even) {
 .dropdown-item:hover {
 background-color: #28313b;
 }
+.ex-link {
+  color: #79ede7!important;
+}
+.ex-link:hover {
+  color: #b9fffa!important;
+}
