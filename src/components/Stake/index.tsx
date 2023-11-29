@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import {Popup as ReactPopup} from 'reactjs-popup';
-import { BsFillQuestionCircleFill, BsInfoCircleFill } from 'react-icons/bs'
+import { BsFillQuestionCircleFill, BsInfoCircleFill, BsArrowRight } from 'react-icons/bs'
 import { IoStar } from 'react-icons/io5'
 import { MdLockClock } from 'react-icons/md'
 import { AiFillAlert } from 'react-icons/ai'
@@ -491,19 +491,10 @@ export default function Stake() {
   
                 <div className="mb-4" style={{backgroundColor: "rgba(106, 90, 205, 0.2)", padding: "30px 40px"}}>
                   <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>PURSE Staking rewards now focuses on the amount of PURSE tokens you stake</b></div>
+                    <div className="ml-2"><b>Maximize your rewards with PURSE Staking. The more you stake, the more you earn, claimable any time without interruptions to your continuous earning potential.</b></div>
                   </div>
                   <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>The more PURSE you stake, the larger your claimable share of the rewards per time interval</b></div>
-                  </div>
-                  <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>Rewards based on your stake are claimable any time, and are accumulated since the last time you claim staking rewards</b></div>
-                  </div>
-                  <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>You can continuously earn rewards for your staked PURSE as long as they remain staked, and access these rewards whenever you choose to</b></div>
-                  </div>
-                  <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div><IoStar className='mb-1'/></div><div className="ml-2"><b>Rewards stop accumulating once you withdraw completely from the staking pool</b></div>
+                    <a href="https://pundix-purse.gitbook.io/untitled/products/purse-staking-rewards" target="_blank" rel="noreferrer" style={{'textDecoration':'none'}}><div className="ml-2 ex-link"><b>Learn how staked PURSE amplify your earnings <BsArrowRight size='16'/></b></div></a>
                   </div>
                 </div>
   
