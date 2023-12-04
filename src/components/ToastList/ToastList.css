@@ -12,7 +12,7 @@
     max-width: var(--toast-list-width);
     max-height: 100vh;
     overflow: hidden auto;
-    z-index: 5;
+    z-index: 99999;
   }
   
   .toast-list--top-left {
@@ -21,7 +21,7 @@
   }
   
   .toast-list--top-right {
-    top: 50px;
+    top: 73px;
     right: 0;
   }
   

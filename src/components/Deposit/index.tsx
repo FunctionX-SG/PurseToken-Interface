@@ -203,7 +203,7 @@ export default function Deposit(props: any) {
          
           <div className="center" style={{ fontFamily: 'Verdana', color: 'silver', textAlign:"center" }}>Deposit {pairName} LP Token and earn PURSE&nbsp;!</div>
           <br />
-          <div className="card mb-3 cardbody" style={{ fontFamily: 'Verdana', color: 'silver'}}>
+          <div className="card mb-2 cardbody" style={{ fontFamily: 'Verdana', color: 'silver'}}>
             <div className="card-body">
               <div className='float-left row mb-3 ml-1' style={{width:"70%"}}>
                 <div className='dropdown' style={{ fontSize: '12px' }} onClick={() => {
@@ -237,8 +237,8 @@ export default function Deposit(props: any) {
                     <th scope="col">PURSE Earned</th>
                   </tr>
                   <tr>
-                    <th scope="col"><img src={pancake} height='30' alt="" /></th>
-                    <th scope="col"><img src={purse} height='34' alt="" /></th>
+                    <th scope="col"><img src={pancake} height='25' alt="" /></th>
+                    <th scope="col"><img src={purse} height='30' alt="" /></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -269,7 +269,7 @@ export default function Deposit(props: any) {
                   <div>
                       <div>
                         <label className="float-left mt-1" style={{ color: 'silver', fontSize: '15px', width: '40%', minWidth:"120px"}}><b>Start Farming</b></label>
-                        <span className="float-right mb-2 mt-1" style={{ color: 'silver', fontSize: '15px' }}>
+                        <span className="float-right mb-1 mt-1" style={{ color: 'silver', fontSize: '15px' }}>
                           <span>
                             LP Balance&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {parseFloat(formatBigNumber(lpTokenBalance, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 3 })}
                           </span>
@@ -281,7 +281,7 @@ export default function Deposit(props: any) {
                       <br /><br /><br />
   
                         <div>
-                        <form className="mb-3" onSubmit={(event) => {
+                        <form className="mb-1" onSubmit={(event) => {
                             event.preventDefault()}} >
                           <div className="input-group mt-0" >
                             <input
