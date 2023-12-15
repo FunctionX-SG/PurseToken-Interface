@@ -4,7 +4,7 @@ import '../App.css';
 import { isAddress, formatUnits, getAddress } from 'ethers/lib/utils'
 import UserAmount from '../../abis/userAmount.json'
 import { BigNumber } from 'ethers'
-import { timeConverter, isSupportedChain, callContract, getShortTxHash, getMerkleProof } from '../utils';
+import { timeConverter, isSupportedChain, callContract, getShortTxHash, getMerkleProof, getMerkleProofUserAmount, isUserInList, formatBigNumber } from '../utils';
 import { useWeb3React } from '@web3-react/core';
 import { Loading } from '../Loading';
 import { useToast } from '../state/toast/hooks';
@@ -13,6 +13,8 @@ import { usePursePrice } from '../state/PursePrice/hooks';
 import { useContract } from '../state/contract/hooks';
 import { useWalletTrigger } from '../state/walletTrigger/hooks';
 import { useNetwork } from '../state/network/hooks';
+import Popup from '../Popup';
+import UserRewardAmount from '../../constants/purseBusdUserAmounts.json'
 
 
 export default function Rewards() {
@@ -22,7 +24,7 @@ export default function Rewards() {
     const {signer} = useProvider()
     const [,showToast] = useToast()
 
-    const {retroactiveRewards} = useContract()
+    const {retroactiveRewards,rewardContract} = useContract()
 
     const [message, setMessage] = useState('')
     const [addValid, setAddValid] = useState(false)
@@ -129,8 +131,72 @@ export default function Rewards() {
         }
     }
 
+    const onClickClaimReward = async() => {
+        if(account && isUserInList(account,UserRewardAmount)){
+            const merkleProof = await getMerkleProofUserAmount(account,UserRewardAmount)
+            const rewardAmountWei = BigNumber.from(rewardAmount)
+            // console.log('merkleProof',merkleProof,rewardAmountWei,rewardAmount)
+            if (isActive === true) {
+                try{
+                    const tx:any = await callContract(signer,rewardContract,"claimRewards",rewardAmountWei,merkleProof)
+                    if (tx?.hash){
+                        const link = `https://bscscan.com/tx/${tx.hash}`
+                        showToast("Transaction sent!","success",link)
+                        await tx.wait()
+                        const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+                        showToast(message,"success",link)
+                    }else if(tx?.message.includes("user rejected transaction")){
+                        showToast(`User rejected transaction.`,"failure")
+                    }else if(tx?.reason){
+                        showToast(`Execution reverted: ${tx.reason}`,"failure")
+                    }else {
+                        showToast("Something went wrong.","failure")
+                    }
+                } catch(err) {
+                    showToast("Something went wrong.","failure")
+                    console.log(err)
+                }
+            }
+        }else {
+            console.log('user not in list')
+        }
+        
+    }
+
+    const [showClaim,setShowClaim] = useState(false)
+    const [rewardAmount,setRewardAmount] = useState(account?UserRewardAmount[account as keyof typeof UserRewardAmount]?.Amount:"")
+
+    useEffect(()=>{
+        const setClaim = async() => {
+            if (isSupportedChain(chainId)) {
+                const isClaimed = await rewardContract.isClaim(account,0) //false false true
+                // const canClaim = true
+                setShowClaim(isUserInList(account,UserRewardAmount)&&!isClaimed)
+                setRewardAmount(UserRewardAmount[account as keyof typeof UserRewardAmount]?.Amount)
+            }
+        }
+        setClaim()
+    },[account,chainId])
+    // console.log(BigNumber.from(rewardAmount),formatBigNumber(BigNumber.from(rewardAmount),'ether'))
     return (
         <div id="content" className="mt-4">
+            <Popup trigger={showClaim} setTrigger={setShowClaim} width="400px">
+                <div className="container-fluid">
+                    <div>
+                        <div className="textWhiteMedium mb-3 center" style={{padding: "5px"}}>
+                        Claim Your Reward
+                        </div>
+                        <div className="mb-3 mr-3 center" style={{color:"white"}}>Amount: {parseFloat(formatBigNumber(BigNumber.from(rewardAmount||'0'),'ether')).toLocaleString('en-US', { maximumFractionDigits: 5 })} PURSE</div>
+                        <div className="center">
+                        <Button className="center" type="button" variant="primary" style={{minWidth:"150px",maxWidth:"250px", padding:"6px 32px"}} onClick={async () => {
+                            await onClickClaimReward()
+                            // setShowClaim(false)
+                        }}>
+                            &nbsp;Claim
+                        </Button></div>
+                    </div>
+                </div>
+            </Popup>
             <label className="textWhite center mb-5" style={{ fontSize: '36px', textAlign:'center' }}><big><b>PURSE<br/>Retroactive Rewards</b></big></label>
             <div className="row center">
                 <div className="card cardbody mb-3 ml-3 mr-3" style={{ width: '450px', minHeight: '400px', color: 'white' }}>
@@ -197,7 +263,7 @@ export default function Rewards() {
                         </div>
                     </div>
                 </div>
-                :
+                :<>
                     <div className="card cardbody mb-3" style={{ width: '450px', minHeight: '400px', color: 'white' }}>
                         <div className="card-body">
                             <div>
@@ -326,7 +392,8 @@ export default function Rewards() {
                             </div>
                         </div>
                     </div>
-                }
+                    
+                </>}
             </div>
         </div >
 
