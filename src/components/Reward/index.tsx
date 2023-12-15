@@ -170,8 +170,14 @@ export default function Rewards() {
         const setClaim = async() => {
             if (isSupportedChain(chainId)) {
                 const isClaimed = await rewardContract.isClaim(account,0) //false false true
-                // const canClaim = true
-                setShowClaim(isUserInList(account,UserRewardAmount)&&!isClaimed)
+                const rewardPeriod = await rewardContract.rewardPeriods(0)
+                const startTime = parseFloat(rewardPeriod.startTime.toString())
+                const endTime = parseFloat(rewardPeriod.endTime.toString())
+                const currentDate = new Date()
+                const currentTime = currentDate.getTime()
+                const isInTime = currentTime>=startTime*1000 && currentTime<=endTime*1000
+                // console.log(startTime*1000,currentTime,endTime*1000,isInTime)
+                setShowClaim(isUserInList(account,UserRewardAmount)&&!isClaimed&&isInTime)
                 setRewardAmount(UserRewardAmount[account as keyof typeof UserRewardAmount]?.Amount)
             }
         }
