@@ -10,6 +10,7 @@ import RestakingFarm from '../../../abis/RestakingFarm.json'
 import RetroactiveRewards from '../../../abis/RetroactiveRewards.json'
 import FIP20Upgradable from '../../../abis/FIP20Upgradable.json'
 import RewardDistributor from '../../../abis/RewardDistributor.json'
+import RewardContract from '../../../abis/RewardContract.json'
 
 export const contractSlice =   
   createSlice({
@@ -23,6 +24,7 @@ export const contractSlice =
       const purseStaking = new ethers.Contract(Constants.PURSE_STAKING_ADDRESS, PurseStaking.abi, bscProvider)
       const treasuryContract = new ethers.Contract(Constants.TREASURY_ADDRESS,Treasury.abi,bscProvider)
       const rewardDistributor = new ethers.Contract(Constants.REWARD_DISTRIBUTOR_ADDRESS,RewardDistributor.abi,bscProvider)
+      const rewardContract = new ethers.Contract(Constants.REWARD_ADDRESS,RewardContract.abi,bscProvider)
       const tokenOnFXCore = new ethers.Contract(Constants.FIP20UPGRADABLE_ADDRESS, FIP20Upgradable.abi, fxProvider)
       const masterChef = new ethers.Contract(Constants.MASTERCHEFV2_ADDRESS, MasterChefV2.abi, fxProvider)
 
@@ -35,7 +37,8 @@ export const contractSlice =
           tokenOnFXCore,
           masterChef,
           treasuryContract,
-          rewardDistributor
+          rewardDistributor,
+          rewardContract
         }
     }},
     reducers: {},

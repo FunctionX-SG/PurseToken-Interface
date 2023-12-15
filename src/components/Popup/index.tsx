@@ -7,7 +7,7 @@ export default function Popup(props: any) {
         <div >
             {props.trigger ?
                 <div className="popup">
-                    <div className="popup-inner ml-auto mr-auto mt-5" >
+                    <div className="popup-inner ml-auto mr-auto" style={{marginTop:"70px", width:`${props.width}`}} >
                             <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {
                                 props.setTrigger(false)
                             }}>close

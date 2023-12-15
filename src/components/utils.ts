@@ -212,3 +212,51 @@ export const getMerkleProof = async (account: string) => {
   const merkleProof = merkleTree.getHexProof(leafNodes[index[account]])
   return merkleProof
 }
+
+export const getMerkleProofUserAmount = async (account: string, UserAmount: object) => {
+  const keys = Object.keys(UserAmount)
+  const values = Object.values(UserAmount)
+  const balances: {address: string, amount: any}[] = []
+  let address: string
+  let amount: string
+  for (let i = 0; i < keys.length; i++) {
+    address = keys[i]
+    amount = values[i]["Amount"]
+    if (parseFloat(amount) !== 0){
+      balances.push({
+          address: address,
+          amount: solidityPack(
+              ["uint256"],
+              [amount]
+        )
+      })
+    }
+  }
+  const newValues = Object.values(balances)
+  const array: {address:string,id:number}[] = []
+  for (let i = 0; i < Object.keys(balances).length; i++) {
+    address = newValues[i]["address"];
+    amount = values[i]["Amount"]
+    array.push({
+      address: newValues[i]["address"],
+      id: i
+    })
+  } 
+  const index = Object.assign({}, ...array.map((x) => ({[x.address]: x.id})));
+  const leafNodes = balances.map((balance) =>
+    keccak256( 
+      Buffer.concat([
+        Buffer.from(balance.address.replace("0x", ""), "hex"),
+        Buffer.from(balance.amount.replace("0x", ""), "hex"),
+      ])
+    )
+  )
+  const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true })
+  const merkleProof = merkleTree.getHexProof(leafNodes[index[account]])
+  return merkleProof
+}
+
+export const isUserInList = (account:string|undefined, userAmount:object) => {
+  if (account) return Object.keys(userAmount).includes(account)
+  return false
+}
