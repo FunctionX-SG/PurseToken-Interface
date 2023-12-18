@@ -62,9 +62,9 @@ export default function FarmMenu() {
 
         const farm = PurseFarm.farm
         let _pendingRewards: string[] = []
-        let _totalRewardPerBlock: number = 0
+        let _totalRewardPerBlock: BigNumber = BigNumber.from("0")
         let _totalPendingReward: BigNumber = BigNumber.from("0")
-        let _poolInfos: any[] = []
+        let _poolInfos: any[] = farm
         let _userInfos: any[] = []
 
         let response = await fetch(Constants.MONGO_RESPONSE_0_API);
@@ -80,11 +80,10 @@ export default function FarmMenu() {
 
         for (let i=0; i < _poolLength; i++){
 
-            let _poolInfo = farm[i]
-            _totalRewardPerBlock += parseInt(_poolInfo.pursePerBlock) * _poolInfo.bonusMultiplier
-        
-            const _lpAddress = _poolInfo.lpAddresses[supportedChain(chainId).toString() as keyof typeof _poolInfo.lpAddresses]
-            
+            const _lpAddress = await readContract(restakingFarm,"poolTokenList",i)
+            const _poolInfo = await readContract(restakingFarm,"poolInfo",_lpAddress.toString())
+            _totalRewardPerBlock = _totalRewardPerBlock.add(_poolInfo.pursePerBlock?.mul(_poolInfo.bonusMultiplier))
+                    
             const lpContract = new ethers.Contract(_lpAddress, IPancakePair.abi, bscProvider)
 
             const stakedBalance = await readContract(lpContract,"balanceOf",Constants.RESTAKING_FARM_ADDRESS)
@@ -92,7 +91,6 @@ export default function FarmMenu() {
             const _pendingReward = await readContract(restakingFarm,"pendingReward",_lpAddress, account)
             _pendingRewards.push(_pendingReward)
             _totalPendingReward = _totalPendingReward.add(_pendingReward?_pendingReward:0)
-            _poolInfos.push(_poolInfo)
 
             const _userInfo = await readContract(restakingFarm,"userInfo",_lpAddress, account)
             _userInfos.push(_userInfo ? _userInfo.amount : 'NaN')
@@ -105,7 +103,7 @@ export default function FarmMenu() {
             _apyMonthly.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 1200), 12) - 1) * 100)
         }
         setTotalPendingReward(_totalPendingReward)
-        setTotalRewardPerBlock(BigNumber.from(_totalRewardPerBlock.toString()))
+        setTotalRewardPerBlock(_totalRewardPerBlock)
         setPoolInfos(_poolInfos)
         setUserInfos(_userInfos)
         setStakeBalances(_stakeBalances)

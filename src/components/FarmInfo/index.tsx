@@ -40,15 +40,14 @@ export default function FarmInfo() {
       const _poolRewardToken = await purseTokenUpgradable.balanceOf(Constants.RESTAKING_FARM_ADDRESS)
       setPoolRewardToken(_poolRewardToken)
 
-      let _totalRewardPerBlock: number = 0
-      const farm = PurseFarm.farm
+      let _totalRewardPerBlock: BigNumber = BigNumber.from("0")
 
       for (let i=0; i < _poolLength; i++){
-        let _poolInfo = farm[i]
-        _totalRewardPerBlock += parseInt(_poolInfo.pursePerBlock) * _poolInfo.bonusMultiplier
+        const _poolAddress = await restakingFarm.poolTokenList(i)
+        const _poolInfo = await restakingFarm.poolInfo(_poolAddress.toString())
+        _totalRewardPerBlock = _totalRewardPerBlock.add(_poolInfo.pursePerBlock?.mul(_poolInfo.bonusMultiplier))
       }
-
-      setTotalRewardPerBlock(BigNumber.from(_totalRewardPerBlock.toString()))
+      setTotalRewardPerBlock(_totalRewardPerBlock)
       setIsLoading(false)
 
     }
@@ -81,7 +80,7 @@ export default function FarmInfo() {
                 <tr>
                   <td>{poolLength.toString()}</td>
                   <td>{parseFloat(formatBigNumber(purseTokenTotalSupply, 'ether')).toLocaleString('en-US', {maximumFractionDigits:0})} Purse</td>
-                  <td>{formatBigNumber(totalRewardPerBlock, 'ether')} Purse per block</td>
+                  <td>{parseFloat(formatBigNumber(totalRewardPerBlock, 'ether')).toLocaleString('en-US', {maximumFractionDigits:3})} Purse per block</td>
                 </tr>
                 }
               </tbody>
@@ -125,7 +124,7 @@ export default function FarmInfo() {
               <tbody>
                 <tr>
                   <td>{poolLength}</td>
-                  <td>{formatBigNumber(totalRewardPerBlock, 'ether')} Purse per block</td>
+                  <td>{parseFloat(formatBigNumber(totalRewardPerBlock, 'ether')).toLocaleString('en-US', {maximumFractionDigits:0})} Purse per block</td>
                 </tr>
               </tbody>
               <thead><tr><td></td></tr></thead>
