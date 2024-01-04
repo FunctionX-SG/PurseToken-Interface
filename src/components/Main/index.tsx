@@ -30,7 +30,7 @@ export default function Main() {
 
   useEffect(()=>{
     async function loadData(){
-      const _purseTokenTotalSupply = await purseTokenUpgradable._totalSupply()
+      const _purseTokenTotalSupply = await purseTokenUpgradable.totalSupply()
       setPurseTokenTotalSupply(_purseTokenTotalSupply)
 
       const mongoResponse0 = await fetch(Constants.MONGO_RESPONSE_0_API);

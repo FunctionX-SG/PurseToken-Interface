@@ -55,7 +55,7 @@ export default function FarmMenu() {
         let _poolLength = await restakingFarm.poolLength()
         _poolLength = parseFloat(_poolLength.toString())
 
-        const _purseTokenTotalSupply = await purseTokenUpgradable._totalSupply()
+        const _purseTokenTotalSupply = await purseTokenUpgradable.totalSupply()
         setPurseTokenTotalSupply(_purseTokenTotalSupply)
 
         setIsLoading(false)
@@ -78,30 +78,59 @@ export default function FarmMenu() {
         let _apyMonthly: number[] = []
         let _stakeBalances: BigNumber[] = []
 
-        for (let i=0; i < _poolLength; i++){
+        // Mainnet: 0:Purse-BUSD (deprecated) 1:Purse-USDT
+        // Testnet: 0:Purse-USDT
 
-            const _lpAddress = await readContract(restakingFarm,"poolTokenList",i)
-            const _poolInfo = await readContract(restakingFarm,"poolInfo",_lpAddress.toString())
-            _totalRewardPerBlock = _totalRewardPerBlock.add(_poolInfo.pursePerBlock?.mul(_poolInfo.bonusMultiplier))
+        ////// Mainnet /////
+        // for (let i=0; i < _poolLength; i++){
+
+        //     const _lpAddress = await readContract(restakingFarm,"poolTokenList",i)
+        //     const _poolInfo = await readContract(restakingFarm,"poolInfo",_lpAddress.toString())
+        //     _totalRewardPerBlock = _totalRewardPerBlock.add(_poolInfo.pursePerBlock?.mul(_poolInfo.bonusMultiplier))
                     
-            const lpContract = new ethers.Contract(_lpAddress, IPancakePair.abi, bscProvider)
+        //     const lpContract = new ethers.Contract(_lpAddress, IPancakePair.abi, bscProvider)
 
-            const stakedBalance = await readContract(lpContract,"balanceOf",Constants.RESTAKING_FARM_ADDRESS)
+        //     const stakedBalance = await readContract(lpContract,"balanceOf",Constants.RESTAKING_FARM_ADDRESS)
 
-            const _pendingReward = await readContract(restakingFarm,"pendingReward",_lpAddress, account)
-            _pendingRewards.push(_pendingReward)
-            _totalPendingReward = _totalPendingReward.add(_pendingReward?_pendingReward:0)
+        //     const _pendingReward = await readContract(restakingFarm,"pendingReward",_lpAddress, account)
+        //     _pendingRewards.push(_pendingReward)
+        //     _totalPendingReward = _totalPendingReward.add(_pendingReward?_pendingReward:0)
 
-            const _userInfo = await readContract(restakingFarm,"userInfo",_lpAddress, account)
-            _userInfos.push(_userInfo ? _userInfo.amount : 'NaN')
+        //     const _userInfo = await readContract(restakingFarm,"userInfo",_lpAddress, account)
+        //     _userInfos.push(_userInfo ? _userInfo.amount : 'NaN')
 
-            _tvl.push(tvlArray?.[i].tvl||0)
-            _apr.push(aprArray?.[i].apr||0)
-            _stakeBalances.push(stakedBalance)
-            _apyDaily.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 36500), 365) - 1) * 100)
-            _apyWeekly.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 5200), 52) - 1) * 100)
-            _apyMonthly.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 1200), 12) - 1) * 100)
-        }
+        //     _tvl.push(tvlArray?.[i].tvl||0)
+        //     _apr.push(aprArray?.[i].apr||0)
+        //     _stakeBalances.push(stakedBalance)
+        //     _apyDaily.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 36500), 365) - 1) * 100)
+        //     _apyWeekly.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 5200), 52) - 1) * 100)
+        //     _apyMonthly.push((Math.pow((1 + 0.8 * aprArray?.[i].apr / 1200), 12) - 1) * 100)
+        // }
+
+        ////// Testnet //////
+        const _lpAddress = await readContract(restakingFarm,"poolTokenList",0)
+        const _poolInfo = await readContract(restakingFarm,"poolInfo",_lpAddress.toString())
+        _totalRewardPerBlock = _totalRewardPerBlock.add(_poolInfo.pursePerBlock?.mul(_poolInfo.bonusMultiplier))
+                
+        const lpContract = new ethers.Contract(_lpAddress, IPancakePair.abi, bscProvider)
+
+        const stakedBalance = await readContract(lpContract,"balanceOf",Constants.RESTAKING_FARM_ADDRESS)
+
+        const _pendingReward = await readContract(restakingFarm,"pendingReward",_lpAddress, account)
+        _pendingRewards.push(_pendingReward)
+        _totalPendingReward = _totalPendingReward.add(_pendingReward?_pendingReward:0)
+
+        const _userInfo = await readContract(restakingFarm,"userInfo",_lpAddress, account)
+        _userInfos.push(_userInfo ? _userInfo.amount : 'NaN')
+
+        _tvl.push(tvlArray?.[1].tvl||0)
+        _apr.push(aprArray?.[1].apr||0)
+        _stakeBalances.push(stakedBalance)
+        _apyDaily.push((Math.pow((1 + 0.8 * aprArray?.[1].apr / 36500), 365) - 1) * 100)
+        _apyWeekly.push((Math.pow((1 + 0.8 * aprArray?.[1].apr / 5200), 52) - 1) * 100)
+        _apyMonthly.push((Math.pow((1 + 0.8 * aprArray?.[1].apr / 1200), 12) - 1) * 100)
+        ////////
+
         setTotalPendingReward(_totalPendingReward)
         setTotalRewardPerBlock(_totalRewardPerBlock)
         setPoolInfos(_poolInfos)

@@ -231,7 +231,7 @@ export default function Navb() {
                 <div className='center'>
                   <Buttons variant="info" size="sm" onClick={async() => {
                     if (!isSupportedChain(chainId)){
-                      switchNetwork(56)
+                      switchNetwork()
                     }
                   }}>{networkName}
                   </Buttons>

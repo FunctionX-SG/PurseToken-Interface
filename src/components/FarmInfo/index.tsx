@@ -28,7 +28,7 @@ export default function FarmInfo() {
       _poolLength = parseFloat(_poolLength.toString())
       setPoolLength(_poolLength)
 
-      const _purseTokenTotalSupply = await purseTokenUpgradable._totalSupply()
+      const _purseTokenTotalSupply = await purseTokenUpgradable.totalSupply()
       setPurseTokenTotalSupply(_purseTokenTotalSupply)
 
       const _poolCapRewardToken = await restakingFarm.capMintToken()
