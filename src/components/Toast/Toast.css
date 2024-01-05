@@ -40,13 +40,13 @@
   .toast-dropdown {
     align-items: top;
     font-size: 16px;
-    color: #d6d6d6;
+    color: #000;
     cursor: pointer;
   }
 
   .toast-dropdown:hover {
     text-decoration: none;
-    color: #04f7ff;
+    color: #f7d509;
   }
   
   .toast-close-btn {
@@ -66,7 +66,11 @@
   
   .toast--success {
     color: #fafafa;
-    background-color: #373a47;
+    /* background-color: var(--basic-yellow); */
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    border: solid 2px #000;
+    background-color: rgba(255, 255, 255, 0.65);
   }
   
   .toast--success .icon--thumb {
@@ -75,7 +79,11 @@
   
   .toast--failure {
     color: #fafafa;
-    background-color: #373a47;
+    /* background-color: var(--basic-yellow); */
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    border: solid 2px #000;
+    background-color: rgba(255, 255, 255, 0.65);
   }
   
   .toast--failure .icon--thumb {
@@ -84,7 +92,11 @@
   
   .toast--warning {
     color: #fafafa;
-    background-color: #373a47;
+    /* background-color: var(--basic-yellow); */
+    -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
+    border: solid 2px #000;
+    background-color: rgba(255, 255, 255, 0.65);
   }
   
   .toast--warning .icon--thumb {

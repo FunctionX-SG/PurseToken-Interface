@@ -1,0 +1,52 @@
+@font-face {
+  font-family: 'italic';
+  src: url('../assets/fonts/IBMPlexSans-Italic.woff2');
+}
+@font-face {
+  font-family: 'light';
+  src: url('../assets/fonts/IBMPlexSans-Light.woff2');
+}
+@font-face {
+  font-family: 'lightitalic';
+  src: url('../assets/fonts/IBMPlexSans-LightItalic.woff2');
+}
+@font-face {
+  font-family: 'medium';
+  src: url('../assets/fonts/IBMPlexSans-Medium.woff2');
+}
+@font-face {
+  font-family: 'regular';
+  src: url('../assets/fonts/IBMPlexSans-Regular.woff2');
+}
+@font-face {
+  font-family: 'thin';
+  src: url('../assets/fonts/IBMPlexSans-Thin.woff2');
+}
+
+
+@mixin font-select($name) {
+  font-family: $name,"Helvetica Neue","PingFang SC","Microsoft YaHei","Simsun",Helvetica,Arial,Verdana,sans-serif;
+}
+
+.font-italic{
+  @include font-select('italic');
+}
+.font-light{
+  @include font-select('light');
+}
+.font-lightitalic{
+  @include font-select('lightitalic');
+}
+.font-medium{
+  @include font-select('medium');
+}
+.font-regular{
+  @include font-select('regular');
+}
+.font-thin{
+  @include font-select('thin');
+}
+
+body{
+  @include font-select('thin');
+}

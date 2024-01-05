@@ -12,7 +12,7 @@ export const Nav = styled.nav`
 `;
 
 export const NavLink = styled(Link)`
-  color: #D3D3D3;
+  color: #fff;
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -23,17 +23,17 @@ export const NavLink = styled(Link)`
   
 
   &.active {
-    color: #c37aff;
+    color: #f7d509;
   }
   &:hover {
     text-decoration: none;
-    color: #04f7ff;
+    color: #f7d509;
   }
 `;
 
 
 export const NavLink0 = styled(Link)`
-  color: #D3D3D3;
+  color: #fff;
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -43,11 +43,11 @@ export const NavLink0 = styled(Link)`
   cursor: pointer;
 
   &.active {
-    color:  #D3D3D3;
+    color:  #fff;
   }
   &:hover {
     text-decoration: none;
-    color: #04f7ff;
+    color: #f7d509;
   }
 `;
 
@@ -78,19 +78,19 @@ export const NavLink2 = styled(Link)`
   height: 100%;
   cursor: pointer;
   font-size: 18px;
-  color: #c37aff;
+  color: #f7d509;
 
   &.active {
-    color: #c37aff;
+    color: #f7d509;
   }
   &:hover {
     text-decoration: none;
-    color: #04f7ff;
+    color: #f7d509;
   }
 `;
 
 export const NavLinkSub = styled(Link)`
-  color: #D3D3D3;
+  color: #fff;
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -103,16 +103,16 @@ export const NavLinkSub = styled(Link)`
   
 
   &.active {
-    color: #c37aff;
+    color: #f7d509;
   }
   &:hover {
     text-decoration: none;
-    color: #04f7ff;
+    color: #f7d509;
   }
 `;
 
 export const NavLinkSub1 = styled(Link)`
-  color: #D3D3D3;
+  color: #fff;
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -124,11 +124,11 @@ export const NavLinkSub1 = styled(Link)`
   
 
   &.active {
-    color: #c37aff;
+    color: #f7d509;
   }
   &:hover {
     text-decoration: none;
-    color: #04f7ff;
+    color: #f7d509;
   }
 `;
 
