@@ -98,10 +98,10 @@ export default function FXSwap(props: any) {
                 <img src={purse2} height='180' alt="" />
             </div>
             <h1 className="textWhite center" style={{fontSize:"40px", textAlign:"center"}}><b>LP Restaking Farm</b></h1>
-            <div className="center mt-4 mb-3" style={{color: 'silver', textAlign:"center" }}>Stake FXSWAP LP Tokens to earn FX&nbsp;!</div>
+            <div className="center mt-4 mb-3" style={{ fontFamily: 'Verdana', color: 'silver', textAlign:"center" }}>Stake FXSWAP LP Tokens to earn FX&nbsp;!</div>
             <br />
             <div className="row center" style={{ minWidth: '300px' }}>
-                <div className="card mb-4 cardbody" style={{ width: '350px' }} >
+                <div className="card mb-4 cardbody" style={{ width: '350px', color: 'white' }} >
                     <div className="card-body">
                         <span>
                             <span className="float-left">
@@ -155,7 +155,7 @@ export default function FXSwap(props: any) {
                     </div>
                 </div><li style={{color:'transparent'}}/>
 
-                <div className="card mb-4 cardbody" style={{ width: '350px' }}>
+                <div className="card mb-4 cardbody" style={{ width: '350px', color: 'white' }}>
                     <div className="card-body">
                         <span>
                             <span className="float-left">
@@ -200,23 +200,23 @@ export default function FXSwap(props: any) {
             {/*<div className="center textWhite comingSoon" style={{ color: 'white', textAlign: 'center' }}><b><big>Coming Soon!</big></b></div>*/}
 
             <br />
-            <div className="center mb-2"><b><big>Select Your Favourite pool entrees&nbsp;!</big></b></div>
+            <div className="center mb-2" style={{ color: 'white' }}><b><big>Select Your Favourite pool entrees&nbsp;!</big></b></div>
             <div className="center mb-2" style={{ color: 'silver' }}><small><FaExclamationCircle size={13} style={{marginBottom:"3px"}}/>&nbsp;&nbsp;Attention&nbsp;: Be sure to familiar with protocol risks and fees before using the farms&nbsp;!</small></div>
             <div className="center" style={{ color: 'silver' }}><small><FaCheck size={13} style={{marginBottom:"3px"}}/> PURSE has NO BDL on f(x)Core</small></div>
             <br />
 
             {farmLoading ?
                 <div className="col">
-                    <div className="card mb-4 cardbody card-body text-center" style={{ maxWidth: '230px'}}>
+                    <div className="card mb-4 cardbody card-body text-center" style={{ maxWidth: '230px', color: 'white' }}>
                         <span>
                             <img src={purse} height='30' alt="" /><br />
                             <b className="text">FX-PURSE</b>
                             <div>
                                 <div className=""><small>Deposit<small className="textSmall">FX-PURSE FXSWAP LP</small> to Earn FX</small></div>
 
-                                <div className="">
+                                <div className="" style={{ color: 'white' }}>
                                     {aprloading ?
-                                        <div style={{ marginTop: '8px' }}>
+                                        <div className="borderTop" style={{ marginTop: '8px' }}>
                                             <span className=""><small>APR: {parseFloat(fxswapApr).toLocaleString('en-US', {maximumFractionDigits:2})} % &nbsp;</small></span>
                                             <span className="">
                                                 <Popup 

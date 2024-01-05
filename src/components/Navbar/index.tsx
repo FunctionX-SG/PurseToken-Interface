@@ -144,15 +144,15 @@ export default function Navb() {
       <>
       <MediaQuery minWidth={961}>
       <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"38px",position:"fixed",width:"100%", top:"0",zIndex:"9999",backgroundColor:"#A82762",color:"white",fontSize:'15px'}}>
-        <span className="center" style={{width:'100%',color: '#fff'}}>
+        <span className="center" style={{width:'100%'}}>
           Check out the new roadmap of Purse at &nbsp;<a href="https://purse.land/" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>purse.land</u></a>
         </span>
         <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2" style={{color:'white',fontSize:'30px',width:"30px",height:"30px"}}/>
       </nav>
       </MediaQuery>
       <MediaQuery maxWidth={960}>
-      <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"58px",position:"fixed",width:"100%", bottom:"0",zIndex:"9999",backgroundColor:"#A82762",color:"white",fontSize:'15px'}}>
-        <span className="center" style={{width:'100%',color: '#fff'}}>
+      <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"38px",position:"fixed",width:"100%", bottom:"0",zIndex:"9999",backgroundColor:"#A82762",color:"white",fontSize:'15px'}}>
+        <span className="center" style={{width:'100%'}}>
           Check out the new roadmap of Purse at &nbsp;<a href="https://purse.land/" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>purse.land</u></a>
         </span>
         <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2" style={{color:'white',fontSize:'30px',width:"30px",height:"30px"}}/>
@@ -190,8 +190,8 @@ export default function Navb() {
           </div>
           <div className="mr-4">
             <Dropdown>
-              <Dropdown.Toggle className='center' variant="transparent" style={{padding:0,color:"#fff"}}>Farm</Dropdown.Toggle>
-               <Dropdown.Menu style={{backgroundColor:"#181818", marginTop:"8px"}}>
+              <Dropdown.Toggle className='center' variant="transparent" style={{padding:0,color:"#D3D3D3"}}>Farm</Dropdown.Toggle>
+               <Dropdown.Menu style={{backgroundColor:"#28313b", marginTop:"8px"}}>
                 <Dropdown.Item as={Link} to="/lpfarm/farmInfo">
                   <div className="dropdown0" style={{ paddingBottom: '12px' }}>Farm Dashboard</div>
                 </Dropdown.Item>
@@ -242,7 +242,7 @@ export default function Navb() {
                     <div>
                       <Dropdown>
                       <Dropdown.Toggle variant="secondary" size="sm">{getShortAccount(account)}</Dropdown.Toggle>
-                        <Dropdown.Menu style={{backgroundColor:"#181818", marginTop:"8px"}}>
+                        <Dropdown.Menu style={{backgroundColor:"#28313b", marginTop:"8px"}}>
                           <Dropdown.Item>
                           <div className='dropdown0' style={{ paddingBottom: '12px' }} onClick={() => {
                             window.open(`https://bscscan.com/address/${account}`, '_blank')
@@ -263,7 +263,7 @@ export default function Navb() {
                     </div> : <div>
                       <Dropdown>
                         <Dropdown.Toggle variant="secondary" size="sm">Connect Wallet</Dropdown.Toggle>
-                        <Dropdown.Menu style={{backgroundColor:"#181818", marginTop:"8px"}}>
+                        <Dropdown.Menu style={{backgroundColor:"#28313b", marginTop:"8px"}}>
                         <Dropdown.Item>
                         <div className='dropdown0' style={{ paddingBottom: '12px' }} onClick={async () => {
                             await metamaskConnect()
@@ -284,7 +284,7 @@ export default function Navb() {
                 <MediaQuery maxWidth={600}>
                 <Dropdown style={{position:"absolute", top:"0px" ,right:"-2px"}}>
                   <Dropdown.Toggle variant="transparent"><FaWallet size={20} style={{color:"white"}}/></Dropdown.Toggle>
-                  <Dropdown.Menu style={{backgroundColor:"#181818", marginTop:"5px"}}>
+                  <Dropdown.Menu style={{backgroundColor:"#28313b", marginTop:"5px"}}>
                     <Dropdown.Item>
                       <Buttons variant="secondary" size="sm" style={{width:"100%", backgroundColor:"#6A5ACD", marginTop:"10px"}} className='center' onClick={() => {
                         window.open(`https://pancakeswap.finance/swap?inputCurrency=0x29a63F4B209C29B4DC47f06FFA896F32667DAD2C&outputCurrency=0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56`, '_blank')

@@ -127,7 +127,7 @@ export default function PoolCard(props:any){
                             <div className=""><small>Deposit<small className="textSmall">{pairName} PANCAKE LP</small> to Earn PURSE</small></div>
 
                             <div className="" style={{ color: 'white' }}> {aprloading ?
-                                <div style={{ marginTop: '8px' }}>
+                                <div className="borderTop" style={{ marginTop: '8px' }}>
                                     <span className=""><small>APR: {parseFloat(apr.toString()).toLocaleString('en-US', { maximumFractionDigits: 2 })} % &nbsp;</small></span>
                                     <span className="">
                                         <ReactPopup trigger={open => (
@@ -190,7 +190,7 @@ export default function PoolCard(props:any){
                                     <span><small>TVL:</small></span>&nbsp;&nbsp;
                                     <span className="lds-dual-ring"><div></div><div></div><div></div></span>
                                 </div>} </small></span>
-                            <Buttons variant="info" size="sm" style={{ minWidth: '80px', marginTop: '10px' }} className="mb-2" onClick={() => {
+                            <Buttons variant="outline-info" size="sm" style={{ minWidth: '80px', marginTop: '10px' }} className="mb-2" onClick={() => {
                                 setDepositTrigger(true)
                             }}>Select</Buttons>
                             <div >

@@ -3,7 +3,6 @@ import {createRoot} from 'react-dom/client';
 // import './index.css';
 import 'bootstrap/dist/css/bootstrap.css'
 import App from './components/App';
-import  "./style/main.scss"
 import * as serviceWorker from './serviceWorker';
 import { Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
 import type { MetaMask } from '@web3-react/metamask'
