@@ -201,16 +201,16 @@ export default function Deposit(props: any) {
         <div className="mt-0">
           <h2 className="center textWhite" style={{fontSize:"40px"}}><b>{pairName}</b></h2>
          
-          <div className="center" style={{ fontFamily: 'Verdana', color: 'silver', textAlign:"center" }}>Deposit {pairName} LP Token and earn PURSE&nbsp;!</div>
+          <div className="center" style={{ color: 'silver', textAlign:"center" }}>Deposit {pairName} LP Token and earn PURSE&nbsp;!</div>
           <br />
-          <div className="card mb-2 cardbody" style={{ fontFamily: 'Verdana', color: 'silver'}}>
+          <div className="card mb-2 cardbody" style={{ color: 'silver'}}>
             <div className="card-body">
               <div className='float-left row mb-3 ml-1' style={{width:"70%"}}>
-                <div className='dropdown' style={{ fontSize: '12px' }} onClick={() => {
+                <div className='dropdown dropdownLink' style={{ fontSize: '12px' }} onClick={() => {
                   window.open(selectedPoolInfo.getLPLink, '_blank')
                 }}>Get {pairName} <img src={exlink} className='mb-1' height='10' alt="" />
                 </div>
-                <div className='dropdown' style={{ fontSize: '12px' }} onClick={() => {
+                <div className='dropdown dropdownLink' style={{ fontSize: '12px' }} onClick={() => {
                   window.open(selectedPoolInfo.lpContract, '_blank')
                 }}>View&nbsp;Contract&nbsp;<img src={exlink} className='mb-1' height='10' alt="" />
                 </div>
