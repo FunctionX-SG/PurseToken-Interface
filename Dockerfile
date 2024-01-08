@@ -11,7 +11,7 @@ ENV PORT=2002
 RUN npm install -g serve
 
 # Uses port which is used by the actual application
-EXPOSE 2002
+EXPOSE 2000
 
 # Run application
 #CMD [ "npm", "start" ]
