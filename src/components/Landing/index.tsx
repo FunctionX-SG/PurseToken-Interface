@@ -26,8 +26,8 @@ export default function Landing() {
             <div className="rowC mt-5">
                 <Bounce direction='left' triggerOnce>
                 <div className="mt-5 mr-4" style={{minWidth:"300px", padding:"15px", backgroundColor:"var(--basic-ash)"}}>
-                    <div className="textWhiteSmall"><b>BDL Mechanism</b></div>
-                    <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>For every non-whitelisted transaction, 10% of the transacted PURSE amount is burned, 5% goes to distribution pool and 5% goes to liquidity pool.</b></div>
+                    <div className="textWhiteSmall"><b>Tokenomics</b></div>
+                    <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>$PURSE, the Pundi X reward token, is now available on both BEP20 and Pundi X Chain. The purpose of the token is to incentivize XPOS usage, expand Pundi X Chain’s ecosystem and in</b></div>
                 </div>
                 <div className="mt-5 mr-4" style={{minWidth:"300px", padding:"15px", backgroundColor:"var(--basic-ash)"}}>
                     <div className="textWhiteSmall"><b>LP Restaking Farm</b></div>
