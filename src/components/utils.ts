@@ -123,7 +123,7 @@ export function formatBigNumber(bignumber:any,units:string){
 }
 
 export function isSupportedChain(chainId:number|undefined){
-  if (chainId!==97){
+  if (chainId!==56){
     return false
   } else {
     return true
@@ -131,8 +131,8 @@ export function isSupportedChain(chainId:number|undefined){
 }
 
 export function supportedChain(chainId:number|undefined){
-  if (chainId!==97){
-    return 97
+  if (chainId!==56){
+    return 56
   } else {
     return chainId
   }

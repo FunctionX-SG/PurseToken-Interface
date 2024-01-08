@@ -16,7 +16,7 @@ export const contractSlice =
   createSlice({
     name: 'contract',
     initialState: () => {
-      const bscProvider = new ethers.providers.JsonRpcProvider(Constants.BSC_TESTNET_RPC_URL_S2)
+      const bscProvider = new ethers.providers.JsonRpcProvider(Constants.BSC_MAINNET_RPCURL)
       const fxProvider = new ethers.providers.JsonRpcProvider(Constants.PROVIDER)
       const purseTokenUpgradable = new ethers.Contract(Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS,PurseTokenUpgradable.abi, bscProvider);
       const retroactiveRewards = new ethers.Contract(Constants.RETROACTIVE_REWARDS_ADDRESS, RetroactiveRewards.abi, bscProvider)
