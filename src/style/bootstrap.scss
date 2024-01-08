@@ -7,6 +7,10 @@
     box-shadow: none;
 }
 
+.btn.disabled, .btn:disabled {
+    pointer-events: none;
+}
+
 .btn-info, .btn-primary {
     color: var(--basic-pure-white-text);
     background-color: var(--basic-black);

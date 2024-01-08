@@ -201,9 +201,9 @@ export default function Deposit(props: any) {
         <div className="mt-0">
           <h2 className="center textWhite" style={{fontSize:"40px"}}><b>{pairName}</b></h2>
          
-          <div className="center" style={{ color: 'silver', textAlign:"center" }}>Deposit {pairName} LP Token and earn PURSE&nbsp;!</div>
+          <div className="center" style={{ color: '#999', textAlign:"center" }}>Deposit {pairName} LP Token and earn PURSE&nbsp;!</div>
           <br />
-          <div className="card mb-2 cardbody" style={{ color: 'silver'}}>
+          <div className="card mb-2 cardbody" style={{ color: '#999'}}>
             <div className="card-body">
               <div className='float-left row mb-3 ml-1' style={{width:"70%"}}>
                 <div className='dropdown dropdownLink' style={{ fontSize: '12px' }} onClick={() => {
@@ -230,7 +230,7 @@ export default function Deposit(props: any) {
                 <small>Harvest</small>
               </button>  <br />  <br />
   
-              <table className="table table-borderless text-center" style={{ color: 'silver', fontSize:'15px' }}>
+              <table className="table table-borderless text-center" style={{ color: '#999', fontSize:'15px' }}>
                 <thead>
                   <tr>
                     <th scope="col">{pairName} LP Staked </th>
@@ -268,8 +268,8 @@ export default function Deposit(props: any) {
                   : 
                   <div>
                       <div>
-                        <label className="float-left mt-1" style={{ color: 'silver', fontSize: '15px', width: '40%', minWidth:"120px"}}><b>Start Farming</b></label>
-                        <span className="float-right mb-1 mt-1" style={{ color: 'silver', fontSize: '15px' }}>
+                        <label className="float-left mt-1" style={{ color: '#999', fontSize: '15px', width: '40%', minWidth:"120px"}}><b>Start Farming</b></label>
+                        <span className="float-right mb-1 mt-1" style={{ color: '#999', fontSize: '15px' }}>
                           <span>
                             LP Balance&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: {parseFloat(formatBigNumber(lpTokenBalance, 'ether')).toLocaleString('en-US', { maximumFractionDigits: 3 })}
                           </span>
@@ -286,7 +286,7 @@ export default function Deposit(props: any) {
                           <div className="input-group mt-0" >
                             <input
                               type="text"
-                              style={{ color: 'silver', backgroundColor: '#28313b', fontSize: '15px' }}
+                              style={{ color: '#999', backgroundColor: '#28313b', fontSize: '15px' }}
                               className="form-control form-control-lg cardbody"
                               placeholder="0"
                               onPaste={(event)=>{
@@ -300,7 +300,7 @@ export default function Deposit(props: any) {
                               disabled={isDeposit||isWithdraw}
                               required />
                             <div className="input-group-append">
-                              <div className="input-group-text cardbody" style={{ color: 'silver', fontSize: '15px' }}>
+                              <div className="input-group-text cardbody" style={{ color: '#999', fontSize: '15px' }}>
                                 <img src={pancake} height='20' alt="" />
                                 &nbsp;&nbsp;LP
                               </div>
@@ -337,7 +337,7 @@ export default function Deposit(props: any) {
             </div>
           </div>
           </div>
-          <div className="text-center" style={{ color: 'silver' }}><img src={asterisk} alt={"*"} height='15' />&nbsp;<small>Every time you stake & unstake LP tokens, the contract will automatically harvest PURSE rewards for you!</small></div>
+          <div className="text-center" style={{ color: '#999' }}><img src={asterisk} alt={"*"} height='15' />&nbsp;<small>Every time you stake & unstake LP tokens, the contract will automatically harvest PURSE rewards for you!</small></div>
           <ConnectWallet/>
         </div>
   
