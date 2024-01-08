@@ -143,26 +143,26 @@ export default function Navb() {
       {notice?
       <>
       <MediaQuery minWidth={961}>
-      <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"38px",position:"fixed",width:"100%", top:"0",zIndex:"9999",backgroundColor:"#A82762",color:"white",fontSize:'15px'}}>
+      <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"38px",position:"fixed",width:"100%", top:"0",zIndex:"9",backgroundColor:"rgb(186, 0, 255)",color:"white",fontSize:'15px'}}>
         <span className="center" style={{width:'100%',color: '#fff'}}>
           Check out the new roadmap of Purse at &nbsp;<a href="https://purse.land/" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>purse.land</u></a>
         </span>
-        <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2" style={{color:'white',fontSize:'30px',width:"30px",height:"30px"}}/>
+        <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2 close-notice" style={{color:'#fff',fontSize:'30px',width:"30px",height:"30px"}}/>
       </nav>
       </MediaQuery>
       <MediaQuery maxWidth={960}>
-      <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"58px",position:"fixed",width:"100%", bottom:"0",zIndex:"9999",backgroundColor:"#A82762",color:"white",fontSize:'15px'}}>
+      <nav className="navbar top flex-md-nowrap p-0 shadow" style={{height:"58px",position:"fixed",width:"100%", bottom:"0",zIndex:"9",backgroundColor:"rgb(186, 0, 255)",color:"white",fontSize:'15px'}}>
         <span className="center" style={{width:'100%',color: '#fff'}}>
           Check out the new roadmap of Purse at &nbsp;<a href="https://purse.land/" target="_blank" rel="noopener noreferrer" style={{color:'white'}}><u>purse.land</u></a>
         </span>
-        <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2" style={{color:'white',fontSize:'30px',width:"30px",height:"30px"}}/>
+        <CloseButton data-bs-theme="dark" aria-label="Hide" onClick={() => {closeNotice()}} className="mr-2 close-notice" style={{color:'#fff',fontSize:'30px',width:"30px",height:"30px"}}/>
       </nav>
       </MediaQuery>
 
       </>
       :<></>}
       {/* Navbar top:38px if there is notice */}
-      <nav className="navbar navbar-dark top bg-dark flex-md-nowrap p-0 shadow" style={{height:"50px",position:"fixed",width:"100%", top:navbarTop,zIndex:"9999"}}>
+      <nav className="navbar navbar-dark top bg-dark flex-md-nowrap p-0" style={{height:"50px",position:"fixed",width:"100%", top:navbarTop,zIndex:"9"}}>
         <div className="navbar-brand col-sm-3 col-md-2 mt-1 md-1 mr-0 rowB">
           <MediaQuery maxWidth={960}>
             <Menu>

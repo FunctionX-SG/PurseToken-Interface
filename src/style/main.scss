@@ -50,9 +50,11 @@ span, p {
 }
 
 .textPurpleMedium {
-  color: #c680ff;
+  // color: #c680ff;
+  color: var(--basic-pure-black-text);
   font-weight: bold;
-  border: 1.9px solid #c37aff;
+  // border: 1.9px solid #c37aff;
+  border: 1.9px solid var(--basic-pure-black-text);
   font-size: 18px;
  @extend .common-title
 }
@@ -90,6 +92,11 @@ span, p {
   @extend .common-text
 }
 
+.close-notice {
+  span {
+    color: #fff;
+  }
+}
 
 .cardbody {
   background-color: var(--basic-ash);
@@ -128,7 +135,7 @@ span, p {
   color: var(--basic-yellow);
 }
 .dropdown1 {
-  color: var(--basic-purple);
+  color: #c37aff;
 }
 
 .dropdown1.active {
@@ -146,6 +153,10 @@ span, p {
 
 .hover:hover {
   color: var(--basic-yellow);
+}
+
+.lpfarm:hover {
+    color: var(--basic-purple);
 }
 
 .dropdown-item:hover {

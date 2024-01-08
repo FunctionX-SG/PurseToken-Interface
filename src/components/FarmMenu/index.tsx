@@ -157,10 +157,10 @@ export default function FarmMenu() {
             <div className="text-center">
                 <ButtonGroup>
                     <Link to="/lpfarm/menu/" style={{ textDecoration: "none" }}>
-                        <Buttons className="textPurpleMedium center hover" variant="outline" size="lg"> PANCAKESWAP</Buttons>
+                        <Buttons className="textPurpleMedium center hover lpfarm" variant="outline" size="lg"> PANCAKESWAP</Buttons>
                     </Link>
                     <Link to="/lpfarm/fxswap/" style={{ textDecoration: "none" }}>
-                        <Buttons className="textWhiteMedium center hover" variant="link" size="lg"> FXSWAP</Buttons>
+                        <Buttons className="textWhiteMedium center hover lpfarm" variant="link" size="lg"> FXSWAP</Buttons>
                     </Link>
                 </ButtonGroup>
             </div>
@@ -168,7 +168,7 @@ export default function FarmMenu() {
                 <img src={purse2} height='180' alt="" />
             </div>
             <h1 className="textWhite center" style={{fontSize:"40px", textAlign:"center"}}><b>LP Restaking Farm</b></h1>
-            <div className="center mt-4 mb-3" style={{ color: 'silver', textAlign:"center"}}>Stake Pancakeswap LP Tokens to earn PURSE&nbsp;!</div>
+            <div className="center mt-4 mb-3" style={{ color: '#999', textAlign:"center"}}>Stake Pancakeswap LP Tokens to earn PURSE&nbsp;!</div>
             <br />
 
             <div className="row center" style={{ minWidth: '300px' }}>
@@ -257,7 +257,7 @@ export default function FarmMenu() {
 
             <br />
             <div className="center mb-2"><b><big>Select Your Favourite pool entrees&nbsp;!</big></b></div>
-            <div className="center" style={{ color: 'silver' }}><small><FaExclamationCircle size={13} style={{marginBottom:"3px"}}/>&nbsp;&nbsp;Attention&nbsp;: Be sure to familiar with protocol risks and fees before using the farms&nbsp;!</small></div>
+            <div className="center" style={{ color: '#999' }}><small><FaExclamationCircle size={13} style={{marginBottom:"3px"}}/>&nbsp;&nbsp;Attention&nbsp;: Be sure to familiar with protocol risks and fees before using the farms&nbsp;!</small></div>
             <br />
 
 

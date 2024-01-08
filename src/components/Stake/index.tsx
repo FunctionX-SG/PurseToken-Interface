@@ -444,11 +444,11 @@ export default function Stake() {
               <div className="card cardbody" style={{ minWidth: '300px', width: "900px" }}>
   
               <ButtonGroup>
-                <Button type="button" variant="ghost" style={{ color:"#0a0a0d", backgroundColor: mode==='Stake'?'#ba00ff':'' }} onClick={(event) => {
+                <Button type="button" variant="ghost" style={{ color:mode==='Stake'?"#fff":'#000', backgroundColor: mode==='Stake'?'#ba00ff':'' }} onClick={(event) => {
                     setMode('Stake')
                 }}>Stake&nbsp;&nbsp;
                   <ReactPopup trigger={open => (
-                    <span style={{ position: "relative", top: '-1.5px' }}><BsFillQuestionCircleFill size={14} /></span>
+                    <span style={{ position: "relative", top: '-1.5px',color:mode==='Stake'?"#fff":'#000'}}><BsFillQuestionCircleFill size={14} /></span>
                   )}
                     on="hover"
                     position="right center"
@@ -458,11 +458,11 @@ export default function Stake() {
                     <span className="textInfo"> Stake your PURSE to earn auto-compounding PURSE rewards over time</span>
                   </ReactPopup></Button>
   
-                <Button type="button" variant="ghost" style={{ color:"#0a0a0d", backgroundColor: mode==='Unstake'?'#ba00ff':''}} onClick={(event) => {
+                <Button type="button" variant="ghost" style={{ color:mode==='Unstake'?"#fff":'#000', backgroundColor: mode==='Unstake'?'#ba00ff':''}} onClick={(event) => {
                   setMode('Unstake')
                 }}>Unstake&nbsp;&nbsp;
                  <ReactPopup trigger={open => (
-                    <span style={{ position: "relative", top: '-1.5px' }}><BsFillQuestionCircleFill size={14} /></span>
+                    <span style={{ position: "relative", top: '-1.5px',color:mode==='Unstake'?"#fff":'#000' }}><BsFillQuestionCircleFill size={14} /></span>
                   )}
                     on="hover"
                     position="bottom center"
@@ -472,11 +472,11 @@ export default function Stake() {
                     <span className="textInfo"> Unstake and earn PURSE rewards using your share</span>
                   </ReactPopup></Button>
   
-                <Button type="button" variant="ghost" style={{ color:"#0a0a0d", backgroundColor: mode==='Check'?'#ba00ff':'' }} onClick={(event) => {
+                <Button type="button" variant="ghost" style={{ color:mode==='Check'?"#fff":'#000', backgroundColor: mode==='Check'?'#ba00ff':'' }} onClick={(event) => {
                   setMode('Check')
                 }}>Check&nbsp;&nbsp;
                 <ReactPopup trigger={open => (
-                   <span style={{ position: "relative", top: '-1.5px' }}><BsFillQuestionCircleFill size={14} /></span>
+                   <span style={{ position: "relative", top: '-1.5px',color:mode==='Check'?"#fff":'#000' }}><BsFillQuestionCircleFill size={14} /></span>
                  )}
                    on="hover"
                    position="left center"
