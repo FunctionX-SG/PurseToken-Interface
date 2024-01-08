@@ -31,12 +31,24 @@ const BNB: AddEthereumChainParameter['nativeCurrency'] = {
   decimals: 18,
 }
 
+const TBNB: AddEthereumChainParameter['nativeCurrency'] = {
+  name: 'Binance Coin',
+  symbol: 'TBNB',
+  decimals: 18,
+}
+
 export const MAINNET_CHAINS: ChainConfig = {
     56: {
       urls: [Constants.BSC_MAINNET_RPCURL,Constants.BSC_MAINNET_RPCURL_1].filter(Boolean),
       name: 'BSC',
       blockExplorerUrls: ['https://bscscan.com/'],
       nativeCurrency: BNB,
+    },
+    97: {
+      urls: [Constants.BSC_TESTNET_RPC_URL_S2,Constants.BSC_TESTNET_RPC_URL_S3].filter(Boolean),
+      name: 'BSC Testnet',
+      blockExplorerUrls: ['https://testnet.bscscan.com/'],
+      nativeCurrency: TBNB,
     },
     137: {
       urls: ['url3','https://polygon-rpc.com'].filter(Boolean),

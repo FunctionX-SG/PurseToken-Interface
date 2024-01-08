@@ -61,7 +61,7 @@ export default function FarmInfo() {
         <MediaQuery minWidth={601}>
         <div className="card mb-2 cardbody" >
           <div className="card-body center">
-            <table className="textWhiteSmall text-center">
+            <table className="textWhiteSmall text-center" style={{width:"100%"}}>
               <thead>
                 <tr>
                   <th scope="col">Total Pool</th>
@@ -159,10 +159,10 @@ export default function FarmInfo() {
           </MediaQuery>
           <br/> <br/>
 
-        <div className="text mt-5" style={{ color: 'silver', fontSize: "14px" }}>&nbsp;Remarks :</div><br/>
-        <div className="rowC ml-2 mt-2" style={{ color: 'silver', fontSize: "12px" }}>&nbsp;<div><IoStar className='mb-1'/>&nbsp;&nbsp;</div><div>Farm Cap Reward Token: Total capacity reward tokens will be minted by this farm.</div></div>
-        <div className="rowC ml-2 mt-1" style={{ color: 'silver', fontSize: "12px" }}>&nbsp;<div><IoStar className='mb-1'/>&nbsp;&nbsp;</div><div>Farm Minted Reward Token: Total reward tokens minted by this farm until now.</div></div>
-        <div className="rowC ml-2 mt-1" style={{ color: 'silver', fontSize: "12px" }}>&nbsp;<div><IoStar className='mb-1'/>&nbsp;&nbsp;</div><div>Farm's Reward Token: Total reward tokens inside this farm (smart contract).</div></div>
+        <div className="text mt-5 common-title" style={{ color: '#000', fontSize: "14px" }}>&nbsp;Remarks :</div><br/>
+        <div className="rowC ml-2 mt-2" style={{ color: '#000', fontSize: "12px" }}>&nbsp;<div><IoStar className='mb-1'/>&nbsp;&nbsp;</div><div>Farm Cap Reward Token: Total capacity reward tokens will be minted by this farm.</div></div>
+        <div className="rowC ml-2 mt-1" style={{ color: '#000', fontSize: "12px" }}>&nbsp;<div><IoStar className='mb-1'/>&nbsp;&nbsp;</div><div>Farm Minted Reward Token: Total reward tokens minted by this farm until now.</div></div>
+        <div className="rowC ml-2 mt-1" style={{ color: '#000', fontSize: "12px" }}>&nbsp;<div><IoStar className='mb-1'/>&nbsp;&nbsp;</div><div>Farm's Reward Token: Total reward tokens inside this farm (smart contract).</div></div>
       </div>
 
 

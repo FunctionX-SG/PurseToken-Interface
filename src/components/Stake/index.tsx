@@ -444,11 +444,11 @@ export default function Stake() {
               <div className="card cardbody" style={{ minWidth: '300px', width: "900px" }}>
   
               <ButtonGroup>
-                <Button type="button" variant="ghost" style={{ color:"White", backgroundColor: mode==='Stake'?'#6A5ACD':'' }} onClick={(event) => {
+                <Button type="button" variant="ghost" style={{ color:mode==='Stake'?"#fff":'#000', backgroundColor: mode==='Stake'?'#ba00ff':'' }} onClick={(event) => {
                     setMode('Stake')
                 }}>Stake&nbsp;&nbsp;
                   <ReactPopup trigger={open => (
-                    <span style={{ position: "relative", top: '-1.5px' }}><BsFillQuestionCircleFill size={14} /></span>
+                    <span style={{ position: "relative", top: '-1.5px',color:mode==='Stake'?"#fff":'#000'}}><BsFillQuestionCircleFill size={14} /></span>
                   )}
                     on="hover"
                     position="right center"
@@ -458,11 +458,11 @@ export default function Stake() {
                     <span className="textInfo"> Stake your PURSE to earn auto-compounding PURSE rewards over time</span>
                   </ReactPopup></Button>
   
-                <Button type="button" variant="ghost" style={{ color:"White", backgroundColor: mode==='Unstake'?'#6A5ACD':''}} onClick={(event) => {
+                <Button type="button" variant="ghost" style={{ color:mode==='Unstake'?"#fff":'#000', backgroundColor: mode==='Unstake'?'#ba00ff':''}} onClick={(event) => {
                   setMode('Unstake')
                 }}>Unstake&nbsp;&nbsp;
                  <ReactPopup trigger={open => (
-                    <span style={{ position: "relative", top: '-1.5px' }}><BsFillQuestionCircleFill size={14} /></span>
+                    <span style={{ position: "relative", top: '-1.5px',color:mode==='Unstake'?"#fff":'#000' }}><BsFillQuestionCircleFill size={14} /></span>
                   )}
                     on="hover"
                     position="bottom center"
@@ -472,11 +472,11 @@ export default function Stake() {
                     <span className="textInfo"> Unstake and earn PURSE rewards using your share</span>
                   </ReactPopup></Button>
   
-                <Button type="button" variant="ghost" style={{ color:"White", backgroundColor: mode==='Check'?'#6A5ACD':'' }} onClick={(event) => {
+                <Button type="button" variant="ghost" style={{ color:mode==='Check'?"#fff":'#000', backgroundColor: mode==='Check'?'#ba00ff':'' }} onClick={(event) => {
                   setMode('Check')
                 }}>Check&nbsp;&nbsp;
                 <ReactPopup trigger={open => (
-                   <span style={{ position: "relative", top: '-1.5px' }}><BsFillQuestionCircleFill size={14} /></span>
+                   <span style={{ position: "relative", top: '-1.5px',color:mode==='Check'?"#fff":'#000' }}><BsFillQuestionCircleFill size={14} /></span>
                  )}
                    on="hover"
                    position="left center"
@@ -489,11 +489,11 @@ export default function Stake() {
   
               <div className="card-body">
   
-                <div className="mb-4" style={{backgroundColor: "rgba(106, 90, 205, 0.2)", padding: "30px 40px"}}>
+                <div className="mb-4" style={{backgroundColor: "#ba00ff", padding: "30px 40px"}}>
                   <div className="rowC textWhiteSmaller ml-2 mb-2">
-                    <div className="ml-2"><b>Maximize your rewards with PURSE Staking. The more you stake, the more you earn, claimable any time without interruptions to your continuous earning potential.</b></div>
+                    <div className="ml-2" style={{color: "#fff"}}><b>Maximize your rewards with PURSE Staking. The more you stake, the more you earn, claimable any time without interruptions to your continuous earning potential.</b></div>
                   </div>
-                  <div className="rowC textWhiteSmaller ml-2 mb-2">
+                  <div className="rowC textWhiteSmaller ml-2 mb-2" style={{color: "#fff"}}>
                     <a href="https://pundix-purse.gitbook.io/untitled/products/purse-staking-rewards" target="_blank" rel="noreferrer" style={{'textDecoration':'none'}}><div className="ml-2 ex-link"><b>Learn how staked PURSE amplify your earnings <BsArrowRight size='16'/></b></div></a>
                   </div>
                 </div>
@@ -502,7 +502,7 @@ export default function Stake() {
                     {purseStakingUserWithdrawReward>0 ?
                       <div>
                         {purseStakingRemainingTime>0 ?
-                          <div className='mb-3 textWhiteSmall' style={{borderBottom:"1px solid grey"}}>
+                          <div className='mb-3 textWhiteSmall'>
                             <div className='row ml-2 mb-1'>
                               <div style={{width:"50%", minWidth:"250px"}}>
                                 <div className='mb-1'>PURSE Locked For 21 Days:&nbsp;&nbsp;
@@ -517,11 +517,11 @@ export default function Stake() {
                                     <span className="textInfo">PURSE locked during these 21 days will not earn any rewards</span>
                                   </ReactPopup>
                                 </div>
-                                <div className="mb-3" style={{ color : "#B0C4DE" }}><b>{(purseStakingUserWithdrawReward).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " PURSE"}</b></div>
+                                <div className="mb-3" style={{ color : "#000" }}><b>{(purseStakingUserWithdrawReward).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " PURSE"}</b></div>
                               </div>
                               <div style={{width:"50%", minWidth:"250px"}}>
                                 <div className="mb-1">Remaining Lock Time:</div>
-                                <div className="mb-3" style={{ color : "#B0C4DE" }}><MdLockClock/>&nbsp;&nbsp;<b>{secondsToDhms(purseStakingLockPeriod,purseStakingRemainingTime)}</b></div>
+                                <div className="mb-3" style={{ color : "#000" }}><MdLockClock/>&nbsp;&nbsp;<b>{secondsToDhms(purseStakingLockPeriod,purseStakingRemainingTime)}</b></div>
                               </div>
                             </div>
                           </div>
@@ -529,7 +529,7 @@ export default function Stake() {
                         isLoading?
                         <Loading/>
                         :
-                          <div className='mb-3 textWhiteSmall' style={{borderBottom:"1px solid grey"}}>
+                          <div className='mb-3 textWhiteSmall'>
                             <div className='row ml-2 mb-1'>
                               <div style={{width:"50%", minWidth:"250px"}}>
                                 <div className='mb-1'>Withdrawable PURSE:&nbsp;&nbsp;
@@ -545,14 +545,14 @@ export default function Stake() {
                                     <span className="textInfo">If not it will automatically be withdrawn when unstake</span>
                                   </ReactPopup>
                                 </div>
-                                <div className="mb-3" style={{ color : "#B0C4DE" }}><b>{(purseStakingUserWithdrawReward).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " PURSE"}</b></div>
+                                <div className="mb-3" style={{ color : "#000" }}><b>{(purseStakingUserWithdrawReward).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " PURSE"}</b></div>
                                 <Button type="button" className="btn btn-sm mb-3" variant="outline-success" disabled={stakeLoading} onClick={(event) => {
                                   withdrawLocked()
                                 }}>Withdraw</Button>
                               </div>
                               <div style={{width:"50%", minWidth:"250px"}}>
                                 <div className="mb-1">Remaining Lock Time:</div>
-                                <div className="mb-2" style={{ color : "#B0C4DE" }}><b>21-Day Lock is over</b></div>
+                                <div className="mb-2" style={{ color : "#000" }}><b>21-Day Lock is over</b></div>
                               </div>
                             </div>
                           </div>
@@ -567,13 +567,13 @@ export default function Stake() {
                         <div className="textWhiteSmall mb-1">
                           <b>Address:</b>
                         </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
                             <b>{account}</b>
                           </div>
                           <div className="textWhiteSmall mb-1">
                             <b>PURSE Balance:</b>
                           </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
                             {isLoading?
                             <Loading/>
                             :
@@ -597,7 +597,7 @@ export default function Stake() {
                               <span className="textInfo mt-2">Total Share (Pool) ≡ Total Staked (Pool)</span>
                             </ReactPopup> */}
                           </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
                           {isLoading?
                             <Loading/>
                             :
@@ -629,7 +629,7 @@ export default function Stake() {
                               <span className="textInfo">Amount of PURSE user has staked + PURSE reward from PURSE Distribution</span>
                             </ReactPopup>
                           </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
                           {isLoading?
                             <Loading/>
                             :
@@ -655,7 +655,7 @@ export default function Stake() {
                               <span className="textInfo mt-2">Staked Balance = Share Balance / Total Share (Pool) x Total Staked (Pool)</span>
                             </ReactPopup>
                           </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
                           {isLoading?
                             <Loading/>
                             :
@@ -678,7 +678,7 @@ export default function Stake() {
                               <span className="textInfo">Share received previously when staked into contract before the 21-Day Lock implementation</span>
                             </ReactPopup>
                           </div>
-                          <div className="textWhiteSmall ml-3 mb-2" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall ml-3 mb-2" style={{ color : "#000" }}>
                           {isLoading?
                             <Loading/>
                             :
@@ -700,7 +700,7 @@ export default function Stake() {
                               <span className="textInfo">Locked share received when staked into contract after the 21-Day Lock implementation</span>
                             </ReactPopup>
                           </div>
-                          <div className="textWhiteSmall ml-3 mb-3" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall ml-3 mb-3" style={{ color : "#000" }}>
                           {isLoading?
                             <Loading/>
                             :
@@ -717,7 +717,7 @@ export default function Stake() {
                       </div>
                     </div>
 
-                    <div style={{borderTop:"1px solid grey"}}></div>
+                    <div></div>
                     <div className="row mt-3 ml-2">
                       
                       <div style={{width:"50%", minWidth:"250px"}}>
@@ -740,7 +740,7 @@ export default function Stake() {
                               </span>
                             </ReactPopup>
                           </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
                           {isLoading?
                           <Loading/>
                           :
@@ -755,7 +755,7 @@ export default function Stake() {
                           
                         <div style={{paddingRight:"2px", width:"50%", minWidth:"250px"}}>
                           <div className="textWhiteSmall mb-1"><b>Past 30 Days Distribution Sum:</b></div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
                           {isLoading?
                             <Loading/>
                             :
@@ -783,7 +783,7 @@ export default function Stake() {
                             <span className="textInfo mt-2">Calculated based on PURSE staked by PURSE holders + PURSE Distribution</span>
                           </ReactPopup>
                         </div>
-                        <div className="textWhiteSmall mb-2" style={{ color : "#B0C4DE" }}>
+                        <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
                         {isLoading?
                             <Loading/>
                             :
@@ -809,7 +809,7 @@ export default function Stake() {
                               <span className="textInfo mt-2">Total Share (Pool) ≡ Total Staked (Pool)</span>
                             </ReactPopup>
                           </div>
-                          <div className="textWhiteSmall mb-3" style={{ color : "#B0C4DE" }}>
+                          <div className="textWhiteSmall mb-3" style={{ color : "#000" }}>
                           {isLoading?
                             <Loading/>
                             :
@@ -824,7 +824,7 @@ export default function Stake() {
     
                   {purseMessage?
                   <div>
-                    <div style={{borderTop:"1px solid grey"}}></div>
+                    <div></div>
                     <div>
                       <div className="textWhiteSmall mt-3 ml-2 mb-2">
                         <b>PURSE Staking:</b>
@@ -842,7 +842,7 @@ export default function Stake() {
                             <span className="textInfo">No 21-Day Lock: If unstake using Unlocked Share, PURSE will be transferred instantly to user</span>
                           </ReactPopup>
                       </div>
-                      <div className="textWhiteSmall ml-2 mb-2" style={{ color : "#B0C4DE" }}>
+                      <div className="textWhiteSmall ml-2 mb-2" style={{ color : "#000" }}>
                         <b>{purseAmount}</b>
                       </div>
                       <div className="textWhiteSmaller ml-2" style={{textDecoration:"underline grey"}}>
@@ -858,7 +858,7 @@ export default function Stake() {
                             <span className="textInfo mt-2">With 21-Day Lock: If unstake using Locked Share, PURSE can only be withdrawn after 21 days</span>
                           </ReactPopup>
                       </div>
-                      <div className="textWhiteSmall ml-2 mb-2" style={{ color : "#B0C4DE" }}>
+                      <div className="textWhiteSmall ml-2 mb-2" style={{ color : "#000" }}>
                         <b>{rewardAmount}</b>
                       </div>
                     </div>
@@ -881,7 +881,6 @@ export default function Stake() {
                           onPaste={(event)=>{
                             event.preventDefault()
                           }}
-                          style={{ color: "#B0C4DE", backgroundColor: "#28313B" }}
                           className="form-control cardbody"
                           placeholder="0"
                           onChange={(e) => {
@@ -893,7 +892,7 @@ export default function Stake() {
                           required
                         />
                         <div className="input-group-append">
-                          <div className="input-group-text cardbody center" style={{ color: "#B0C4DE", width: "80px" }}>{mode==='Stake'?'PURSE':'Share'} </div>
+                          <div className="input-group-text cardbody center" style={{ color: "#000", width: "80px" }}>{mode==='Stake'?'PURSE':'Share'} </div>
                         </div>
                       </div >
                     </div>
@@ -926,7 +925,7 @@ export default function Stake() {
                   </div>
                   {mode === "Unstake"?
                   <div className='center textWhite mb-3'>
-                    <div style={{color:"silver", width:"90%", textAlign:"center", fontSize:"12px", backgroundColor: "rgba(106, 90, 205, 0.2)", padding:"8px"}}>
+                    <div style={{ width:"90%", textAlign:"center", fontSize:"12px", backgroundColor: "rgb(186 0 255 / 38%)", padding:"8px"}}>
                       <AiFillAlert className='mb-1'/>&nbsp;Disclaimer: If unstake when there's an existing unstaking entry locked for &lt; 21-Day, the lock period will reset back to 21-Day
                     </div>
                   </div>
