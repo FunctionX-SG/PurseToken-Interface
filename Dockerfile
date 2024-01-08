@@ -5,7 +5,7 @@ COPY package* ./
 COPY . .
 
 # Set the desired port (replace 3000 with your custom port)
-ENV PORT=2002
+ENV PORT=2000
 
 # Install `serve` to run the application.
 RUN npm install -g serve
