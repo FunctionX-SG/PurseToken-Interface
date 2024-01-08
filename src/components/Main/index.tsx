@@ -11,6 +11,10 @@ import { Loading } from '../Loading';
 import { usePursePrice } from '../state/PursePrice/hooks';
 import { useContract } from '../state/contract/hooks';
 import { DataFormater, NumberFormater } from '../utils';
+interface CustomTooltipProps {
+  payload?: any[]
+  label?: string
+}
 
 export default function Main() {
 
@@ -27,6 +31,72 @@ export default function Main() {
   const [cumulateTransfer, setCumulateTransfer] = useState<{Sum: number; Date: string}[]>([])
   const [cumulateBurn, setCumulateBurn] = useState<{Sum: number; Date: string}[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+
+  const CustomTick = (propsCustomTick: any) => {
+    const { x, y, payload } = propsCustomTick
+    const date = new Date(payload.value)
+    const year = date.getFullYear()
+    const month = date.toLocaleString("en-US", { month: "short" })
+
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <text x={0} y={25} textAnchor="middle" fontSize={16}>
+          {month}
+        </text>
+        <text x={0} y={46} textAnchor="middle" fontSize={12}>
+          {year}
+        </text>
+      </g>
+    )
+  }
+
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({ payload, label }) => {
+    if (payload && payload.length) {
+      const value = parseFloat(payload[0].value)
+      const date = new Date(label as any)
+      const year = date.getFullYear()
+      const month = date.toLocaleString("en-US", { month: "long" })
+      const day = date.getDate()
+      const formattedValue = value.toLocaleString("en-US", {
+        maximumFractionDigits: 2,
+      })
+
+      return (
+        <div className="custom-tooltip">
+          <p
+            className="textWhiteSmall"
+            style={{
+              padding: "0",
+              margin: "0",
+              textAlign: "center",
+              width: "40px",
+              height: "18px",
+              color: "#fff",
+              lineHeight: "18px",
+              backgroundColor: "var(--basic-black)",
+            }}
+          >
+            SUM
+          </p>
+          <div className="textWhiteHeading" style={{
+              color: "#000",
+              padding: "0",
+              margin: "0",
+            }}>{formattedValue}</div>
+          <p className="textWhiteSmall" style={{
+              color: "#000",
+              padding: "0",
+              margin: "0",
+            }}>
+            {day}-{month}-{year}
+          </p>
+        </div>
+      )
+    }
+
+    return null
+  }
 
   useEffect(()=>{
     async function loadData(){
@@ -70,7 +140,7 @@ export default function Main() {
       <MediaQuery minWidth={601}>
       <div className="card mb-4 cardbody">
         <div className="card-body center">
-          <table className="textWhiteSmall">
+          <table className="textWhiteSmall" style={{width:"100%"}}>
             <thead>
               <tr>
                 <th scope="col">Market Cap</th>
@@ -192,26 +262,176 @@ export default function Main() {
         </div>
       </div><br/><br/>
       <div className="container" style={{ width: 'fit-content' }}>
-        <div className="row center" style={{borderRadius:"15px",padding:"20px 15px", backgroundColor: "rgba(106, 90, 205, 0.2)" }}>
+        <div className="row center" style={{ gap: '20px' }}>
           <div>
-            <AreaChart width={460} height={300} data={cumulateBurn}>
+            {/* <AreaChart width={460} height={300} data={cumulateBurn}>
               <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>
               <YAxis tickFormatter={DataFormater} tick={{fontSize: 14}} stroke="#A9A9A9"/>
               <CartesianGrid vertical={false} strokeDasharray="2 2" />
               <Tooltip formatter={NumberFormater} />
               <Legend verticalAlign="top" height={40} formatter={() => ("Burn")} wrapperStyle={{fontSize: "20px"}}/>
               <Area type="monotone" dataKey="Sum" stroke="#8884d8" fillOpacity={0.5} fill="#8884d8" />
-            </AreaChart><li style={{color:'transparent'}}/>
+            </AreaChart><li style={{color:'transparent'}}/> */}
+            <div className={`common-title`} style={{ marginBottom: '40px', textAlign: "center", }}>Burn</div>
+            <AreaChart
+                  width={460} 
+                  height={300}
+                  data={cumulateBurn}
+                  margin={{
+                    bottom: 44,
+                    left: 0,
+                    top: 20,
+                  }}
+                >
+                  <defs>
+                    <linearGradient id="Burn" x1="0" y1="0" x2="1" y2="1">
+                      <stop
+                        offset="10%"
+                        stopColor="#fcdb5b"
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset="50%"
+                        stopColor="#f7e01e"
+                        stopOpacity={0.1}
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="#ffe95b"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    axisLine={false}
+                    dataKey="Date"
+                    tick={CustomTick}
+                    stroke="#000"
+                    tickLine={false}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickFormatter={DataFormater}
+                    tick={{ fontSize: 16 }}
+                    stroke="#000"
+                  />
+                  <CartesianGrid
+                    vertical={false}
+                    strokeDasharray="0 0"
+                    stroke="#f5f5f5"
+                  />
+                  <Area
+                    strokeWidth={3}
+                    type="monotone"
+                    dataKey="Sum"
+                    stroke="#f7d509"
+                    fill="url(#Burn)"
+                    activeDot={{
+                      r: 8,
+                      strokeWidth: 3,
+                      stroke: "#ffffff",
+                      fill: "#000000",
+                    }}
+                  />
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{
+                      stroke: "#000",
+                      strokeWidth: 1,
+                      strokeDasharray: "2 2",
+                    }}
+                    itemStyle={{ color: "#8884d8" }}
+                    formatter={NumberFormater}
+                  />
+                </AreaChart>
           </div>
           <div>  
-            <AreaChart width={460} height={300} data={cumulateTransfer}>
+            {/* <AreaChart width={460} height={300} data={cumulateTransfer}>
               <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>
               <YAxis tickFormatter={DataFormater} tick={{fontSize: 14}} stroke="#A9A9A9"/>
               <CartesianGrid vertical={false} strokeDasharray="2 2" />
               <Tooltip formatter={NumberFormater} />
               <Legend verticalAlign="top" height={40} formatter={() => ("Distribution / Liquidity")} wrapperStyle={{fontSize: "20px"}}/>
               <Area type="monotone" dataKey="Sum" stroke="#82ca9d" fillOpacity={0.5} fill="#82ca9d" />
-            </AreaChart><li style={{color:'transparent'}}/>
+            </AreaChart><li style={{color:'transparent'}}/> */}
+              <div className={`common-title`} style={{ marginBottom: '40px', textAlign: "center", }}>Distribution / Liquidity</div>
+                <AreaChart
+                 width={460}
+                  height={300}
+                  margin={{
+                    bottom: 44,
+                    left: 0,
+                    top: 20,
+                  }}
+                  data={cumulateTransfer}
+                >
+                  <defs>
+                    <linearGradient
+                      id="distributionLiquidity"
+                      x1="0"
+                      y1="0"
+                      x2="1"
+                      y2="1"
+                    >
+                      <stop
+                        offset="10%"
+                        stopColor="#ba00ff"
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset="50%"
+                        stopColor="#d974ff"
+                        stopOpacity={0.1}
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="#dc7fff"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    axisLine={false}
+                    dataKey="Date"
+                    tick={CustomTick}
+                    stroke="#000"
+                    tickLine={false}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickFormatter={DataFormater}
+                    tick={{ fontSize: 16 }}
+                    stroke="#000"
+                  />
+                  <CartesianGrid
+                    vertical={false}
+                    strokeDasharray="0 0"
+                    stroke="#f5f5f5"
+                  />
+                  <Area
+                    strokeWidth={3}
+                    type="monotone"
+                    dataKey="Sum"
+                    stroke="#ba00ff"
+                    fill="url(#distributionLiquidity)"
+                    activeDot={{
+                      r: 8,
+                      strokeWidth: 3,
+                      stroke: "#ffffff",
+                      fill: "#000000",
+                    }}
+                  />
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{
+                      stroke: "#000",
+                      strokeWidth: 1,
+                      strokeDasharray: "2 2",
+                    }}
+                    itemStyle={{ color: "#8884d8" }}
+                    formatter={NumberFormater}
+                  />
+                </AreaChart>
           </div>
         </div>
       </div>
@@ -326,19 +546,94 @@ export default function Main() {
         </div>
       </div><br/><br/>
       <div className="container" style={{ width: 'fit-content' }}>
-        <div className="row center" style={{borderRadius:"15px",padding:"15px 15px 0px 0px", backgroundColor: "rgba(106, 90, 205, 0.2)" }}>
+        <div className="row center">
           {cumulateBurn?
+          // <div>
+          //   <AreaChart width={290} height={250} data={cumulateBurn}>
+          //     <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>
+          //     <YAxis tickFormatter={DataFormater} tick={{fontSize: 14}} stroke="#A9A9A9"/>
+          //     <CartesianGrid vertical={false} strokeDasharray="2 2" />
+          //     <Tooltip formatter={NumberFormater} />
+          //     <Legend verticalAlign="top" height={50} formatter={() => ("Burn")} wrapperStyle={{fontSize: "20px"}}/>
+          //     <Area type="monotone" dataKey="Sum" stroke="#8884d8" fillOpacity={0.5} fill="#8884d8" />
+          //   </AreaChart><li style={{color:'transparent'}}/>
+          // </div>
           <div>
-            <AreaChart width={290} height={250} data={cumulateBurn}>
-              <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>
-              <YAxis tickFormatter={DataFormater} tick={{fontSize: 14}} stroke="#A9A9A9"/>
-              <CartesianGrid vertical={false} strokeDasharray="2 2" />
-              <Tooltip formatter={NumberFormater} />
-              <Legend verticalAlign="top" height={50} formatter={() => ("Burn")} wrapperStyle={{fontSize: "20px"}}/>
-              <Area type="monotone" dataKey="Sum" stroke="#8884d8" fillOpacity={0.5} fill="#8884d8" />
-            </AreaChart><li style={{color:'transparent'}}/>
-          </div>:<div></div>}
-          <div>  
+          <div className={`common-title`} style={{ marginBottom: '40px', textAlign: "center", }}>Burn</div>
+          <AreaChart
+                width={290} 
+                height={250}
+                data={cumulateBurn}
+                margin={{
+                  bottom: 44,
+                  left: 0,
+                  top: 20,
+                }}
+              >
+                <defs>
+                  <linearGradient id="Burn" x1="0" y1="0" x2="1" y2="1">
+                    <stop
+                      offset="10%"
+                      stopColor="#fcdb5b"
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset="50%"
+                      stopColor="#f7e01e"
+                      stopOpacity={0.1}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="#ffe95b"
+                      stopOpacity={0.1}
+                    />
+                  </linearGradient>
+                </defs>
+                <XAxis
+                  axisLine={false}
+                  dataKey="Date"
+                  tick={CustomTick}
+                  stroke="#000"
+                  tickLine={false}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickFormatter={DataFormater}
+                  tick={{ fontSize: 16 }}
+                  stroke="#000"
+                />
+                <CartesianGrid
+                  vertical={false}
+                  strokeDasharray="0 0"
+                  stroke="#f5f5f5"
+                />
+                <Area
+                  strokeWidth={3}
+                  type="monotone"
+                  dataKey="Sum"
+                  stroke="#f7d509"
+                  fill="url(#Burn)"
+                  activeDot={{
+                    r: 8,
+                    strokeWidth: 3,
+                    stroke: "#ffffff",
+                    fill: "#000000",
+                  }}
+                />
+                <Tooltip
+                  content={<CustomTooltip />}
+                  cursor={{
+                    stroke: "#000",
+                    strokeWidth: 1,
+                    strokeDasharray: "2 2",
+                  }}
+                  itemStyle={{ color: "#8884d8" }}
+                  formatter={NumberFormater}
+                />
+              </AreaChart>
+        </div>
+          :<div></div>}
+          {/* <div>  
             <AreaChart width={290} height={250} data={cumulateTransfer}>
               <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>
               <YAxis tickFormatter={DataFormater} tick={{fontSize: 14}} stroke="#A9A9A9"/>
@@ -347,6 +642,86 @@ export default function Main() {
               <Legend verticalAlign="top" height={50} formatter={() => ("Distribution / Liquidity")} wrapperStyle={{fontSize: "20px"}}/>
               <Area type="monotone" dataKey="Sum" stroke="#82ca9d" fillOpacity={0.5} fill="#82ca9d" />
             </AreaChart><li style={{color:'transparent'}}/>
+          </div> */}
+            <div>  
+              <div className={`common-title`} style={{ marginBottom: '40px', textAlign: "center", }}>Distribution / Liquidity</div>
+                <AreaChart
+                 width={290}
+                  height={250}
+                  margin={{
+                    bottom: 44,
+                    left: 0,
+                    top: 20,
+                  }}
+                  data={cumulateTransfer}
+                >
+                  <defs>
+                    <linearGradient
+                      id="distributionLiquidity"
+                      x1="0"
+                      y1="0"
+                      x2="1"
+                      y2="1"
+                    >
+                      <stop
+                        offset="10%"
+                        stopColor="#ba00ff"
+                        stopOpacity={0.8}
+                      />
+                      <stop
+                        offset="50%"
+                        stopColor="#d974ff"
+                        stopOpacity={0.1}
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="#dc7fff"
+                        stopOpacity={0.1}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <XAxis
+                    axisLine={false}
+                    dataKey="Date"
+                    tick={CustomTick}
+                    stroke="#000"
+                    tickLine={false}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickFormatter={DataFormater}
+                    tick={{ fontSize: 16 }}
+                    stroke="#000"
+                  />
+                  <CartesianGrid
+                    vertical={false}
+                    strokeDasharray="0 0"
+                    stroke="#f5f5f5"
+                  />
+                  <Area
+                    strokeWidth={3}
+                    type="monotone"
+                    dataKey="Sum"
+                    stroke="#ba00ff"
+                    fill="url(#distributionLiquidity)"
+                    activeDot={{
+                      r: 8,
+                      strokeWidth: 3,
+                      stroke: "#ffffff",
+                      fill: "#000000",
+                    }}
+                  />
+                  <Tooltip
+                    content={<CustomTooltip />}
+                    cursor={{
+                      stroke: "#000",
+                      strokeWidth: 1,
+                      strokeDasharray: "2 2",
+                    }}
+                    itemStyle={{ color: "#8884d8" }}
+                    formatter={NumberFormater}
+                  />
+                </AreaChart>
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@ export function useNetwork():[number,(chainId?:number)=>void] {
   const [,showToast] = useToast()
   const network = useAppSelector((state) => state.network.network)
   const dispatch = useAppDispatch()
-  const switchNetwork = useCallback(async(chainId:number=56)=>{
+  const switchNetwork = useCallback(async(chainId:number=97)=>{
     try{
       if (!isActive){
         showToast("Connect wallet to proceed.","failure")

@@ -1,0 +1,210 @@
+@import "./fonts.scss";
+@import "./base.scss";
+@import "./bootstrap.scss";
+
+body {
+  @include font-select("light");
+  margin-top: 0px;
+  z-index: 1;
+  background-attachment: fixed;
+  background-color: #fff;
+  color: #000;
+}
+
+span, p {
+  color: #000;
+}
+
+.common-title {
+  @include font-select("medium");
+  letter-spacing: 0;
+  font-weight: 500;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.common-text {
+  @include font-select("light");
+  letter-spacing: 0;
+  font-weight: 300;
+}
+
+
+.textLoading, .textLoadingSmall {
+  @extend .common-title
+}
+
+.textWhite {
+  color: var(--basic-pure-black-text);
+  @extend .common-title
+}
+
+.textWhiteHeading {
+ color: var(--basic-pure-white-text);
+ @extend .common-title
+}
+
+.textWhiteMedium {
+  color: var(--basic-pure-black-text);
+ @extend .common-title
+}
+
+.textPurpleMedium {
+  // color: #c680ff;
+  color: var(--basic-pure-black-text);
+  font-weight: bold;
+  // border: 1.9px solid #c37aff;
+  border: 1.9px solid var(--basic-pure-black-text);
+  font-size: 18px;
+ @extend .common-title
+}
+
+.textWhiteSmall {
+  color: var(--basic-pure-black-text);
+  font-size: 15px;
+  @extend .common-text
+}
+
+.textWhiteSmaller {
+  color: var(--basic-pure-black-text);
+  font-size: 14px;
+  @extend .common-text
+}
+
+.text {
+  color: var(--basic-pure-black-text);
+}
+
+.textSmall {
+  color: var(--basic-purple);
+  @include font-select("regular");
+}
+
+.textInfo {
+  margin: 0;
+  padding: 6px;
+  box-sizing: border-box;
+  color: var(--basic-pure-black-text);
+  @include font-select('italic');
+}
+
+.copyright-pry {
+  @extend .common-text
+}
+
+.close-notice {
+  span {
+    color: #fff;
+  }
+}
+
+.cardbody {
+  background-color: var(--basic-ash);
+  border: 0px;
+  border-radius: 0px;
+}
+
+
+.dropdown {
+  color: var(--basic-pure-white-text);
+}
+
+.dropdown.active {
+  color: var(--basic-yellow);
+}
+
+.dropdown:hover {
+  color: var(--basic-yellow);
+}
+
+.dropdownLink {
+  @extend .dropdown;
+  color: var(--basic-purple);
+}
+
+.dropdown0 {
+  color: var(--basic-pure-white-text);
+  border-bottom: 0px;
+}
+
+.dropdown0.active {
+  color: var(--basic-yellow);
+}
+
+.dropdown0:hover {
+  color: var(--basic-yellow);
+}
+.dropdown1 {
+  color: #c37aff;
+}
+
+.dropdown1.active {
+  color: var(--basic-yellow);
+}
+
+.dropdown1:hover {
+  text-decoration: none;
+  color: var(--basic-yellow);
+}
+
+.hover.active {
+  color: var(--basic-yellow);
+}
+
+.hover:hover {
+  color: var(--basic-yellow);
+}
+
+.lpfarm:hover {
+    color: var(--basic-purple);
+}
+
+.dropdown-item:hover {
+  background-color: #181818;
+}
+
+.popup-content {
+  background: var(--basic-yellow);
+  border: 0px;
+  border-radius: 0px;
+}
+.popup-arrow {
+  color: var(--basic-yellow);
+  stroke: var(--basic-yellow);
+}
+[role="tooltip"].popup-content {
+  box-shadow: none;
+  border: 0;
+  border-radius: 0;
+}
+
+.popup-overlay {
+  background:  var(--basic-yellow);
+}
+
+.ex-link {
+  @extend .common-title;
+  color: var(--basic-pure-white-text)!important;
+}
+.ex-link:hover {
+  color: var(--basic-pure-white-text)!important;
+}
+
+input {
+  color: rgb(0, 0, 0)!important;
+  background-color: transparent!important;
+  border-bottom: 1px solid rgb(0, 0, 0)!important;
+
+  &:focus {
+    color: rgb(0, 0, 0)!important;
+    background-color: transparent!important;
+    border-color: rgb(0, 0, 0)!important;
+    box-shadow: none!important;
+}
+}
+
+.lds-dual-ring:after {
+  border: 2px solid var(--basic-pure-black-text);
+  border-color: var(--basic-pure-black-text) transparent var(--basic-pure-black-text) transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}

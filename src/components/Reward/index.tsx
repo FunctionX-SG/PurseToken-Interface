@@ -131,62 +131,62 @@ export default function Rewards() {
         }
     }
 
-    const onClickClaimReward = async() => {
-        if(account && isUserInList(account,UserRewardAmount)){
-            const merkleProof = await getMerkleProofUserAmount(account,UserRewardAmount)
-            const rewardAmountWei = BigNumber.from(rewardAmount)
-            // console.log('merkleProof',merkleProof,rewardAmountWei,rewardAmount)
-            if (isActive === true) {
-                try{
-                    const tx:any = await callContract(signer,rewardContract,"claimRewards",rewardAmountWei,merkleProof)
-                    if (tx?.hash){
-                        const link = `https://bscscan.com/tx/${tx.hash}`
-                        showToast("Transaction sent!","success",link)
-                        await tx.wait()
-                        const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
-                        showToast(message,"success",link)
-                    }else if(tx?.message.includes("user rejected transaction")){
-                        showToast(`User rejected transaction.`,"failure")
-                    }else if(tx?.reason){
-                        showToast(`Execution reverted: ${tx.reason}`,"failure")
-                    }else {
-                        showToast("Something went wrong.","failure")
-                    }
-                } catch(err) {
-                    showToast("Something went wrong.","failure")
-                    console.log(err)
-                }
-            }
-        }else {
-            console.log('user not in list')
-        }
+    // const onClickClaimReward = async() => {
+    //     if(account && isUserInList(account,UserRewardAmount)){
+    //         const merkleProof = await getMerkleProofUserAmount(account,UserRewardAmount)
+    //         const rewardAmountWei = BigNumber.from(rewardAmount)
+    //         // console.log('merkleProof',merkleProof,rewardAmountWei,rewardAmount)
+    //         if (isActive === true) {
+    //             try{
+    //                 const tx:any = await callContract(signer,rewardContract,"claimRewards",rewardAmountWei,merkleProof)
+    //                 if (tx?.hash){
+    //                     const link = `https://bscscan.com/tx/${tx.hash}`
+    //                     showToast("Transaction sent!","success",link)
+    //                     await tx.wait()
+    //                     const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+    //                     showToast(message,"success",link)
+    //                 }else if(tx?.message.includes("user rejected transaction")){
+    //                     showToast(`User rejected transaction.`,"failure")
+    //                 }else if(tx?.reason){
+    //                     showToast(`Execution reverted: ${tx.reason}`,"failure")
+    //                 }else {
+    //                     showToast("Something went wrong.","failure")
+    //                 }
+    //             } catch(err) {
+    //                 showToast("Something went wrong.","failure")
+    //                 console.log(err)
+    //             }
+    //         }
+    //     }else {
+    //         console.log('user not in list')
+    //     }
         
-    }
+    // }
 
-    const [showClaim,setShowClaim] = useState(false)
-    const [rewardAmount,setRewardAmount] = useState(account?UserRewardAmount[account as keyof typeof UserRewardAmount]?.Amount:"")
+    // const [showClaim,setShowClaim] = useState(false)
+    // const [rewardAmount,setRewardAmount] = useState(account?UserRewardAmount[account as keyof typeof UserRewardAmount]?.Amount:"")
 
-    useEffect(()=>{
-        const setClaim = async() => {
-            if (isSupportedChain(chainId)) {
-                const isClaimed = await rewardContract.isClaim(account,0) //false false true
-                const rewardPeriod = await rewardContract.rewardPeriods(0)
-                const startTime = parseFloat(rewardPeriod.startTime.toString())
-                const endTime = parseFloat(rewardPeriod.endTime.toString())
-                const currentDate = new Date()
-                const currentTime = currentDate.getTime()
-                const isInTime = currentTime>=startTime*1000 && currentTime<=endTime*1000
-                // console.log(startTime*1000,currentTime,endTime*1000,isInTime)
-                setShowClaim(isUserInList(account,UserRewardAmount)&&!isClaimed&&isInTime)
-                setRewardAmount(UserRewardAmount[account as keyof typeof UserRewardAmount]?.Amount)
-            }
-        }
-        setClaim()
-    },[account,chainId])
-    // console.log(BigNumber.from(rewardAmount),formatBigNumber(BigNumber.from(rewardAmount),'ether'))
+    // useEffect(()=>{
+    //     const setClaim = async() => {
+    //         if (isSupportedChain(chainId)) {
+    //             const isClaimed = await rewardContract.isClaim(account,0) //false false true
+    //             const rewardPeriod = await rewardContract.rewardPeriods(0)
+    //             const startTime = parseFloat(rewardPeriod.startTime.toString())
+    //             const endTime = parseFloat(rewardPeriod.endTime.toString())
+    //             const currentDate = new Date()
+    //             const currentTime = currentDate.getTime()
+    //             const isInTime = currentTime>=startTime*1000 && currentTime<=endTime*1000
+    //             // console.log(startTime*1000,currentTime,endTime*1000,isInTime)
+    //             setShowClaim(isUserInList(account,UserRewardAmount)&&!isClaimed&&isInTime)
+    //             setRewardAmount(UserRewardAmount[account as keyof typeof UserRewardAmount]?.Amount)
+    //         }
+    //     }
+    //     setClaim()
+    // },[account,chainId])
+    
     return (
         <div id="content" className="mt-4">
-            <Popup trigger={showClaim} setTrigger={setShowClaim} width="400px">
+            {/* <Popup trigger={showClaim} setTrigger={setShowClaim} width="400px">
                 <div className="container-fluid">
                     <div>
                         <div className="textWhiteMedium mb-3 center" style={{padding: "5px"}}>
@@ -202,7 +202,7 @@ export default function Rewards() {
                         </Button></div>
                     </div>
                 </div>
-            </Popup>
+            </Popup> */}
             <label className="textWhite center mb-5" style={{ fontSize: '36px', textAlign:'center' }}><big><b>PURSE<br/>Retroactive Rewards</b></big></label>
             <div className="row center">
                 <div className="card cardbody mb-3 ml-3 mr-3" style={{ width: '450px', minHeight: '400px', color: 'white' }}>
