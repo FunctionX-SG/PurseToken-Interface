@@ -15,7 +15,7 @@ export default function Landing() {
             <div className="rowC">
                 <div className="mt-5">
                     <div className="textWhite mt-5"><b>Pundi&nbsp;X&nbsp;PURSE</b></div>
-                    <div className="textWhiteSmaller mt-3"><b>PURSE is Pundi X reward token, created to incentivize XPOS usage, expand Pundi X Chain's ecosystem and increase PUNDIX value through rewards, gamification, discount vouchers and redemption for NFTs and other tokens.</b></div>
+                    <div className="textWhiteSmall mt-3" style={{fontSize: "18px"}}><b>PURSE, the Pundi X reward token, is now available on ERC20, BEP20, and Pundi X Chain.</b></div>
                     <div className="mt-5"><NavLink to='/home'>
                         <Zoom direction='left' triggerOnce><Button type="button" variant="info">Get Started</Button></Zoom>
                     </NavLink></div>
@@ -26,16 +26,16 @@ export default function Landing() {
             <div className="rowC mt-5">
                 <Bounce direction='left' triggerOnce>
                 <div className="mt-5 mr-4" style={{minWidth:"300px", padding:"15px", backgroundColor:"var(--basic-ash)"}}>
-                    <div className="textWhiteSmall"><b>BDL Mechanism</b></div>
-                    <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>For every non-whitelisted transaction, 10% of the transacted PURSE amount is burned, 5% goes to distribution pool and 5% goes to liquidity pool.</b></div>
+                    <div className="textWhiteSmall"><b>Tokenomics</b></div>
+                    <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>PURSE incentivises XPOS use, grows Pundi X Chain's ecosystem, and increases PUNDIX value with rewards, gamification, discount vouchers, and NFT/Token redemptions.</b></div>
                 </div>
                 <div className="mt-5 mr-4" style={{minWidth:"300px", padding:"15px", backgroundColor:"var(--basic-ash)"}}>
                     <div className="textWhiteSmall"><b>LP Restaking Farm</b></div>
-                    <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>Providing liquidity on respective plaform to receive LP Tokens and earn PURSE by staking the LP Tokens in the LP Restaking Farm.</b></div>
+                    <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>Providing liquidity on respective platform to receive LP Tokens and earn PURSE by staking the LP Tokens in the LP Restaking Farm.</b></div>
                 </div>
                 <div className="mt-5" style={{minWidth:"300px", padding:"15px", backgroundColor:"var(--basic-ash)"}}>
                     <div className="textWhiteSmall"><b>PURSE Staking</b></div>
-                    <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>PURSE from distribution pool, derived from the 5% BDL Mechanism, is distributed to PURSE holders through PURSE staking.</b></div>
+                    <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>Stake PURSE and amplify your earnings with PURSE Staking.</b></div>
                 </div>
                 </Bounce>
             </div>
@@ -44,7 +44,7 @@ export default function Landing() {
         <MediaQuery maxWidth={960}>
             <div className="mt-4">
                 <div className="textWhite"><b>Pundi&nbsp;X PURSE</b></div>
-                <div className="textWhiteSmaller mt-3"><b>PURSE is Pundi X reward token, created to incentivize XPOS usage, expand Pundi X Chain's ecosystem and increase PUNDIX value through rewards, gamification, discount vouchers and redemption for NFTs and other tokens.</b></div>
+                <div className="textWhiteSmall mt-3" style={{fontSize: "18px"}}><b>PURSE, the Pundi X reward token, is now available on ERC20, BEP20, and Pundi X Chain.</b></div>
                 <div className="mt-5"><NavLink to='/home'>
                     <Zoom direction='left' triggerOnce><Button type="button" variant="info">Get Started</Button></Zoom>
                 </NavLink></div>
@@ -57,19 +57,19 @@ export default function Landing() {
             <Bounce direction='left' triggerOnce>
             <div className="mt-5" style={{minWidth:"300px", padding:"15px", backgroundColor:"var(--basic-ash)"}}>
                 <div className="textWhiteSmall"><b>BDL Mechanism</b></div>
-                <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>For every non-whitelisted transaction, 10% of the transacted PURSE amount is burned, 5% goes to distribution pool and 5% goes to liquidity pool.</b></div>
+                <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>PURSE incentivises XPOS use, grows Pundi X Chain's ecosystem, and increases PUNDIX value with rewards, gamification, discount vouchers, and NFT/Token redemptions.</b></div>
             </div>
             </Bounce>
             <Bounce direction='left'>
             <div className="mt-5" style={{minWidth:"300px", padding:"15px", backgroundColor:"var(--basic-ash)"}}>
                 <div className="textWhiteSmall"><b>LP Restaking Farm</b></div>
-                <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>Providing liquidity on respective plaform to receive LP Tokens and earn PURSE by staking the LP Tokens in the LP Restaking Farm.</b></div>
+                <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>Providing liquidity on respective platform to receive LP Tokens and earn PURSE by staking the LP Tokens in the LP Restaking Farm.</b></div>
             </div>
             </Bounce>
             <Bounce direction='left'>
             <div className="mt-5" style={{minWidth:"300px", padding:"15px", backgroundColor:"var(--basic-ash)"}}>
                 <div className="textWhiteSmall"><b>PURSE Staking</b></div>
-                <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>PURSE from distribution pool, derived from the 5% BDL Mechanism, is distributed to PURSE holders through PURSE staking.</b></div>
+                <div className="textWhite mt-2" style={{fontSize:"13px"}}><b>Stake PURSE and amplify your earnings with PURSE Staking.</b></div>
             </div>
             </Bounce>
         </MediaQuery>
