@@ -5,6 +5,7 @@ import PurseTokenUpgradable from '../../../abis/PurseTokenUpgradable.json'
 import IPancakePair from '../../../abis/IPancakePair.json'
 import MasterChefV2 from '../../../abis/MasterChefV2.json'
 import PurseStaking from '../../../abis/PurseStaking.json'
+import PurseStakingVesting from '../../../abis/PurseStakingVesting.json'
 import Treasury from '../../../abis/Treasury.json'
 import RestakingFarm from '../../../abis/RestakingFarm.json'
 import RetroactiveRewards from '../../../abis/RetroactiveRewards.json'
@@ -22,6 +23,7 @@ export const contractSlice =
       const retroactiveRewards = new ethers.Contract(Constants.RETROACTIVE_REWARDS_ADDRESS, RetroactiveRewards.abi, bscProvider)
       const restakingFarm = new ethers.Contract(Constants.RESTAKING_FARM_ADDRESS, RestakingFarm.abi, bscProvider)
       const purseStaking = new ethers.Contract(Constants.PURSE_STAKING_ADDRESS, PurseStaking.abi, bscProvider)
+      const purseStakingVesting = new ethers.Contract(Constants.PURSE_STAKING_VESTING_ADDRESS, PurseStakingVesting.abi, bscProvider)
       const treasuryContract = new ethers.Contract(Constants.TREASURY_ADDRESS,Treasury.abi,bscProvider)
       const rewardDistributor = new ethers.Contract(Constants.REWARD_DISTRIBUTOR_ADDRESS,RewardDistributor.abi,bscProvider)
       const rewardContract = new ethers.Contract(Constants.REWARD_ADDRESS,RewardContract.abi,bscProvider)
@@ -34,6 +36,7 @@ export const contractSlice =
           retroactiveRewards,
           restakingFarm,
           purseStaking,
+          purseStakingVesting,
           tokenOnFXCore,
           masterChef,
           treasuryContract,

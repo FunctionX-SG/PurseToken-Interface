@@ -30,19 +30,19 @@ export default function Stake() {
     const {signer} = useProvider()
     const [,showToast] = useToast()
 
-    const {purseStaking,purseTokenUpgradable,treasuryContract,rewardDistributor} = useContract()
+    const {purseStaking,purseStakingVesting,purseTokenUpgradable,treasuryContract,rewardDistributor} = useContract()
 
     const [mode, setMode] = useState('Stake')
     const [amount, setAmount] = useState('')
     const [message, setMessage] = useState('')
-    const [purseMessage, setPurseMessage] = useState(false)
-    const [purseAmount, setPurseAmount] = useState('')
-    const [rewardAmount, setRewardAmount] = useState('')
     const [purseStakingUserReceipt, setPurseStakingUserReceipt] = useState<BigNumber>(BigNumber.from('0'))
     const [purseStakingUserNewReceipt, setPurseStakingUserNewReceipt] = useState<BigNumber>(BigNumber.from('0'))
     const [purseStakingUserWithdrawReward, setPurseStakingUserWithdrawReward] = useState(0)
     const [purseStakingRemainingTime, setPurseStakingRemainingTime] = useState(0)
+    const [purseStakingEndTime, setPurseStakingEndTime] = useState(0)
     const [purseStakingLockPeriod, setPurseStakingLockPeriod] = useState(0)
+    const [purseAmountUnlock, setPurseAmountUnlock] = useState(0)
+    const [purseAmountLock, setPurseAmountLock] = useState(0)
     const [stakeLoading, setStakeLoading] = useState(false)
     const [sum30TransferAmount, setSum30TransferAmount] = useState(0)
     const [, setTrigger] = useWalletTrigger()
@@ -112,6 +112,15 @@ export default function Stake() {
       refreshInterval:5000
     })
 
+    const {data:purseStakingVestingData} = useSWR({
+      contract:"purseStakingVesting",
+      method:"getVestingSchedules",
+      params:[account]
+    },{
+      fetcher: fetcher(purseStakingVesting),
+      refreshInterval:5000
+    })
+
     const {data:tokensPerInterval} = useSWR({
       contract:"rewardDistributor",
       method:"tokensPerInterval",
@@ -147,6 +156,7 @@ export default function Stake() {
           }
         }
         setPurseStakingRemainingTime(_purseStakingRemainingTime)
+        setPurseStakingEndTime(_purseStakingUserLockTime>0?_purseStakingUserLockTime+purseStakingLockPeriod:0)
       }
     },[purseStakingUserInfo,purseStakingLockPeriod])
 
@@ -160,10 +170,15 @@ export default function Stake() {
         let _sum30TransferAmount = myJson["Transfer30Days"][0]
         setSum30TransferAmount(parseFloat(formatUnits(_sum30TransferAmount,'ether')))
 
+        let unlockShareAmount = (await checkPurseAmount(purseStakingUserReceipt))[3]
+        let lockShareAmount = (await checkPurseAmount(purseStakingUserNewReceipt))[2]
+        setPurseAmountUnlock(parseFloat(unlockShareAmount))
+        setPurseAmountLock(parseFloat(lockShareAmount))
+
         setIsLoading(false)
       }
       loadData()
-    },[account, purseStaking])
+    },[account, purseStaking, purseStakingUserReceipt, purseStakingUserNewReceipt])
 
     const onChangeHandler = (event:string) => {
         setAmount(event)
@@ -198,21 +213,6 @@ export default function Stake() {
           showToast("Insufficient Share to unstake!","failure")
         } else {
             await unstake(receiptWei)
-        }
-    }
-
-    const onClickHandlerCheck = async () => {
-        let receiptWei = parseUnits(amount, 'ether')
-
-        if (receiptWei.gt(purseStakingUserTotalReceipt)) {
-          showToast("Insufficient Share to withdraw!","failure")
-        } else {
-            setPurseMessage(true)
-            let _checkPurseAmount:string[] = await checkPurseAmount(receiptWei)
-            let getPurseAmount = _checkPurseAmount[0] + " Share : " + parseFloat(_checkPurseAmount[3]).toLocaleString('en-US', { maximumFractionDigits: 5 })  + " PURSE (" + (parseFloat(_checkPurseAmount[3])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
-            let getRewardAmount = _checkPurseAmount[1] + " Share : " + parseFloat(_checkPurseAmount[2]).toLocaleString('en-US', { maximumFractionDigits: 5 })   + " PURSE (" + (parseFloat(_checkPurseAmount[2])*PURSEPrice).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " USD)"
-            setPurseAmount(getPurseAmount)
-            setRewardAmount(getRewardAmount)
         }
     }
 
@@ -353,6 +353,40 @@ export default function Stake() {
         setStakeLoading(false)
       }
     }
+
+    const claimVesting = async () => {
+      if (isActive) {
+        setStakeLoading(true)
+        try{
+          let tx:any
+          if (purseStakingUserWithdrawReward>0){
+            console.log(1)
+            tx = await callContract(signer,purseStaking,"withdrawLockedAmount")
+          }else{
+            console.log(2)
+            tx = await callContract(signer,purseStakingVesting,"vestCompletedSchedules")
+          }
+          if (tx?.hash){
+            const link = `https://bscscan.com/tx/${tx.hash}`
+            showToast("Transaction sent!","success",link)
+            await tx.wait()
+            const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
+            showToast(message,"success",link)
+          }else if(tx?.message.includes("user rejected transaction")){
+            showToast(`User rejected transaction.`,"failure")
+          }else if(tx?.reason){
+            showToast(`Execution reverted: ${tx.reason}`,"failure")
+          }else {
+            showToast("Something went wrong.","failure")
+          }
+        } catch(err) {
+          showToast("Something went wrong.","failure")
+          console.log(err)
+        }
+        
+        setStakeLoading(false)
+      }
+    }
     
     const checkPurseAmount = async (receipt:BigNumber) => {
       let _purseStakingAvailableSupply:BigNumber = await purseStaking.availablePurseSupply()
@@ -378,26 +412,15 @@ export default function Stake() {
       return newArray
     }
 
-    // let purseStakingAPR = (sum30TransferAmount*12*100/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))).toLocaleString('en-US', { maximumFractionDigits: 5 })
+    const getISOStringWithoutSecsAndMillisecs2 = (x:any) => {
+      var now = new Date(x);
+      now.setSeconds(0, 0);
+      var stamp = now.toString().substring(3, 21);
+
+      return stamp;
+  }
+
     let purseStakingUserTotalReceipt = (purseStakingUserReceipt).add(purseStakingUserNewReceipt)
-
-    let unlockSharePercent = ((Number(purseStakingUserReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
-    let lockSharePercent = ((Number(purseStakingUserNewReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
-    let balanceSharePercent = ((Number(purseStakingUserTotalReceipt)/Number(purseStakingTotalReceipt??1))*100).toLocaleString('en-US', { maximumFractionDigits: 5 })
-
-    // let retroactiveAPR = (((
-    //     (Constants.RETROACTIVE_INITIAL_REWARDS + Constants.RETROACTIVE_AUG23_REWARDS)
-    //     / parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))
-    //     )/Constants.RETROACTIVE_PERIOD_DAYS
-    // ) * 365 * 100
-    // ).toLocaleString(
-    //     'en-US',
-    //     { maximumFractionDigits: 5 }
-    // );
-
-    // let combinedAPR = (
-    //     parseFloat(purseStakingAPR) + parseFloat(retroactiveAPR)
-    // );
 
     let apr = parseFloat(formatBigNumber(tokensPerInterval,'ether'))*31536000/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))*100
 
@@ -472,19 +495,6 @@ export default function Stake() {
                     <span className="textInfo"> Unstake and earn PURSE rewards using your share</span>
                   </ReactPopup></Button>
   
-                <Button type="button" variant="ghost" style={{ color:mode==='Check'?"#fff":'#000', backgroundColor: mode==='Check'?'#ba00ff':'' }} onClick={(event) => {
-                  setMode('Check')
-                }}>Check&nbsp;&nbsp;
-                <ReactPopup trigger={open => (
-                   <span style={{ position: "relative", top: '-1.5px',color:mode==='Check'?"#fff":'#000' }}><BsFillQuestionCircleFill size={14} /></span>
-                 )}
-                   on="hover"
-                   position="left center"
-                   offsetY={-23}
-                   offsetX={0}
-                   contentStyle={{ padding: '3px' }}>
-                   <span className="textInfo"> Check your withdrawable PURSE using your share </span>
-                 </ReactPopup></Button>
               </ButtonGroup>
   
               <div className="card-body">
@@ -499,7 +509,7 @@ export default function Stake() {
                 </div>
   
                   <div>
-                    {purseStakingUserWithdrawReward>0 ?
+                    {/* {purseStakingUserWithdrawReward>0 ?
                       <div>
                         {purseStakingRemainingTime>0 ?
                           <div className='mb-3 textWhiteSmall'>
@@ -560,7 +570,7 @@ export default function Stake() {
                       </div>
                     :
                       <div></div>
-                    }
+                    } */}
     
                     <div className="row ml-2">
                       <div style={{width:"50%", minWidth:"250px"}}>
@@ -661,7 +671,7 @@ export default function Stake() {
                             :
                             <b>
                               {parseFloat(formatBigNumber(purseStakingUserTotalReceipt,'ether').toString()).toLocaleString(
-                                  'en-US', { maximumFractionDigits: 5 })+ " Share (" + balanceSharePercent + " %)"}
+                                  'en-US', { maximumFractionDigits: 5 })+ " Share" }
                             </b>
                           }
                           </div>
@@ -683,7 +693,8 @@ export default function Stake() {
                             <Loading/>
                             :
                             <b>{parseFloat(formatBigNumber(purseStakingUserReceipt,'ether')).toLocaleString(
-                                    'en-US', { maximumFractionDigits: 5 })+ " Share (" + unlockSharePercent + " %)"}
+                                    'en-US', { maximumFractionDigits: 5 })+ " Share (" + purseAmountUnlock.toLocaleString(
+                                      'en-US', { maximumFractionDigits: 5 })+" PURSE)"}
                             </b>
                           }
                           </div>
@@ -706,7 +717,8 @@ export default function Stake() {
                             :
                             <b>
                               {parseFloat(formatBigNumber(purseStakingUserNewReceipt,'ether')).toLocaleString(
-                                'en-US', { maximumFractionDigits: 5 })+ " Share (" + lockSharePercent + " %)"}
+                                'en-US', { maximumFractionDigits: 5 })+ " Share (" + purseAmountLock.toLocaleString(
+                                  'en-US', { maximumFractionDigits: 5 })+" PURSE)"}
                             </b>
                           }
                           </div>
@@ -718,6 +730,7 @@ export default function Stake() {
                     </div>
 
                     <div></div>
+                    <hr></hr>
                     <div className="row mt-3 ml-2">
                       
                       <div style={{width:"50%", minWidth:"250px"}}>
@@ -821,56 +834,11 @@ export default function Stake() {
                           </div>
                       </div>
                     </div>
-    
-                  {purseMessage?
-                  <div>
-                    <div></div>
-                    <div>
-                      <div className="textWhiteSmall mt-3 ml-2 mb-2">
-                        <b>PURSE Staking:</b>
-                      </div>
-                      <div className="textWhiteSmaller ml-2" style={{textDecoration:"underline grey"}}>
-                        <b>No 21-Day Lock</b>
-                          <ReactPopup trigger={open => (
-                            <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
-                            )}
-                            on="hover"
-                            position="top center"
-                            offsetY={20}
-                            offsetX={0}
-                            contentStyle={{ padding: '3px' }}>
-                            <span className="textInfo">No 21-Day Lock: If unstake using Unlocked Share, PURSE will be transferred instantly to user</span>
-                          </ReactPopup>
-                      </div>
-                      <div className="textWhiteSmall ml-2 mb-2" style={{ color : "#000" }}>
-                        <b>{purseAmount}</b>
-                      </div>
-                      <div className="textWhiteSmaller ml-2" style={{textDecoration:"underline grey"}}>
-                        <b>With 21-Day Lock</b>
-                          <ReactPopup trigger={open => (
-                            <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
-                            )}
-                            on="hover"
-                            position="top center"
-                            offsetY={20}
-                            offsetX={0}
-                            contentStyle={{ padding: '3px' }}>
-                            <span className="textInfo mt-2">With 21-Day Lock: If unstake using Locked Share, PURSE can only be withdrawn after 21 days</span>
-                          </ReactPopup>
-                      </div>
-                      <div className="textWhiteSmall ml-2 mb-2" style={{ color : "#000" }}>
-                        <b>{rewardAmount}</b>
-                      </div>
-                    </div>
-                  </div>
-                  :
-                    <div></div>
-                  }
                     
                   </div>
                 
+              <hr></hr>
               </div>
-  
 
                 <div>
                   <div>
@@ -906,8 +874,6 @@ export default function Stake() {
                                 await onClickHandlerDeposit()
                             } else if (mode==='Unstake') {
                                 await onClickHandlerWithdraw()
-                            } else if (mode==='Check'){
-                                await onClickHandlerCheck()
                             }
                         }
                       }}>{stakeLoading?<Loading/>:mode}</Button>
@@ -917,16 +883,89 @@ export default function Stake() {
                             onChangeHandler(formatBigNumber(purseTokenUpgradableBalance,'ether'))
                         } else if (mode==='Unstake') {
                             onChangeHandler(formatBigNumber(purseStakingUserTotalReceipt,'ether'))
-                        } else if (mode==='Check'){
-                            onChangeHandler(formatBigNumber(purseStakingUserTotalReceipt,'ether'))
                         }
                       }}>Max</Button>
                     </ButtonGroup>
                   </div>
                   {mode === "Unstake"?
-                  <div className='center textWhite mb-3'>
-                    <div style={{ width:"90%", textAlign:"center", fontSize:"12px", backgroundColor: "rgb(186 0 255 / 38%)", padding:"8px"}}>
-                      <AiFillAlert className='mb-1'/>&nbsp;Disclaimer: If unstake when there's an existing unstaking entry locked for &lt; 21-Day, the lock period will reset back to 21-Day
+                  <div>
+                    <div className='center textWhite mb-3'>
+                      <div style={{ width:"90%", textAlign:"center", fontSize:"12px", backgroundColor: "rgb(186 0 255 / 38%)", padding:"8px"}}>
+                        <AiFillAlert className='mb-1'/>&nbsp;Disclaimer: If unstake when there's an existing unstaking entry locked for &lt; 21-Day, the lock period will reset back to 21-Day
+                      </div>
+                    </div>
+
+                    <div className='mb-2' style={{padding:"5px"}}>
+                      <div className='row center' style={{fontWeight:"900"}}>
+                        <div className='ml-2 mr-2 mb-1 mt-1' style={{backgroundColor: "#ba00ff",color:"white",paddingTop:"4px",paddingBottom:"4px",width:"57%",textAlign:"center",fontSize:"16px"}}>
+                          Pending Request
+                        </div>
+                      </div>
+                      
+                      <div className='row center' style={{fontWeight:"bold"}}>
+                        <div className='ml-2 mr-2 mb-1' style={{width:"20%",textAlign:"left",fontSize:"16px"}}>
+                          Amount
+                        </div>
+                        <div className='ml-2 mr-2 mb-1' style={{width:"20%",textAlign:"left",fontSize:"16px"}}>
+                          Completion Time
+                        </div>
+                        <div className='ml-2 mr-2 mb-1' style={{width:"12%",textAlign:"right",fontSize:"16px"}}>
+                          Status
+                        </div>
+                      </div>
+
+                      {/* V2 Claim */}
+                      {purseStakingUserWithdrawReward>0?
+                      <div className='row center'>
+                        <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
+                          {(purseStakingUserWithdrawReward).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " PURSE"}
+                        </div>
+                        <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
+                          {getISOStringWithoutSecsAndMillisecs2(purseStakingEndTime*1000)}
+                        </div>
+                        <div className='ml-2 mr-2' style={{width:"12%",textAlign:"right",fontSize:"15px"}}>
+                          {purseStakingEndTime > (Date.now() / 1000) ?
+                            <div>Not ready</div> : <div>Available</div>
+                          }
+                        </div>
+                      </div>:<></>}
+
+                      {/* V3 Claim */}
+                      {purseStakingVestingData.map((vestingData:any)=>{
+                        return (
+                          <div className='row center'>
+                            <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
+                              {parseFloat(formatBigNumber(vestingData.quantity,'ether')).toLocaleString(
+                                  'en-US', { maximumFractionDigits: 5 })} PURSE
+                            </div>
+                            <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
+                              {getISOStringWithoutSecsAndMillisecs2(vestingData.endTime*1000)}
+                            </div>
+                            <div className='ml-2 mr-2' style={{width:"12%",textAlign:"right",fontSize:"15px"}}>
+                              {vestingData.endTime > (Date.now() / 1000).toFixed(0) ?
+                                <div>Not ready</div> : <div>{vestingData.vestedQuantity.gt(vestingData.quantity) ? <div>Redeemed</div> : <div>Available</div>}</div>
+                              }
+                            </div>
+                          </div>
+                        )
+                      })}
+                      
+
+                      <div className='row center'>
+                        <Button 
+                        type="button" 
+                        className="btn btn-sm mt-3 mb-3" 
+                        style={{width:"100px"}} 
+                        disabled={
+                          purseStakingUserWithdrawReward===0 || 
+                          stakeLoading || 
+                          purseStakingVestingData.reduce((flag:number,curr:any)=> flag + parseFloat(formatBigNumber(curr.quantity,'ether')),0)
+                        } 
+                        onClick={(event) => {
+                          claimVesting()
+                        }}>Claim</Button>
+                      </div>
+
                     </div>
                   </div>
                   :
