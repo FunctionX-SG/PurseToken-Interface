@@ -891,7 +891,7 @@ export default function Stake() {
                   <div>
                     <div className='center textWhite mb-3'>
                       <div style={{ width:"90%", textAlign:"center", fontSize:"12px", backgroundColor: "rgb(186 0 255 / 38%)", padding:"8px"}}>
-                        <AiFillAlert className='mb-1'/>&nbsp;Disclaimer: If unstake when there's an existing unstaking entry locked for &lt; 21-Day, the lock period will reset back to 21-Day
+                        <AiFillAlert className='mb-1'/>&nbsp;Notice: The withdrawal's lock mechanism has been revised. The lock period for pending request will no longer reset back to 21 days with a new unstaking entry. For more information, please consult the documentation.
                       </div>
                     </div>
 
@@ -903,13 +903,13 @@ export default function Stake() {
                       </div>
                       
                       <div className='row center' style={{fontWeight:"bold"}}>
-                        <div className='ml-2 mr-2 mb-1' style={{width:"20%",textAlign:"left",fontSize:"16px"}}>
+                        <div className='ml-2 mr-2 mb-1' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
                           Amount
                         </div>
-                        <div className='ml-2 mr-2 mb-1' style={{width:"20%",textAlign:"left",fontSize:"16px"}}>
+                        <div className='ml-2 mr-2 mb-1' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
                           Completion Time
                         </div>
-                        <div className='ml-2 mr-2 mb-1' style={{width:"12%",textAlign:"right",fontSize:"16px"}}>
+                        <div className='ml-2 mr-2 mb-1' style={{width:"12%",textAlign:"right",fontSize:"15px"}}>
                           Status
                         </div>
                       </div>
@@ -917,13 +917,13 @@ export default function Stake() {
                       {/* V2 Claim */}
                       {purseStakingUserWithdrawReward>0?
                       <div className='row center'>
-                        <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
+                        <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"14px"}}>
                           {(purseStakingUserWithdrawReward).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " PURSE"}
                         </div>
-                        <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
+                        <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"14px"}}>
                           {getISOStringWithoutSecsAndMillisecs2(purseStakingEndTime*1000)}
                         </div>
-                        <div className='ml-2 mr-2' style={{width:"12%",textAlign:"right",fontSize:"15px"}}>
+                        <div className='ml-2 mr-2' style={{width:"12%",textAlign:"right",fontSize:"14px"}}>
                           {purseStakingEndTime > (Date.now() / 1000) ?
                             <div>Not ready</div> : <div>Available</div>
                           }
@@ -934,14 +934,14 @@ export default function Stake() {
                       {purseStakingVestingData.map((vestingData:any)=>{
                         return (
                           <div className='row center'>
-                            <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
+                            <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"14px"}}>
                               {parseFloat(formatBigNumber(vestingData.quantity,'ether')).toLocaleString(
                                   'en-US', { maximumFractionDigits: 5 })} PURSE
                             </div>
-                            <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
+                            <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"14px"}}>
                               {getISOStringWithoutSecsAndMillisecs2(vestingData.endTime*1000)}
                             </div>
-                            <div className='ml-2 mr-2' style={{width:"12%",textAlign:"right",fontSize:"15px"}}>
+                            <div className='ml-2 mr-2' style={{width:"12%",textAlign:"right",fontSize:"14px"}}>
                               {vestingData.endTime > (Date.now() / 1000).toFixed(0) ?
                                 <div>Not ready</div> : <div>{vestingData.vestedQuantity.gt(vestingData.quantity) ? <div>Redeemed</div> : <div>Available</div>}</div>
                               }
