@@ -901,7 +901,7 @@ export default function Stake() {
                     <div className='mb-2' style={{padding:"5px"}}>
                       <div className='row center' style={{fontWeight:"900"}}>
                         <div className='ml-2 mr-2 mb-1 mt-1' style={{backgroundColor: "#ba00ff",color:"white",paddingTop:"4px",paddingBottom:"4px",width:"57%",textAlign:"center",fontSize:"16px"}}>
-                          Pending Request
+                          Pending Withdrawal Request
                         </div>
                       </div>
                       
