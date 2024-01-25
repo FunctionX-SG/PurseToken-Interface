@@ -423,7 +423,7 @@ export default function Stake() {
     let purseStakingUserTotalReceipt = (purseStakingUserReceipt).add(purseStakingUserNewReceipt)
 
     let apr = parseFloat(formatBigNumber(tokensPerInterval,'ether'))*31536000/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))*100
-    console.log(!!!purseStakingVestingData.reduce((flag:number,curr:any)=> flag + parseFloat(formatBigNumber(curr.quantity,'ether')),0))
+    
     return (
         <div id="content" className="mt-4">
           <label className="textWhite center mb-5" style={{fontSize:"40px", textAlign:"center"}}><big><b>PURSE Staking</b></big></label>
