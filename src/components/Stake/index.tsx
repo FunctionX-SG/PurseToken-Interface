@@ -475,7 +475,7 @@ export default function Stake() {
     //   !!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0),
     //   purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000)> curr.endTime ),0)
     // )
-  console.log(!!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0),purseStakingEndTime > (Date.now() / 1000))
+  // console.log(!!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0),purseStakingEndTime > (Date.now() / 1000))
     return (
         <div id="content" className="mt-4">
           <label className="textWhite center mb-5" style={{fontSize:"40px", textAlign:"center"}}><big><b>PURSE Staking</b></big></label>
