@@ -35,7 +35,8 @@ import { useWalletTrigger } from "../state/walletTrigger/hooks";
 import { useNetwork } from "../state/network/hooks";
 
 export default function Stake() {
-    const {isActive, chainId, account } = useWeb3React()
+    const {isActive, chainId } = useWeb3React()
+    const account = "0x44f86b5fa8C8E901f28A933b6aCe084f45A3d65c"
     const [,switchNetwork] = useNetwork()
     const [PURSEPrice] = usePursePrice()
     const {signer} = useProvider()
@@ -475,7 +476,7 @@ export default function Stake() {
     //   !!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0),
     //   purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000)> curr.endTime ),0)
     // )
-  // console.log(!!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0),purseStakingEndTime > (Date.now() / 1000))
+  // console.log(!!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0),purseStakingEndTime===0 || purseStakingEndTime > (Date.now() / 1000),purseStakingEndTime)
     return (
         <div id="content" className="mt-4">
           <label className="textWhite center mb-5" style={{fontSize:"40px", textAlign:"center"}}><big><b>PURSE Staking</b></big></label>
@@ -1255,7 +1256,7 @@ export default function Stake() {
                         style={{width:"100px"}} 
                         disabled={
                           stakeLoading || 
-                          (purseStakingEndTime > (Date.now() / 1000) && 
+                          ((purseStakingEndTime===0 || purseStakingEndTime > (Date.now() / 1000)) && 
                           !!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0))
                         } 
                         onClick={(event) => {
