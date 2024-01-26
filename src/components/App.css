@@ -461,7 +461,7 @@ tr:nth-child(even) {
   text-align-last: start !important;
 }
 
-#content{
+#content {
   min-height: 1000px;
   padding-top: 40px;
 }
@@ -503,11 +503,11 @@ tr:nth-child(even) {
   display: none;
 }
 .dropdown-item:hover {
-background-color: #28313b;
+  background-color: #28313b;
 }
 .ex-link {
-  color: #79ede7!important;
+  color: #79ede7 !important;
 }
 .ex-link:hover {
-  color: #b9fffa!important;
+  color: #b9fffa !important;
 }
