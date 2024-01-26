@@ -26,15 +26,16 @@ import { usePursePrice } from "../state/PursePrice/hooks";
 import { useNetwork } from "../state/network/hooks";
 
 export default function Navb() {
-  const { chainId, account } = useWeb3React();
+  const FULL_VIEWABLE_NAV_MIN_WIDTH = 961;
+  const FULL_VIEWABLE_WALLET_MIN_WIDTH = 601;
 
-  const { connector, hooks } = useWeb3React();
+  const { chainId, account, connector, hooks } = useWeb3React();
   const [PURSEPrice] = usePursePrice();
   const [, showToast] = useToast();
   const { useSelectedIsActive, useSelectedIsActivating } = hooks;
   const isActive = useSelectedIsActive(connector);
   const isActivating = useSelectedIsActivating(connector);
-  const [networkName, setNetworkName] = useState("BSC");
+  const [networkName, setNetworkName] = useState<string>();
   const [, switchNetwork] = useNetwork();
 
   useEffect(() => {
@@ -57,22 +58,15 @@ export default function Navb() {
   }, []);
 
   useEffect(() => {
-    if (chainId) {
-      if (isSupportedChain(chainId)) {
-        setNetworkName(chainId2NetworkName(chainId));
-      } else {
-        setNetworkName("Unsupported");
-      }
+    if (!chainId) {
+      return;
+    }
+    if (isSupportedChain(chainId)) {
+      setNetworkName(chainId2NetworkName(chainId));
     } else {
-      setNetworkName("BSC");
+      setNetworkName("Unsupported Network");
     }
   }, [chainId]);
-
-  useEffect(() => {
-    if (isActive && !isSupportedChain(chainId)) {
-      switchNetwork();
-    }
-  }, [isActive, switchNetwork]);
 
   const metamaskConnect = async () => {
     if (isActive) {
@@ -115,14 +109,15 @@ export default function Navb() {
   };
 
   const disconnect = async () => {
-    if (isActive) {
-      if (connector?.deactivate) {
-        await connector.deactivate();
-      } else {
-        await connector.resetState();
-      }
-      localStorage.setItem("isWalletConnected", "false");
+    if (!isActive) {
+      return;
     }
+    if (connector?.deactivate) {
+      await connector.deactivate();
+    } else {
+      await connector.resetState();
+    }
+    localStorage.setItem("isWalletConnected", "false");
   };
 
   const [notice, setNotice] = useState(true); // set to true to show notice
@@ -132,7 +127,9 @@ export default function Navb() {
     setNavbarTop("0");
   };
 
-  const isNavbarTop = useMediaQuery({ minWidth: 961 });
+  const isNavbarTop = useMediaQuery({
+    minWidth: FULL_VIEWABLE_NAV_MIN_WIDTH,
+  });
   useEffect(() => {
     if (!isNavbarTop) setNavbarTop("0");
     else {
@@ -145,7 +142,7 @@ export default function Navb() {
       {/* Notice */}
       {notice ? (
         <>
-          <MediaQuery minWidth={961}>
+          <MediaQuery minWidth={FULL_VIEWABLE_NAV_MIN_WIDTH}>
             <nav
               className="navbar top flex-md-nowrap p-0 shadow"
               style={{
@@ -186,7 +183,7 @@ export default function Navb() {
               />
             </nav>
           </MediaQuery>
-          <MediaQuery maxWidth={960}>
+          <MediaQuery maxWidth={FULL_VIEWABLE_NAV_MIN_WIDTH - 1}>
             <nav
               className="navbar top flex-md-nowrap p-0 shadow"
               style={{
@@ -243,7 +240,7 @@ export default function Navb() {
         }}
       >
         <div className="navbar-brand col-sm-3 col-md-2 mt-1 md-1 mr-0 rowB">
-          <MediaQuery maxWidth={960}>
+          <MediaQuery maxWidth={FULL_VIEWABLE_NAV_MIN_WIDTH - 1}>
             <Menu>
               <div className="dropdown0">
                 <NavLink to="/home">Home</NavLink>
@@ -293,7 +290,7 @@ export default function Navb() {
             <b className="textWhiteHeading"> PURSE </b>
           </NavLinkHome>
           &nbsp;&nbsp;&nbsp;
-          <MediaQuery minWidth={961}>
+          <MediaQuery minWidth={FULL_VIEWABLE_NAV_MIN_WIDTH}>
             <div className="mr-4">
               <NavLink to="/home">Home</NavLink>
             </div>
@@ -351,7 +348,7 @@ export default function Navb() {
           <ul className="navbar-nav px-3">
             {/* <li className="nav-item text-nowrap-small d-none d-sm-none d-sm-block"> */}
             <div className="text-light rowC">
-              <MediaQuery minWidth={601}>
+              <MediaQuery minWidth={FULL_VIEWABLE_WALLET_MIN_WIDTH}>
                 <div className="rowC">
                   <span
                     className="dropdown1 center"
@@ -374,19 +371,21 @@ export default function Navb() {
                   </span>
                 </div>
                 &nbsp;
-                <div className="center">
-                  <Buttons
-                    variant="info"
-                    size="sm"
-                    onClick={async () => {
-                      if (!isSupportedChain(chainId)) {
-                        switchNetwork(56);
-                      }
-                    }}
-                  >
-                    {networkName}
-                  </Buttons>
-                </div>
+                {chainId ? (
+                  <div className="center">
+                    <Buttons
+                      variant="info"
+                      size="sm"
+                      onClick={async () => {
+                        if (!isSupportedChain(chainId)) {
+                          switchNetwork();
+                        }
+                      }}
+                    >
+                      {networkName}
+                    </Buttons>
+                  </div>
+                ) : null}
                 &nbsp;
                 <div className="center">
                   {account ? (
@@ -485,7 +484,7 @@ export default function Navb() {
                   )}
                 </div>
               </MediaQuery>
-              <MediaQuery maxWidth={600}>
+              <MediaQuery maxWidth={FULL_VIEWABLE_WALLET_MIN_WIDTH - 1}>
                 <Dropdown
                   style={{ position: "absolute", top: "0px", right: "-2px" }}
                 >
@@ -523,20 +522,22 @@ export default function Navb() {
                         &nbsp;${PURSEPrice}
                       </Buttons>
                     </Dropdown.Item>
-                    <Dropdown.Item>
-                      <Buttons
-                        variant="info"
-                        size="sm"
-                        style={{ width: "100%" }}
-                        onClick={async () => {
-                          if (!isSupportedChain(chainId)) {
-                            switchNetwork();
-                          }
-                        }}
-                      >
-                        {networkName}
-                      </Buttons>
-                    </Dropdown.Item>
+                    {chainId ? (
+                      <Dropdown.Item>
+                        <Buttons
+                          variant="info"
+                          size="sm"
+                          style={{ width: "100%" }}
+                          onClick={async () => {
+                            if (!isSupportedChain(chainId)) {
+                              switchNetwork();
+                            }
+                          }}
+                        >
+                          {networkName}
+                        </Buttons>
+                      </Dropdown.Item>
+                    ) : null}
                     {account ? (
                       <div>
                         <Dropdown.Item>
