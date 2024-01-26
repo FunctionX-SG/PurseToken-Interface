@@ -1398,7 +1398,7 @@ export default function Main() {
           flexDirection: "row",
           margin: "15px auto",
           padding: "2px",
-          width: "20%",
+          width: "160px",
         }}
       >
         <button
