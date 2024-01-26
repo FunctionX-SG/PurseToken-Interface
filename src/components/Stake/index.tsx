@@ -7,8 +7,6 @@ import {
   BsInfoCircleFill,
   BsArrowRight,
 } from "react-icons/bs";
-import { IoStar } from "react-icons/io5";
-import { MdLockClock } from "react-icons/md";
 import { AiFillAlert } from "react-icons/ai";
 import { RiArrowRightFill } from "react-icons/ri";
 import * as Constants from "../../constants";
@@ -20,7 +18,6 @@ import {
   formatBigNumber,
   isSupportedChain,
   getShortTxHash,
-  secondsToDhms,
 } from "../utils";
 
 import "../App.css";
@@ -35,36 +32,47 @@ import { useWalletTrigger } from "../state/walletTrigger/hooks";
 import { useNetwork } from "../state/network/hooks";
 
 export default function Stake() {
-    const {isActive, chainId, account } = useWeb3React()
-    const [,switchNetwork] = useNetwork()
-    const [PURSEPrice] = usePursePrice()
-    const {signer} = useProvider()
-    const [,showToast] = useToast()
+  const { isActive, chainId, account } = useWeb3React();
+  const [, switchNetwork] = useNetwork();
+  const [PURSEPrice] = usePursePrice();
+  const { signer } = useProvider();
+  const [, showToast] = useToast();
 
-    const {purseStaking,purseStakingVesting,purseTokenUpgradable,treasuryContract,rewardDistributor} = useContract()
+  const {
+    purseStaking,
+    purseStakingVesting,
+    purseTokenUpgradable,
+    treasuryContract,
+    rewardDistributor,
+  } = useContract();
 
-    const [mode, setMode] = useState('Stake')
-    const [amount, setAmount] = useState('')
-    const [message, setMessage] = useState('')
-    const [purseStakingUserReceipt, setPurseStakingUserReceipt] = useState<BigNumber>(BigNumber.from('0'))
-    const [purseStakingUserNewReceipt, setPurseStakingUserNewReceipt] = useState<BigNumber>(BigNumber.from('0'))
-    const [purseStakingUserWithdrawReward, setPurseStakingUserWithdrawReward] = useState(0)
-    const [purseStakingRemainingTime, setPurseStakingRemainingTime] = useState(0)
-    const [purseStakingEndTime, setPurseStakingEndTime] = useState(0)
-    const [purseStakingLockPeriod, setPurseStakingLockPeriod] = useState(0)
-    const [purseAmountUnlock, setPurseAmountUnlock] = useState(0)
-    const [purseAmountLock, setPurseAmountLock] = useState(0)
-    const [stakeLoading, setStakeLoading] = useState(false)
-    const [sum30TransferAmount, setSum30TransferAmount] = useState(0)
-    const [, setTrigger] = useWalletTrigger()
-    const [isLoading, setIsLoading] = useState(true)
-    const [valid, setValid] = useState(false)
-    
-    const {data:purseStakingTotalStake} = useSWR({
-      contract:"purseTokenUpgradable",
-      method:"balanceOf",
-      params:[Constants.PURSE_STAKING_ADDRESS]
-    },{
+  const [mode, setMode] = useState("Stake");
+  const [amount, setAmount] = useState("");
+  const [message, setMessage] = useState("");
+  const [purseStakingUserReceipt, setPurseStakingUserReceipt] =
+    useState<BigNumber>(BigNumber.from("0"));
+  const [purseStakingUserNewReceipt, setPurseStakingUserNewReceipt] =
+    useState<BigNumber>(BigNumber.from("0"));
+  const [purseStakingUserWithdrawReward, setPurseStakingUserWithdrawReward] =
+    useState(0);
+  const [purseStakingRemainingTime, setPurseStakingRemainingTime] = useState(0);
+  const [purseStakingEndTime, setPurseStakingEndTime] = useState(0);
+  const [purseStakingLockPeriod, setPurseStakingLockPeriod] = useState(0);
+  const [purseAmountUnlock, setPurseAmountUnlock] = useState(0);
+  const [purseAmountLock, setPurseAmountLock] = useState(0);
+  const [stakeLoading, setStakeLoading] = useState(false);
+  const [sum30TransferAmount, setSum30TransferAmount] = useState(0);
+  const [, setTrigger] = useWalletTrigger();
+  const [isLoading, setIsLoading] = useState(true);
+  const [valid, setValid] = useState(false);
+
+  const { data: purseStakingTotalStake } = useSWR(
+    {
+      contract: "purseTokenUpgradable",
+      method: "balanceOf",
+      params: [Constants.PURSE_STAKING_ADDRESS],
+    },
+    {
       fetcher: fetcher(purseTokenUpgradable),
       refreshInterval: 5000,
     }
@@ -138,23 +146,29 @@ export default function Stake() {
     },
     {
       fetcher: fetcher(purseStaking),
-      refreshInterval:5000
-    })
+      refreshInterval: 5000,
+    }
+  );
 
-    const {data:purseStakingVestingData} = useSWR({
-      contract:"purseStakingVesting",
-      method:"getVestingSchedules",
-      params:[account]
-    },{
+  const { data: purseStakingVestingData } = useSWR(
+    {
+      contract: "purseStakingVesting",
+      method: "getVestingSchedules",
+      params: [account],
+    },
+    {
       fetcher: fetcher(purseStakingVesting),
-      refreshInterval:5000
-    })
+      refreshInterval: 5000,
+    }
+  );
 
-    const {data:tokensPerInterval} = useSWR({
-      contract:"rewardDistributor",
-      method:"tokensPerInterval",
-      params:[]
-    },{
+  const { data: tokensPerInterval } = useSWR(
+    {
+      contract: "rewardDistributor",
+      method: "tokensPerInterval",
+      params: [],
+    },
+    {
       fetcher: fetcher(rewardDistributor),
       refreshInterval: 5000,
     }
@@ -191,7 +205,11 @@ export default function Stake() {
         }
       }
       setPurseStakingRemainingTime(_purseStakingRemainingTime);
-      setPurseStakingEndTime(_purseStakingUserLockTime>0?_purseStakingUserLockTime+purseStakingLockPeriod:0)
+      setPurseStakingEndTime(
+        _purseStakingUserLockTime > 0
+          ? _purseStakingUserLockTime + purseStakingLockPeriod
+          : 0
+      );
     }
   }, [purseStakingUserInfo, purseStakingLockPeriod]);
 
@@ -207,15 +225,24 @@ export default function Stake() {
         parseFloat(formatUnits(_sum30TransferAmount, "ether"))
       );
 
-      let unlockShareAmount = (await checkPurseAmount(purseStakingUserReceipt))[3]
-      let lockShareAmount = (await checkPurseAmount(purseStakingUserNewReceipt))[2]
-      setPurseAmountUnlock(parseFloat(unlockShareAmount))
-      setPurseAmountLock(parseFloat(lockShareAmount))
+      let unlockShareAmount = (
+        await checkPurseAmount(purseStakingUserReceipt)
+      )[3];
+      let lockShareAmount = (
+        await checkPurseAmount(purseStakingUserNewReceipt)
+      )[2];
+      setPurseAmountUnlock(parseFloat(unlockShareAmount));
+      setPurseAmountLock(parseFloat(lockShareAmount));
 
       setIsLoading(false);
     }
     loadData();
-  }, [account, purseStaking, purseStakingUserReceipt, purseStakingUserNewReceipt]);
+  }, [
+    account,
+    purseStaking,
+    purseStakingUserReceipt,
+    purseStakingUserNewReceipt,
+  ]);
 
   const onChangeHandler = (event: string) => {
     setAmount(event);
@@ -245,72 +272,86 @@ export default function Stake() {
   };
 
   const onClickHandlerWithdraw = async () => {
-      let receiptWei = parseUnits(amount, 'ether')
-      if ( receiptWei.gt(purseStakingUserTotalReceipt) ) {
-        showToast("Insufficient Share to unstake!","failure")
-      } else {
-          await unstake(receiptWei)
-      }
-  }
-
-  const stake = async (amount:BigNumber) => {
-    if (isActive) {
-      if (amount.gt(purseStakingUserAllowance)){
-        await approvePurse()
-      }
-      setStakeLoading(true)
-      try{
-        const tx:any = await callContract(signer,purseStaking,"enter",amount)
-        onChangeHandler('')
-        if (tx?.hash){
-          const link = `https://bscscan.com/tx/${tx.hash}`
-          showToast("Transaction sent!","success",link)
-          await tx.wait()
-          const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
-          showToast(message,"success",link)
-        }else if(tx?.message.includes("user rejected transaction")){
-          showToast(`User rejected transaction.`,"failure")
-        }else if(tx?.reason){
-          showToast(`Execution reverted: ${tx.reason}`,"failure")
-        }else {
-          showToast("Something went wrong.","failure")
-        }
-      } catch(err) {
-        showToast("Something went wrong.","failure")
-        console.log(err)
-      }
-      
-      setStakeLoading(false)
+    let receiptWei = parseUnits(amount, "ether");
+    if (receiptWei.gt(purseStakingUserTotalReceipt)) {
+      showToast("Insufficient Share to unstake!", "failure");
+    } else {
+      await unstake(receiptWei);
     }
-  }
+  };
 
-  const unstake = async (receipt:BigNumber) => {
+  const stake = async (amount: BigNumber) => {
     if (isActive) {
-      setStakeLoading(true)
-      try{
-        const tx:any = await callContract(signer,purseStaking,"leave",receipt)
-        onChangeHandler('')
-        if (tx?.hash){
-          const link = `https://bscscan.com/tx/${tx.hash}`
-          showToast("Transaction sent!","success",link)
-          await tx.wait()
-          const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
-          showToast(message,"success",link)
-        }else if(tx?.message.includes("user rejected transaction")){
-          showToast(`User rejected transaction.`,"failure")
-        }else if(tx?.reason){
-          showToast(`Execution reverted: ${tx.reason}`,"failure")
-        }else {
-          showToast("Something went wrong.","failure")
-        }
-      } catch(err) {
-        showToast("Something went wrong.","failure")
-        console.log(err)
+      if (amount.gt(purseStakingUserAllowance)) {
+        await approvePurse();
       }
-      
-      setStakeLoading(false)
+      setStakeLoading(true);
+      try {
+        const tx: any = await callContract(
+          signer,
+          purseStaking,
+          "enter",
+          amount
+        );
+        onChangeHandler("");
+        if (tx?.hash) {
+          const link = `https://bscscan.com/tx/${tx.hash}`;
+          showToast("Transaction sent!", "success", link);
+          await tx.wait();
+          const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(
+            tx.hash
+          )}`;
+          showToast(message, "success", link);
+        } else if (tx?.message.includes("user rejected transaction")) {
+          showToast(`User rejected transaction.`, "failure");
+        } else if (tx?.reason) {
+          showToast(`Execution reverted: ${tx.reason}`, "failure");
+        } else {
+          showToast("Something went wrong.", "failure");
+        }
+      } catch (err) {
+        showToast("Something went wrong.", "failure");
+        console.log(err);
+      }
+
+      setStakeLoading(false);
     }
-  }
+  };
+
+  const unstake = async (receipt: BigNumber) => {
+    if (isActive) {
+      setStakeLoading(true);
+      try {
+        const tx: any = await callContract(
+          signer,
+          purseStaking,
+          "leave",
+          receipt
+        );
+        onChangeHandler("");
+        if (tx?.hash) {
+          const link = `https://bscscan.com/tx/${tx.hash}`;
+          showToast("Transaction sent!", "success", link);
+          await tx.wait();
+          const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(
+            tx.hash
+          )}`;
+          showToast(message, "success", link);
+        } else if (tx?.message.includes("user rejected transaction")) {
+          showToast(`User rejected transaction.`, "failure");
+        } else if (tx?.reason) {
+          showToast(`Execution reverted: ${tx.reason}`, "failure");
+        } else {
+          showToast("Something went wrong.", "failure");
+        }
+      } catch (err) {
+        showToast("Something went wrong.", "failure");
+        console.log(err);
+      }
+
+      setStakeLoading(false);
+    }
+  };
 
   const withdrawLocked = async () => {
     if (isActive) {
@@ -379,145 +420,237 @@ export default function Stake() {
 
   const claim = async () => {
     if (isActive) {
-      setStakeLoading(true)
-      try{
-        const tx:any = await callContract(signer,treasuryContract,"claimRewards",account)
-        if (tx?.hash){
-          const link = `https://bscscan.com/tx/${tx.hash}`
-          showToast("Transaction sent!","success",link)
-          await tx.wait()
-          const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
-          showToast(message,"success",link)
-        }else if(tx?.message.includes("user rejected transaction")){
-          showToast(`User rejected transaction.`,"failure")
-        }else if(tx?.reason){
-          showToast(`Execution reverted: ${tx.reason}`,"failure")
-        }else {
-          showToast("Something went wrong.","failure")
+      setStakeLoading(true);
+      try {
+        const tx: any = await callContract(
+          signer,
+          treasuryContract,
+          "claimRewards",
+          account
+        );
+        if (tx?.hash) {
+          const link = `https://bscscan.com/tx/${tx.hash}`;
+          showToast("Transaction sent!", "success", link);
+          await tx.wait();
+          const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(
+            tx.hash
+          )}`;
+          showToast(message, "success", link);
+        } else if (tx?.message.includes("user rejected transaction")) {
+          showToast(`User rejected transaction.`, "failure");
+        } else if (tx?.reason) {
+          showToast(`Execution reverted: ${tx.reason}`, "failure");
+        } else {
+          showToast("Something went wrong.", "failure");
         }
-      } catch(err) {
-        showToast("Something went wrong.","failure")
-        console.log(err)
+      } catch (err) {
+        showToast("Something went wrong.", "failure");
+        console.log(err);
       }
-      
-      setStakeLoading(false)
+
+      setStakeLoading(false);
     }
-  }
+  };
 
   const claimVesting = async () => {
     if (isActive) {
-      setStakeLoading(true)
-      try{
-        let tx:any
-        if ((purseStakingUserWithdrawReward>0) && (purseStakingEndTime < (Date.now() / 1000))){
-          tx = await callContract(signer,purseStaking,"withdrawLockedAmount")
-        }else{
-          tx = await callContract(signer,purseStakingVesting,"vestCompletedSchedules")
+      setStakeLoading(true);
+      try {
+        let tx: any;
+        if (
+          purseStakingUserWithdrawReward > 0 &&
+          purseStakingEndTime < Date.now() / 1000
+        ) {
+          tx = await callContract(signer, purseStaking, "withdrawLockedAmount");
+        } else {
+          tx = await callContract(
+            signer,
+            purseStakingVesting,
+            "vestCompletedSchedules"
+          );
         }
-        if (tx?.hash){
-          const link = `https://bscscan.com/tx/${tx.hash}`
-          showToast("Transaction sent!","success",link)
-          await tx.wait()
-          const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(tx.hash)}`
-          showToast(message,"success",link)
-        }else if(tx?.message.includes("user rejected transaction")){
-          showToast(`User rejected transaction.`,"failure")
-        }else if(tx?.reason){
-          showToast(`Execution reverted: ${tx.reason}`,"failure")
-        }else {
-          showToast("Something went wrong.","failure")
+        if (tx?.hash) {
+          const link = `https://bscscan.com/tx/${tx.hash}`;
+          showToast("Transaction sent!", "success", link);
+          await tx.wait();
+          const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(
+            tx.hash
+          )}`;
+          showToast(message, "success", link);
+        } else if (tx?.message.includes("user rejected transaction")) {
+          showToast(`User rejected transaction.`, "failure");
+        } else if (tx?.reason) {
+          showToast(`Execution reverted: ${tx.reason}`, "failure");
+        } else {
+          showToast("Something went wrong.", "failure");
         }
-      } catch(err) {
-        showToast("Something went wrong.","failure")
-        console.log(err)
+      } catch (err) {
+        showToast("Something went wrong.", "failure");
+        console.log(err);
       }
-      
-      setStakeLoading(false)
-    }
-  }
-    
-  const checkPurseAmount = async (receipt:BigNumber) => {
-    let _purseStakingAvailableSupply:BigNumber = await purseStaking.availablePurseSupply()
-    let _purseStakingTotalReceipt:BigNumber = await purseStaking.totalReceiptSupply()
-    let receiptToken:BigNumber = purseStakingUserReceipt
-    let newArray:string[]
-    let _receipt = parseFloat(formatUnits(receipt, 'ether'))
-    if(receiptToken.lte(0)) {
-      let purseReward = receipt.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
-      newArray = ['0', _receipt.toString(), formatBigNumber(purseReward,'ether').toString(),'0']
-    } else {
-      if(receipt.gt(receiptToken)) {
-        let newReceipt = receipt.sub(receiptToken)
-        let purseReward = newReceipt.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
 
-        let purse = receiptToken.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
-        newArray = [formatBigNumber(receiptToken,'ether'), formatBigNumber(newReceipt,'ether') ,formatBigNumber(purseReward,'ether'), formatBigNumber(purse,'ether')]
+      setStakeLoading(false);
+    }
+  };
+
+  const checkPurseAmount = async (receipt: BigNumber) => {
+    let _purseStakingAvailableSupply: BigNumber =
+      await purseStaking.availablePurseSupply();
+    let _purseStakingTotalReceipt: BigNumber =
+      await purseStaking.totalReceiptSupply();
+    let receiptToken: BigNumber = purseStakingUserReceipt;
+    let newArray: string[];
+    let _receipt = parseFloat(formatUnits(receipt, "ether"));
+    if (receiptToken.lte(0)) {
+      let purseReward = receipt
+        .mul(_purseStakingAvailableSupply)
+        .div(_purseStakingTotalReceipt ?? 1);
+      newArray = [
+        "0",
+        _receipt.toString(),
+        formatBigNumber(purseReward, "ether").toString(),
+        "0",
+      ];
+    } else {
+      if (receipt.gt(receiptToken)) {
+        let newReceipt = receipt.sub(receiptToken);
+        let purseReward = newReceipt
+          .mul(_purseStakingAvailableSupply)
+          .div(_purseStakingTotalReceipt ?? 1);
+
+        let purse = receiptToken
+          .mul(_purseStakingAvailableSupply)
+          .div(_purseStakingTotalReceipt ?? 1);
+        newArray = [
+          formatBigNumber(receiptToken, "ether"),
+          formatBigNumber(newReceipt, "ether"),
+          formatBigNumber(purseReward, "ether"),
+          formatBigNumber(purse, "ether"),
+        ];
       } else {
-        let purse = receipt.mul(_purseStakingAvailableSupply).div(_purseStakingTotalReceipt??1)
-        newArray = [_receipt.toString(), '0', '0', formatBigNumber(purse,'ether')]
+        let purse = receipt
+          .mul(_purseStakingAvailableSupply)
+          .div(_purseStakingTotalReceipt ?? 1);
+        newArray = [
+          _receipt.toString(),
+          "0",
+          "0",
+          formatBigNumber(purse, "ether"),
+        ];
       }
     }
     return newArray;
-  }
+  };
 
-  const getISOStringWithoutSecsAndMillisecs2 = (x:any) => {
+  const getISOStringWithoutSecsAndMillisecs2 = (x: any) => {
     var now = new Date(x);
     now.setSeconds(0, 0);
     var stamp = now.toString().substring(3, 21);
 
     return stamp;
-  }
+  };
 
-  let purseStakingUserTotalReceipt = (purseStakingUserReceipt).add(purseStakingUserNewReceipt)
+  let purseStakingUserTotalReceipt = purseStakingUserReceipt.add(
+    purseStakingUserNewReceipt
+  );
 
-  let apr = parseFloat(formatBigNumber(tokensPerInterval,'ether'))*31536000/parseFloat(formatBigNumber(purseStakingTotalStake,'ether'))*100
-    // console.log(
-    //   !!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0),
-    //   purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000)> curr.endTime ),0)
-    // )
+  let apr =
+    ((parseFloat(formatBigNumber(tokensPerInterval, "ether")) * 31536000) /
+      parseFloat(formatBigNumber(purseStakingTotalStake, "ether"))) *
+    100;
+  // console.log(
+  //   !!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0),
+  //   purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000)> curr.endTime ),0)
+  // )
   // console.log(!!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0),purseStakingEndTime===0 || purseStakingEndTime > (Date.now() / 1000),purseStakingEndTime)
-    return (
-        <div id="content" className="mt-4">
-          <label className="textWhite center mb-5" style={{fontSize:"40px", textAlign:"center"}}><big><b>PURSE Staking</b></big></label>
-          {!isActive?
-            <div className="center">
-            <div className="card cardbody" style={{ minWidth: '300px', width: '900px', height: '200px', color: "White" }}>
-              <div className="card-body">
-                <div>
-                  <div className="center textWhiteMedium mt-3 mb-3" style={{textAlign:"center"}}>
-                    <b>Connect wallet to stake PURSE</b>
-                  </div>
-                  <div className="center">
-                    <button type="button" className="btn btn-primary mt-3" onClick={()=>setTrigger(true)}> Connect </button>
-                  </div>
+  return (
+    <div id="content" className="mt-4">
+      <label
+        className="textWhite center mb-5"
+        style={{ fontSize: "40px", textAlign: "center" }}
+      >
+        <big>
+          <b>PURSE Staking</b>
+        </big>
+      </label>
+      {!isActive ? (
+        <div className="center">
+          <div
+            className="card cardbody"
+            style={{
+              minWidth: "300px",
+              width: "900px",
+              height: "200px",
+              color: "White",
+            }}
+          >
+            <div className="card-body">
+              <div>
+                <div
+                  className="center textWhiteMedium mt-3 mb-3"
+                  style={{ textAlign: "center" }}
+                >
+                  <b>Connect wallet to stake PURSE</b>
+                </div>
+                <div className="center">
+                  <button
+                    type="button"
+                    className="btn btn-primary mt-3"
+                    onClick={() => setTrigger(true)}
+                  >
+                    {" "}
+                    Connect{" "}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-          :
-          !isSupportedChain(chainId)?
-            <div className="center">
-            <div className="card cardbody" style={{ minWidth: '300px', width: '900px', height: '200px', color: "White" }}>
-              <div className="card-body">
-                <div>
-                  <div className="center textWhiteMedium mt-3 mb-3" style={{textAlign:"center"}}>
-                    <b>Switch chain to stake PURSE</b>
-                  </div>
-                  <div className="center">
-                    <button type="button" className="btn btn-primary mt-3" onClick={()=>switchNetwork()}> Switch </button>
-                  </div>
+        </div>
+      ) : !isSupportedChain(chainId) ? (
+        <div className="center">
+          <div
+            className="card cardbody"
+            style={{
+              minWidth: "300px",
+              width: "900px",
+              height: "200px",
+              color: "White",
+            }}
+          >
+            <div className="card-body">
+              <div>
+                <div
+                  className="center textWhiteMedium mt-3 mb-3"
+                  style={{ textAlign: "center" }}
+                >
+                  <b>Switch chain to stake PURSE</b>
+                </div>
+                <div className="center">
+                  <button
+                    type="button"
+                    className="btn btn-primary mt-3"
+                    onClick={() => switchNetwork()}
+                  >
+                    {" "}
+                    Switch{" "}
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-          :
-            <form className="mb-0" onSubmit={async (event) => {
-              event.preventDefault()
-            }}>
-  
-            <div className="rowC center">
-              <div className="card cardbody" style={{ minWidth: '300px', width: "900px" }}>
-  
+        </div>
+      ) : (
+        <form
+          className="mb-0"
+          onSubmit={async (event) => {
+            event.preventDefault();
+          }}
+        >
+          <div className="rowC center">
+            <div
+              className="card cardbody"
+              style={{ minWidth: "300px", width: "900px" }}
+            >
               <ButtonGroup>
                 <Button
                   type="button"
@@ -585,10 +718,14 @@ export default function Stake() {
                     position="bottom center"
                     offsetY={-23}
                     offsetX={0}
-                    contentStyle={{ padding: '3px' }}>
-                    <span className="textInfo"> Unstake and earn PURSE rewards using your share</span>
-                  </ReactPopup></Button>
-  
+                    contentStyle={{ padding: "3px" }}
+                  >
+                    <span className="textInfo">
+                      {" "}
+                      Unstake and earn PURSE rewards using your share
+                    </span>
+                  </ReactPopup>
+                </Button>
               </ButtonGroup>
 
               <div className="card-body">
@@ -624,9 +761,9 @@ export default function Stake() {
                     </a>
                   </div>
                 </div>
-  
-                  <div>
-                    {/* {purseStakingUserWithdrawReward>0 ?
+
+                <div>
+                  {/* {purseStakingUserWithdrawReward>0 ?
                       <div>
                         {purseStakingRemainingTime>0 ?
                           <div className='mb-3 textWhiteSmall'>
@@ -728,31 +865,44 @@ export default function Stake() {
                     :
                       <div></div>
                     } */}
-    
-                    <div className="row ml-2">
-                      <div style={{width:"50%", minWidth:"250px"}}>
-                        <div className="textWhiteSmall mb-1">
-                          <b>Address:</b>
-                        </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
-                            <b>{account}</b>
-                          </div>
-                          <div className="textWhiteSmall mb-1">
-                            <b>PURSE Balance:</b>
-                          </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
-                            {isLoading?
-                            <Loading/>
-                            :
-                            <b>{parseFloat(formatBigNumber(purseTokenUpgradableBalance,'ether')).toLocaleString(
-                              'en-US', { maximumFractionDigits: 5 }) + " PURSE"}
-                            </b>
-                            }
-                          </div>
-                          
-                          <div className="textWhiteSmall mb-1" >
-                            <b>Reward:&nbsp;&nbsp;</b>
-                            {/* <ReactPopup trigger={open => (
+
+                  <div className="row ml-2">
+                    <div style={{ width: "50%", minWidth: "250px" }}>
+                      <div className="textWhiteSmall mb-1">
+                        <b>Address:</b>
+                      </div>
+                      <div
+                        className="textWhiteSmall mb-2"
+                        style={{ color: "#000" }}
+                      >
+                        <b>{account}</b>
+                      </div>
+                      <div className="textWhiteSmall mb-1">
+                        <b>PURSE Balance:</b>
+                      </div>
+                      <div
+                        className="textWhiteSmall mb-2"
+                        style={{ color: "#000" }}
+                      >
+                        {isLoading ? (
+                          <Loading />
+                        ) : (
+                          <b>
+                            {parseFloat(
+                              formatBigNumber(
+                                purseTokenUpgradableBalance,
+                                "ether"
+                              )
+                            ).toLocaleString("en-US", {
+                              maximumFractionDigits: 5,
+                            }) + " PURSE"}
+                          </b>
+                        )}
+                      </div>
+
+                      <div className="textWhiteSmall mb-1">
+                        <b>Reward:&nbsp;&nbsp;</b>
+                        {/* <ReactPopup trigger={open => (
                               <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
                               )}
                               on="hover"
@@ -884,15 +1034,24 @@ export default function Stake() {
                               </span>
                             </ReactPopup>
                           </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
-                          {isLoading?
-                            <Loading/>
-                            :
-                            <b>
-                              {parseFloat(formatBigNumber(purseStakingUserTotalReceipt,'ether').toString()).toLocaleString(
-                                  'en-US', { maximumFractionDigits: 5 })+ " Share" }
-                            </b>
-                          }
+                          <div
+                            className="textWhiteSmall mb-2"
+                            style={{ color: "#000" }}
+                          >
+                            {isLoading ? (
+                              <Loading />
+                            ) : (
+                              <b>
+                                {parseFloat(
+                                  formatBigNumber(
+                                    purseStakingUserTotalReceipt,
+                                    "ether"
+                                  ).toString()
+                                ).toLocaleString("en-US", {
+                                  maximumFractionDigits: 5,
+                                }) + " Share"}
+                              </b>
+                            )}
                           </div>
                           <div className="textWhiteSmaller">
                             <RiArrowRightFill />
@@ -924,15 +1083,29 @@ export default function Stake() {
                               </span>
                             </ReactPopup>
                           </div>
-                          <div className="textWhiteSmall ml-3 mb-2" style={{ color : "#000" }}>
-                          {isLoading?
-                            <Loading/>
-                            :
-                            <b>{parseFloat(formatBigNumber(purseStakingUserReceipt,'ether')).toLocaleString(
-                                    'en-US', { maximumFractionDigits: 5 })+ " Share (" + purseAmountUnlock.toLocaleString(
-                                      'en-US', { maximumFractionDigits: 5 })+" PURSE)"}
-                            </b>
-                          }
+                          <div
+                            className="textWhiteSmall ml-3 mb-2"
+                            style={{ color: "#000" }}
+                          >
+                            {isLoading ? (
+                              <Loading />
+                            ) : (
+                              <b>
+                                {parseFloat(
+                                  formatBigNumber(
+                                    purseStakingUserReceipt,
+                                    "ether"
+                                  )
+                                ).toLocaleString("en-US", {
+                                  maximumFractionDigits: 5,
+                                }) +
+                                  " Share (" +
+                                  purseAmountUnlock.toLocaleString("en-US", {
+                                    maximumFractionDigits: 5,
+                                  }) +
+                                  " PURSE)"}
+                              </b>
+                            )}
                           </div>
                           <div className="textWhiteSmaller">
                             <RiArrowRightFill />
@@ -964,56 +1137,75 @@ export default function Stake() {
                               </span>
                             </ReactPopup>
                           </div>
-                          <div className="textWhiteSmall ml-3 mb-3" style={{ color : "#000" }}>
-                          {isLoading?
-                            <Loading/>
-                            :
-                            <b>
-                              {parseFloat(formatBigNumber(purseStakingUserNewReceipt,'ether')).toLocaleString(
-                                'en-US', { maximumFractionDigits: 5 })+ " Share (" + purseAmountLock.toLocaleString(
-                                  'en-US', { maximumFractionDigits: 5 })+" PURSE)"}
-                            </b>
-                          }
+                          <div
+                            className="textWhiteSmall ml-3 mb-3"
+                            style={{ color: "#000" }}
+                          >
+                            {isLoading ? (
+                              <Loading />
+                            ) : (
+                              <b>
+                                {parseFloat(
+                                  formatBigNumber(
+                                    purseStakingUserNewReceipt,
+                                    "ether"
+                                  )
+                                ).toLocaleString("en-US", {
+                                  maximumFractionDigits: 5,
+                                }) +
+                                  " Share (" +
+                                  purseAmountLock.toLocaleString("en-US", {
+                                    maximumFractionDigits: 5,
+                                  }) +
+                                  " PURSE)"}
+                              </b>
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                    <div></div>
-                    <hr></hr>
-                    <div className="row mt-3 ml-2">
-                      
-                      <div style={{width:"50%", minWidth:"250px"}}>
-
-                        <div>
-                          <div className="textWhiteSmall mb-1" >
-                            <b>APR:&nbsp;&nbsp;</b>
-                            <ReactPopup
-                                trigger={open => (
-                                    <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
-                                )}
-                                on="hover"
-                                position="right center"
-                                offsetY={-23}
-                                offsetX={0}
-                                contentStyle={{ padding: '3px' }}
-                            >
-                              <span className="textInfo">
-                                Percentage of the amount of tokens to distribute per interval x 31,536,000 / Total staked (Pool)
+                  <div></div>
+                  <hr></hr>
+                  <div className="row mt-3 ml-2">
+                    <div style={{ width: "50%", minWidth: "250px" }}>
+                      <div>
+                        <div className="textWhiteSmall mb-1">
+                          <b>APR:&nbsp;&nbsp;</b>
+                          <ReactPopup
+                            trigger={(open) => (
+                              <span
+                                style={{ position: "relative", top: "-1.5px" }}
+                              >
+                                <BsInfoCircleFill size={10} />
                               </span>
-                            </ReactPopup>
-                          </div>
-                          <div className="textWhiteSmall mb-2" style={{ color : "#000" }}>
-                          {isLoading?
-                          <Loading/>
-                          :
+                            )}
+                            on="hover"
+                            position="right center"
+                            offsetY={-23}
+                            offsetX={0}
+                            contentStyle={{ padding: "3px" }}
+                          >
+                            <span className="textInfo">
+                              Percentage of the amount of tokens to distribute
+                              per interval x 31,536,000 / Total staked (Pool)
+                            </span>
+                          </ReactPopup>
+                        </div>
+                        <div
+                          className="textWhiteSmall mb-2"
+                          style={{ color: "#000" }}
+                        >
+                          {isLoading ? (
+                            <Loading />
+                          ) : (
                             <b>
-                              {
-                                `${apr.toLocaleString('en-US', { maximumFractionDigits: 5 })} %`
-                              }
+                              {`${apr.toLocaleString("en-US", {
+                                maximumFractionDigits: 5,
+                              })} %`}
                             </b>
-                          }
+                          )}
                         </div>
                       </div>
 
@@ -1076,7 +1268,7 @@ export default function Stake() {
                       >
                         {isLoading ? (
                           <Loading />
-                        ) : 
+                        ) : (
                           <b>
                             {parseFloat(
                               formatBigNumber(purseStakingTotalStake, "ether")
@@ -1096,38 +1288,54 @@ export default function Stake() {
                               }) +
                               " USD)"}
                           </b>
-                        }
-                        </div>
-                          <div className="textWhiteSmall mb-1" >
-                            <b>Total Share (Pool):&nbsp;&nbsp;</b>
-                            <ReactPopup trigger={open => (
-                              <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
-                              )}
-                              on="hover"
-                              position="top center"
-                              offsetY={20}
-                              offsetX={0}
-                              contentStyle={{ padding: '3px' }}>
-                              <span className="textInfo">Represents the total amount of PURSE in the PURSE Staking contract</span>
-                              <span className="textInfo mt-2">Total Share (Pool) ≡ Total Staked (Pool)</span>
-                            </ReactPopup>
-                          </div>
-                          <div className="textWhiteSmall mb-3" style={{ color : "#000" }}>
-                          {isLoading?
-                            <Loading/>
-                            :
-                            <b>
-                              {parseFloat(formatBigNumber(purseStakingTotalReceipt,'ether')).toLocaleString(
-                                  'en-US', { maximumFractionDigits: 5 })+ " Share (100%)"}
-                            </b>
-                          }
-                          </div>
+                        )}
+                      </div>
+                      <div className="textWhiteSmall mb-1">
+                        <b>Total Share (Pool):&nbsp;&nbsp;</b>
+                        <ReactPopup
+                          trigger={(open) => (
+                            <span
+                              style={{ position: "relative", top: "-1.5px" }}
+                            >
+                              <BsInfoCircleFill size={10} />
+                            </span>
+                          )}
+                          on="hover"
+                          position="top center"
+                          offsetY={20}
+                          offsetX={0}
+                          contentStyle={{ padding: "3px" }}
+                        >
+                          <span className="textInfo">
+                            Represents the total amount of PURSE in the PURSE
+                            Staking contract
+                          </span>
+                          <span className="textInfo mt-2">
+                            Total Share (Pool) ≡ Total Staked (Pool)
+                          </span>
+                        </ReactPopup>
+                      </div>
+                      <div
+                        className="textWhiteSmall mb-3"
+                        style={{ color: "#000" }}
+                      >
+                        {isLoading ? (
+                          <Loading />
+                        ) : (
+                          <b>
+                            {parseFloat(
+                              formatBigNumber(purseStakingTotalReceipt, "ether")
+                            ).toLocaleString("en-US", {
+                              maximumFractionDigits: 5,
+                            }) + " Share (100%)"}
+                          </b>
+                        )}
                       </div>
                     </div>
-                    
                   </div>
-                
-              <hr></hr>
+                </div>
+
+                <hr></hr>
               </div>
 
               <div>
@@ -1165,116 +1373,266 @@ export default function Stake() {
 
                   <div className="center mt-3 mb-3">
                     <ButtonGroup>
-                      <Button type="submit" style={{ width : "140px" }} disabled={stakeLoading} onClick={async(event) => {
-                        if (valid){
-                            if (mode==='Stake') {
-                                await onClickHandlerDeposit()
-                            } else if (mode==='Unstake') {
-                                await onClickHandlerWithdraw()
+                      <Button
+                        type="submit"
+                        style={{ width: "140px" }}
+                        disabled={stakeLoading}
+                        onClick={async (event) => {
+                          if (valid) {
+                            if (mode === "Stake") {
+                              await onClickHandlerDeposit();
+                            } else if (mode === "Unstake") {
+                              await onClickHandlerWithdraw();
                             }
-                        }
-                      }}>{stakeLoading?<Loading/>:mode}</Button>
-  
-                      <Button type="button" variant="outline-primary" style={{ width : "140px" }} disabled={stakeLoading} onClick={(event) => {
-                        if (mode==='Stake') {
-                            onChangeHandler(formatBigNumber(purseTokenUpgradableBalance,'ether'))
-                        } else if (mode==='Unstake') {
-                            onChangeHandler(formatBigNumber(purseStakingUserTotalReceipt,'ether'))
-                        }
-                      }}>Max</Button>
+                          }
+                        }}
+                      >
+                        {stakeLoading ? <Loading /> : mode}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="outline-primary"
+                        style={{ width: "140px" }}
+                        disabled={stakeLoading}
+                        onClick={(event) => {
+                          if (mode === "Stake") {
+                            onChangeHandler(
+                              formatBigNumber(
+                                purseTokenUpgradableBalance,
+                                "ether"
+                              )
+                            );
+                          } else if (mode === "Unstake") {
+                            onChangeHandler(
+                              formatBigNumber(
+                                purseStakingUserTotalReceipt,
+                                "ether"
+                              )
+                            );
+                          }
+                        }}
+                      >
+                        Max
+                      </Button>
                     </ButtonGroup>
                   </div>
-                  {mode === "Unstake"?
-                  <div>
-                    <div className='center textWhite mb-3'>
-                      <div style={{ width:"90%", textAlign:"center", fontSize:"12px", backgroundColor: "rgb(186 0 255 / 38%)", padding:"8px"}}>
-                        <AiFillAlert className='mb-1'/>&nbsp;Notice: The withdrawal's lock mechanism has been revised. The lock period for pending request will no longer reset back to 21 days with a new unstaking entry. For more information, please consult the documentation.
-                      </div>
-                    </div>
-
-                    <div className='mb-2' style={{padding:"5px"}}>
-                      <div className='row center' style={{fontWeight:"900"}}>
-                        <div className='ml-2 mr-2 mb-1 mt-1' style={{backgroundColor: "#ba00ff",color:"white",paddingTop:"4px",paddingBottom:"4px",width:"57%",textAlign:"center",fontSize:"16px"}}>
-                          Pending Withdrawal Request
-                        </div>
-                      </div>
-                      
-                      <div className='row center' style={{fontWeight:"bold"}}>
-                        <div className='ml-2 mr-2 mb-1' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
-                          Amount
-                        </div>
-                        <div className='ml-2 mr-2 mb-1' style={{width:"20%",textAlign:"left",fontSize:"15px"}}>
-                          Completion Time
-                        </div>
-                        <div className='ml-2 mr-2 mb-1' style={{width:"12%",textAlign:"right",fontSize:"15px"}}>
-                          Status
+                  {mode === "Unstake" ? (
+                    <div>
+                      <div className="center textWhite mb-3">
+                        <div
+                          style={{
+                            width: "90%",
+                            textAlign: "center",
+                            fontSize: "12px",
+                            backgroundColor: "rgb(186 0 255 / 38%)",
+                            padding: "8px",
+                          }}
+                        >
+                          <AiFillAlert className="mb-1" />
+                          &nbsp;Notice: The withdrawal's lock mechanism has been
+                          revised. The lock period for pending request will no
+                          longer reset back to 21 days with a new unstaking
+                          entry. For more information, please consult the
+                          documentation.
                         </div>
                       </div>
 
-                      {/* V2 Claim */}
-                      {purseStakingUserWithdrawReward>0?
-                      <div className='row center'>
-                        <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"14px"}}>
-                          {(purseStakingUserWithdrawReward).toLocaleString('en-US', { maximumFractionDigits: 5 }) + " PURSE"}
+                      <div className="mb-2" style={{ padding: "5px" }}>
+                        <div
+                          className="row center"
+                          style={{ fontWeight: "900" }}
+                        >
+                          <div
+                            className="ml-2 mr-2 mb-1 mt-1"
+                            style={{
+                              backgroundColor: "#ba00ff",
+                              color: "white",
+                              paddingTop: "4px",
+                              paddingBottom: "4px",
+                              width: "57%",
+                              textAlign: "center",
+                              fontSize: "16px",
+                            }}
+                          >
+                            Pending Withdrawal Request
+                          </div>
                         </div>
-                        <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"14px"}}>
-                          {getISOStringWithoutSecsAndMillisecs2(purseStakingEndTime*1000)}
-                        </div>
-                        <div className='ml-2 mr-2' style={{width:"12%",textAlign:"right",fontSize:"14px"}}>
-                          {purseStakingEndTime > (Date.now() / 1000) ?
-                            <div>Not ready</div> : <div>Available</div>
-                          }
-                        </div>
-                      </div>:<></>}
 
-                      {/* V3 Claim */}
-                      {purseStakingVestingData.map((vestingData:any)=>{
-                        return (
-                          <div className='row center'>
-                            <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"14px"}}>
-                              {parseFloat(formatBigNumber(vestingData.quantity,'ether')).toLocaleString(
-                                  'en-US', { maximumFractionDigits: 5 })} PURSE
+                        <div
+                          className="row center"
+                          style={{ fontWeight: "bold" }}
+                        >
+                          <div
+                            className="ml-2 mr-2 mb-1"
+                            style={{
+                              width: "20%",
+                              textAlign: "left",
+                              fontSize: "15px",
+                            }}
+                          >
+                            Amount
+                          </div>
+                          <div
+                            className="ml-2 mr-2 mb-1"
+                            style={{
+                              width: "20%",
+                              textAlign: "left",
+                              fontSize: "15px",
+                            }}
+                          >
+                            Completion Time
+                          </div>
+                          <div
+                            className="ml-2 mr-2 mb-1"
+                            style={{
+                              width: "12%",
+                              textAlign: "right",
+                              fontSize: "15px",
+                            }}
+                          >
+                            Status
+                          </div>
+                        </div>
+
+                        {/* V2 Claim */}
+                        {purseStakingUserWithdrawReward > 0 ? (
+                          <div className="row center">
+                            <div
+                              className="ml-2 mr-2"
+                              style={{
+                                width: "20%",
+                                textAlign: "left",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {purseStakingUserWithdrawReward.toLocaleString(
+                                "en-US",
+                                { maximumFractionDigits: 5 }
+                              ) + " PURSE"}
                             </div>
-                            <div className='ml-2 mr-2' style={{width:"20%",textAlign:"left",fontSize:"14px"}}>
-                              {getISOStringWithoutSecsAndMillisecs2(vestingData.endTime*1000)}
+                            <div
+                              className="ml-2 mr-2"
+                              style={{
+                                width: "20%",
+                                textAlign: "left",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {getISOStringWithoutSecsAndMillisecs2(
+                                purseStakingEndTime * 1000
+                              )}
                             </div>
-                            <div className='ml-2 mr-2' style={{width:"12%",textAlign:"right",fontSize:"14px"}}>
-                              {vestingData.endTime > (Date.now() / 1000).toFixed(0) ?
-                                <div>Not ready</div> : <div>{vestingData.vestedQuantity.gt(vestingData.quantity) ? <div>Redeemed</div> : <div>Available</div>}</div>
-                              }
+                            <div
+                              className="ml-2 mr-2"
+                              style={{
+                                width: "12%",
+                                textAlign: "right",
+                                fontSize: "14px",
+                              }}
+                            >
+                              {purseStakingEndTime > Date.now() / 1000 ? (
+                                <div>Not ready</div>
+                              ) : (
+                                <div>Available</div>
+                              )}
                             </div>
                           </div>
-                        )
-                      })}
-                      
+                        ) : (
+                          <></>
+                        )}
 
-                      <div className='row center'>
-                        <Button 
-                        type="button" 
-                        className="btn btn-sm mt-3 mb-3" 
-                        style={{width:"100px"}} 
-                        disabled={
-                          stakeLoading || 
-                          ((purseStakingEndTime===0 || purseStakingEndTime > (Date.now() / 1000)) && 
-                          !!!purseStakingVestingData?.reduce((flag:number,curr:any)=> flag + +((Date.now() / 1000) > curr.endTime),0))
-                        } 
-                        onClick={(event) => {
-                          claimVesting()
-                        }}>Claim</Button>
+                        {/* V3 Claim */}
+                        {purseStakingVestingData.map((vestingData: any) => {
+                          return (
+                            <div className="row center">
+                              <div
+                                className="ml-2 mr-2"
+                                style={{
+                                  width: "20%",
+                                  textAlign: "left",
+                                  fontSize: "14px",
+                                }}
+                              >
+                                {parseFloat(
+                                  formatBigNumber(vestingData.quantity, "ether")
+                                ).toLocaleString("en-US", {
+                                  maximumFractionDigits: 5,
+                                })}{" "}
+                                PURSE
+                              </div>
+                              <div
+                                className="ml-2 mr-2"
+                                style={{
+                                  width: "20%",
+                                  textAlign: "left",
+                                  fontSize: "14px",
+                                }}
+                              >
+                                {getISOStringWithoutSecsAndMillisecs2(
+                                  vestingData.endTime * 1000
+                                )}
+                              </div>
+                              <div
+                                className="ml-2 mr-2"
+                                style={{
+                                  width: "12%",
+                                  textAlign: "right",
+                                  fontSize: "14px",
+                                }}
+                              >
+                                {vestingData.endTime >
+                                (Date.now() / 1000).toFixed(0) ? (
+                                  <div>Not ready</div>
+                                ) : (
+                                  <div>
+                                    {vestingData.vestedQuantity.gt(
+                                      vestingData.quantity
+                                    ) ? (
+                                      <div>Redeemed</div>
+                                    ) : (
+                                      <div>Available</div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        <div className="row center">
+                          <Button
+                            type="button"
+                            className="btn btn-sm mt-3 mb-3"
+                            style={{ width: "100px" }}
+                            disabled={
+                              stakeLoading ||
+                              ((purseStakingEndTime === 0 ||
+                                purseStakingEndTime > Date.now() / 1000) &&
+                                !!!purseStakingVestingData?.reduce(
+                                  (flag: number, curr: any) =>
+                                    flag + +(Date.now() / 1000 > curr.endTime),
+                                  0
+                                ))
+                            }
+                            onClick={(event) => {
+                              claimVesting();
+                            }}
+                          >
+                            Claim
+                          </Button>
+                        </div>
                       </div>
-
                     </div>
-                  </div>
-                  :
-                  <div></div>}
-                  </div>
+                  ) : (
+                    <div></div>
+                  )}
                 </div>
-
               </div>
-  
             </div>
-            </form>
-          }
-        </div>
-    );
+          </div>
+        </form>
+      )}
+    </div>
+  );
 }
