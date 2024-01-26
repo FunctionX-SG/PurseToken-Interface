@@ -15,7 +15,6 @@ import { IoStar } from "react-icons/io5";
 import { formatUnits } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import * as Constants from "../../constants";
-import { useWeb3React } from "@web3-react/core";
 import { Loading } from "../Loading";
 import { usePursePrice } from "../state/PursePrice/hooks";
 import { useContract } from "../state/contract/hooks";
@@ -26,7 +25,6 @@ interface CustomTooltipProps {
 }
 
 export default function Main() {
-  const { isActive, account } = useWeb3React();
   const [PURSEPrice] = usePursePrice();
 
   const { restakingFarm, purseTokenUpgradable } = useContract();
@@ -45,6 +43,7 @@ export default function Main() {
   const [cumulateBurn, setCumulateBurn] = useState<
     { Sum: number; Date: string }[]
   >([]);
+
   // FARM DASHBOARD STATES
   const [totalRewardPerBlock, setTotalRewardPerBlock] = useState<BigNumber>(
     BigNumber.from("0")
@@ -53,7 +52,8 @@ export default function Main() {
   const [poolCapRewardToken, setPoolCapRewardToken] = useState("0");
   const [poolMintedRewardToken, setPoolMintedRewardToken] = useState("0");
   const [poolRewardToken, setPoolRewardToken] = useState("0");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isFetchMainDataLoading, setIsFetchMainDataLoading] = useState(true);
+  const [isFetchFarmDataLoading, setIsFetchFarmDataLoading] = useState(true);
 
   const CustomTick = (propsCustomTick: any) => {
     const { x, y, payload } = propsCustomTick;
@@ -130,11 +130,14 @@ export default function Main() {
 
   useEffect(() => {
     async function loadData() {
-      const _purseTokenTotalSupply = await purseTokenUpgradable._totalSupply();
-      setPurseTokenTotalSupply(_purseTokenTotalSupply);
+      // trigger fetching data
+      const _purseTokenTotalSupply = purseTokenUpgradable._totalSupply();
+      const mongoResponse0 = fetch(Constants.MONGO_RESPONSE_0_API);
+      const cumulateTransferResponse = fetch(Constants.MONGO_RESPONSE_1_API);
+      const cumulateBurnResponse = fetch(Constants.MONGO_RESPONSE_2_API);
 
-      const mongoResponse0 = await fetch(Constants.MONGO_RESPONSE_0_API);
-      const myJson0: any = await mongoResponse0.json();
+      setPurseTokenTotalSupply(await _purseTokenTotalSupply);
+      const myJson0: any = await mongoResponse0.then((resp) => resp.json());
 
       const _totalTransferAmount = myJson0["TransferTotal"][0];
       setTotalTransferAmount(_totalTransferAmount);
@@ -150,35 +153,41 @@ export default function Main() {
 
       let _cumulateTransfer: { Sum: number; Date: string }[] = [];
       let _cumulateBurn: { Sum: number; Date: string }[] = [];
-      const cumulateTransferResponse = await fetch(
-        Constants.MONGO_RESPONSE_1_API
+      const cumulateTransferJson: any = await cumulateTransferResponse.then(
+        (resp) => resp.json()
       );
-      const cumulateTransferJson: any = await cumulateTransferResponse.json();
-      const cumulateBurnResponse = await fetch(Constants.MONGO_RESPONSE_2_API);
-      const cumulateBurnJson: any = await cumulateBurnResponse.json();
       cumulateTransferJson.forEach((item: { Sum: string; Date: string }) =>
         _cumulateTransfer.push({ Sum: parseFloat(item.Sum), Date: item.Date })
+      );
+      const cumulateBurnJson: any = await cumulateBurnResponse.then((resp) =>
+        resp.json()
       );
       cumulateBurnJson.forEach((item: { Sum: string; Date: string }) =>
         _cumulateBurn.push({ Sum: parseFloat(item.Sum), Date: item.Date })
       );
-
       setCumulateTransfer(_cumulateTransfer);
       setCumulateBurn(_cumulateBurn);
-      let _poolLength = await restakingFarm.poolLength();
-      _poolLength = parseFloat(_poolLength.toString());
-      setPoolLength(_poolLength);
+      setIsFetchMainDataLoading(false);
+    }
+    loadData();
+  }, [purseTokenUpgradable]);
 
-      const _poolCapRewardToken = await restakingFarm.capMintToken();
-      setPoolCapRewardToken(_poolCapRewardToken);
-
-      const _poolMintedRewardToken = await restakingFarm.totalMintToken();
-      setPoolMintedRewardToken(_poolMintedRewardToken);
-
-      const _poolRewardToken = await purseTokenUpgradable.balanceOf(
+  useEffect(() => {
+    async function loadData() {
+      // trigger fetching data
+      let _poolLength = restakingFarm.poolLength();
+      const _poolCapRewardToken = restakingFarm.capMintToken();
+      const _poolMintedRewardToken = restakingFarm.totalMintToken();
+      const _poolRewardToken = purseTokenUpgradable.balanceOf(
         Constants.RESTAKING_FARM_ADDRESS
       );
-      setPoolRewardToken(_poolRewardToken);
+
+      // start setting
+      _poolLength = parseFloat((await _poolLength).toString());
+      setPoolLength(_poolLength);
+      setPoolCapRewardToken(await _poolCapRewardToken);
+      setPoolMintedRewardToken(await _poolMintedRewardToken);
+      setPoolRewardToken(await _poolRewardToken);
 
       let _totalRewardPerBlock: BigNumber = BigNumber.from("0");
 
@@ -190,10 +199,10 @@ export default function Main() {
         );
       }
       setTotalRewardPerBlock(_totalRewardPerBlock);
-      setIsLoading(false);
+      setIsFetchFarmDataLoading(false);
     }
     loadData();
-  }, [isActive, account, purseTokenUpgradable, restakingFarm]);
+  }, [purseTokenUpgradable, restakingFarm]);
 
   return (
     <div id="content" className="mt-4">
@@ -238,7 +247,7 @@ export default function Main() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
+                {isFetchMainDataLoading ? (
                   <tr>
                     <td>
                       <Loading />
@@ -360,7 +369,7 @@ export default function Main() {
                 </tr>
               </tbody>
               <tbody>
-                {isLoading ? (
+                {isFetchMainDataLoading ? (
                   <tr>
                     <td>
                       <Loading />
@@ -421,7 +430,7 @@ export default function Main() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
+                {isFetchMainDataLoading ? (
                   <tr>
                     <td>
                       <Loading />
@@ -662,7 +671,7 @@ export default function Main() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
+                {isFetchFarmDataLoading ? (
                   <tr>
                     <td>
                       <Loading />
@@ -709,7 +718,7 @@ export default function Main() {
                 </tr>
               </thead>
               <tbody>
-                {isLoading ? (
+                {isFetchFarmDataLoading ? (
                   <tr>
                     <td>
                       <Loading />
