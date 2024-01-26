@@ -4,7 +4,6 @@ import Navb from "./Navbar";
 import Main from "./Main";
 import FarmMenu from "./FarmMenu";
 import FXSwap from "./FXSwap";
-import FarmInfo from "./FarmInfo";
 import Stake from "./Stake";
 import Reward from "./Reward";
 import Landing from "./Landing";
@@ -47,8 +46,6 @@ export default function App() {
                   <Route path="/home" element={<Main />}></Route>
 
                   <Route path="/lpfarm/menu" element={<FarmMenu />}></Route>
-
-                  <Route path="/lpfarm/farmInfo" element={<FarmInfo />}></Route>
 
                   <Route path="/lpfarm/fxswap" element={<FXSwap />}></Route>
 

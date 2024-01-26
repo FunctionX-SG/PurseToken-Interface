@@ -17,7 +17,6 @@ import {
   chainId2NetworkName,
   isSupportedChain,
 } from "../utils";
-import { Link } from "react-router-dom";
 import { useToast } from "../state/toast/hooks";
 import CloseButton from "react-bootstrap/CloseButton";
 
@@ -246,10 +245,7 @@ export default function Navb() {
                 <NavLink to="/home">Home</NavLink>
               </div>
               <div className="dropdown0">
-                <NavLink to="/lpfarm/farmInfo">Farm Dashboard</NavLink>
-              </div>
-              <div className="dropdown0">
-                <NavLink to="/lpfarm/menu">Farm Menu</NavLink>
+                <NavLink to="/lpfarm/menu">Farm</NavLink>
               </div>
               <div className="dropdown0">
                 <NavLink to="/stake">Stake</NavLink>
@@ -295,30 +291,7 @@ export default function Navb() {
               <NavLink to="/home">Home</NavLink>
             </div>
             <div className="mr-4">
-              <Dropdown>
-                <Dropdown.Toggle
-                  className="center"
-                  variant="transparent"
-                  style={{ padding: 0, color: "#fff" }}
-                >
-                  Farm
-                </Dropdown.Toggle>
-                <Dropdown.Menu
-                  style={{ backgroundColor: "#181818", marginTop: "8px" }}
-                >
-                  <Dropdown.Item as={Link} to="/lpfarm/farmInfo">
-                    <div
-                      className="dropdown0"
-                      style={{ paddingBottom: "12px" }}
-                    >
-                      Farm Dashboard
-                    </div>
-                  </Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/lpfarm/menu">
-                    <div className="dropdown">Farm Menu</div>
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
+              <NavLink to="/lpfarm/menu">Farm</NavLink>
             </div>
             <div className="mr-4">
               <NavLink to="/stake">Stake</NavLink>
