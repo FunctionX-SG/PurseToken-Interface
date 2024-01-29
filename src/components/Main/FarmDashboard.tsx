@@ -29,12 +29,12 @@ export default function FarmDashboard() {
         purseTokenUpgradable
           ._totalSupply()
           .then((res: BigNumber) => setPurseTokenTotalSupply(res)),
-        restakingFarm.poolLength().then(async (length: any) => {
-          const lengthFloat = parseFloat(length.toString());
-          setPoolLength(lengthFloat);
+        restakingFarm.poolLength().then(async (resp: any) => {
+          const poolLength = parseFloat(resp.toString());
+          setPoolLength(poolLength);
           let _totalRewardPerBlock: BigNumber = BigNumber.from("0");
-          await Promise.all(
-            Array.from(Array(lengthFloat).keys()).map((i) => {
+          return Promise.all(
+            Array.from(Array(poolLength).keys()).map((i) => {
               return restakingFarm.poolTokenList(i).then((address: any) => {
                 return restakingFarm
                   .poolInfo(address.toString())
@@ -45,8 +45,7 @@ export default function FarmDashboard() {
                   });
               });
             })
-          );
-          setTotalRewardPerBlock(_totalRewardPerBlock);
+          ).then(() => setTotalRewardPerBlock(_totalRewardPerBlock));
         }),
         restakingFarm.capMintToken().then((tokenCap: any) => {
           setPoolCapRewardToken(tokenCap);
@@ -190,17 +189,28 @@ export default function FarmDashboard() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>{poolLength}</td>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(totalRewardPerBlock, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse per block
-                </td>
-              </tr>
+              {isFetchFarmDataLoading ? (
+                <tr>
+                  <td>
+                    <Loading />
+                  </td>
+                  <td>
+                    <Loading />
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td>{poolLength}</td>
+                  <td>
+                    {parseFloat(
+                      formatBigNumber(totalRewardPerBlock, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    Purse per block
+                  </td>
+                </tr>
+              )}
             </tbody>
             <thead>
               <tr>
@@ -214,24 +224,35 @@ export default function FarmDashboard() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(purseTokenTotalSupply, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse
-                </td>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(poolCapRewardToken, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse
-                </td>
-              </tr>
+              {isFetchFarmDataLoading ? (
+                <tr>
+                  <td>
+                    <Loading />
+                  </td>
+                  <td>
+                    <Loading />
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td>
+                    {parseFloat(
+                      formatBigNumber(purseTokenTotalSupply, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    Purse
+                  </td>
+                  <td>
+                    {parseFloat(
+                      formatBigNumber(poolCapRewardToken, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    Purse
+                  </td>
+                </tr>
+              )}
             </tbody>
             <thead>
               <tr>
@@ -245,24 +266,35 @@ export default function FarmDashboard() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(poolMintedRewardToken, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse
-                </td>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(poolRewardToken, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse
-                </td>
-              </tr>
+              {isFetchFarmDataLoading ? (
+                <tr>
+                  <td>
+                    <Loading />
+                  </td>
+                  <td>
+                    <Loading />
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td>
+                    {parseFloat(
+                      formatBigNumber(poolMintedRewardToken, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    Purse
+                  </td>
+                  <td>
+                    {parseFloat(
+                      formatBigNumber(poolRewardToken, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    Purse
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

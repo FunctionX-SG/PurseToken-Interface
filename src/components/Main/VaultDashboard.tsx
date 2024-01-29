@@ -7,7 +7,7 @@ import { useContract } from "../state/contract/hooks";
 import { formatBigNumber } from "../utils";
 
 export default function VaultDashboard() {
-  const { purseTokenUpgradable, restakingFarm } = useContract();
+  const { stakePurseVault } = useContract();
 
   const [totalRewardPerBlock, setTotalRewardPerBlock] = useState<BigNumber>(
     BigNumber.from("0")
@@ -19,46 +19,18 @@ export default function VaultDashboard() {
   const [poolCapRewardToken, setPoolCapRewardToken] = useState("0");
   const [poolMintedRewardToken, setPoolMintedRewardToken] = useState("0");
   const [poolRewardToken, setPoolRewardToken] = useState("0");
-  const [isFetchFarmDataLoading, setIsFetchFarmDataLoading] = useState(true);
+  const [isFetchVaultDataLoading, setIsFetchVaultDataLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
-      await Promise.all([
-        purseTokenUpgradable
-          ._totalSupply()
-          .then((res: BigNumber) => setPurseTokenTotalSupply(res)),
-        restakingFarm.poolLength().then((length: any) => {
-          setPoolLength(parseFloat(length.toString()));
-          let _totalRewardPerBlock: BigNumber = BigNumber.from("0");
-          for (let i = 0; i < length; i++) {
-            restakingFarm.poolTokenList(i).then((address: any) => {
-              restakingFarm.poolInfo(address.toString()).then((info: any) => {
-                totalRewardPerBlock.add(
-                  info.pursePerBlock?.mul(info.bonusMultiplier)
-                );
-              });
-            });
-          }
-          setTotalRewardPerBlock(_totalRewardPerBlock);
-        }),
-        restakingFarm.capMintToken().then((tokenCap: any) => {
-          setPoolCapRewardToken(tokenCap);
-        }),
-        restakingFarm.totalMintToken().then((tokenTotal: any) => {
-          setPoolMintedRewardToken(tokenTotal);
-        }),
-        purseTokenUpgradable
-          .balanceOf(Constants.RESTAKING_FARM_ADDRESS)
-          .then((tokenBalance: any) => {
-            setPoolRewardToken(tokenBalance);
-          }),
-      ]).then(() => {
-        setIsFetchFarmDataLoading(false);
-      });
+      //   await Promise.all([
+      //     stakePurseVault.
+      //   ]).then(() => {
+      //     setIsFetchVaultDataLoading(false);
+      //   });
     }
     loadData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [purseTokenUpgradable, restakingFarm]);
+  }, [stakePurseVault]);
 
   const renderFullVaultTable = () => {
     return (
@@ -76,7 +48,7 @@ export default function VaultDashboard() {
               </tr>
             </thead>
             <tbody>
-              {isFetchFarmDataLoading ? (
+              {isFetchVaultDataLoading ? (
                 <tr>
                   <td>
                     <Loading />
@@ -123,7 +95,7 @@ export default function VaultDashboard() {
               </tr>
             </thead>
             <tbody>
-              {isFetchFarmDataLoading ? (
+              {isFetchVaultDataLoading ? (
                 <tr>
                   <td>
                     <Loading />

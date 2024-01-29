@@ -35,7 +35,6 @@ export default function TokenDashboard() {
   const [totalBurnAmount, setTotalBurnAmount] = useState("0");
   const [sum30BurnAmount, setSum30BurnAmount] = useState("0");
   const [totalTransferAmount, setTotalTransferAmount] = useState("0");
-  const [sum30TransferAmount, setSum30TransferAmount] = useState("0");
   const [cumulateTransfer, setCumulateTransfer] = useState<
     { Sum: number; Date: string }[]
   >([]);
@@ -54,7 +53,6 @@ export default function TokenDashboard() {
         fetch(Constants.MONGO_RESPONSE_0_API).then((resp) => {
           resp.json().then((json) => {
             setTotalTransferAmount(json["TransferTotal"][0]);
-            setSum30TransferAmount(json["Transfer30Days"][0]);
             setTotalBurnAmount(json["BurnTotal"][0]);
             setSum30BurnAmount(json["Burn30Days"][0]);
           });
@@ -605,20 +603,31 @@ export default function TokenDashboard() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  $
-                  {(
-                    parseFloat(formatUnits(purseTokenTotalSupply, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(purseTokenTotalSupply, "ether")
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-              </tr>
+              {isFetchMainDataLoading ? (
+                <tr>
+                  <td>
+                    <Loading />
+                  </td>
+                  <td>
+                    <Loading />
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td>
+                    $
+                    {(
+                      parseFloat(formatUnits(purseTokenTotalSupply, "ether")) *
+                      PURSEPrice
+                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                  </td>
+                  <td>
+                    {parseFloat(
+                      formatUnits(purseTokenTotalSupply, "ether")
+                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                  </td>
+                </tr>
+              )}
             </tbody>
             <thead>
               <tr>
@@ -654,32 +663,43 @@ export default function TokenDashboard() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalBurnAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalBurnAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(sum30BurnAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(sum30BurnAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-              </tr>
+              {isFetchMainDataLoading ? (
+                <tr>
+                  <td>
+                    <Loading />
+                  </td>
+                  <td>
+                    <Loading />
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td>
+                    {parseFloat(
+                      formatUnits(totalBurnAmount, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    / ${" "}
+                    {(
+                      parseFloat(formatUnits(totalBurnAmount, "ether")) *
+                      PURSEPrice
+                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                  </td>
+                  <td>
+                    {parseFloat(
+                      formatUnits(sum30BurnAmount, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    / ${" "}
+                    {(
+                      parseFloat(formatUnits(sum30BurnAmount, "ether")) *
+                      PURSEPrice
+                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                  </td>
+                </tr>
+              )}
             </tbody>
             <thead>
               <tr>
@@ -737,56 +757,43 @@ export default function TokenDashboard() {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-              </tr>
-            </tbody>
-            <thead>
-              <tr>
-                <td></td>
-              </tr>
-            </thead>
-            <thead>
-              <tr></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-              </tr>
+              {isFetchMainDataLoading ? (
+                <tr>
+                  <td>
+                    <Loading />
+                  </td>
+                  <td>
+                    <Loading />
+                  </td>
+                </tr>
+              ) : (
+                <tr>
+                  <td>
+                    {parseFloat(
+                      formatUnits(totalTransferAmount, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    / ${" "}
+                    {(
+                      parseFloat(formatUnits(totalTransferAmount, "ether")) *
+                      PURSEPrice
+                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                  </td>
+                  <td>
+                    {parseFloat(
+                      formatUnits(totalTransferAmount, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}{" "}
+                    / ${" "}
+                    {(
+                      parseFloat(formatUnits(totalTransferAmount, "ether")) *
+                      PURSEPrice
+                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                  </td>
+                </tr>
+              )}
             </tbody>
             <thead>
               <tr>
