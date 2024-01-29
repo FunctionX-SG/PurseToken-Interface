@@ -23,24 +23,29 @@ export default function FarmDashboard() {
   const [isFetchFarmDataLoading, setIsFetchFarmDataLoading] = useState(true);
 
   useEffect(() => {
-    console.log(`end: ${Date.now()}`);
+    console.log(`start: ${Date.now()}`);
     async function loadData() {
       await Promise.all([
         purseTokenUpgradable
           ._totalSupply()
           .then((res: BigNumber) => setPurseTokenTotalSupply(res)),
-        restakingFarm.poolLength().then((length: any) => {
-          setPoolLength(parseFloat(length.toString()));
+        restakingFarm.poolLength().then(async (length: any) => {
+          const lengthFloat = parseFloat(length.toString());
+          setPoolLength(lengthFloat);
           let _totalRewardPerBlock: BigNumber = BigNumber.from("0");
-          for (let i = 0; i < length; i++) {
-            restakingFarm.poolTokenList(i).then((address: any) => {
-              restakingFarm.poolInfo(address.toString()).then((info: any) => {
-                totalRewardPerBlock.add(
-                  info.pursePerBlock?.mul(info.bonusMultiplier)
-                );
+          await Promise.all(
+            Array.from(Array(lengthFloat).keys()).map((i) => {
+              return restakingFarm.poolTokenList(i).then((address: any) => {
+                return restakingFarm
+                  .poolInfo(address.toString())
+                  .then((info: any) => {
+                    _totalRewardPerBlock = _totalRewardPerBlock.add(
+                      info.pursePerBlock?.mul(info.bonusMultiplier)
+                    );
+                  });
               });
-            });
-          }
+            })
+          );
           setTotalRewardPerBlock(_totalRewardPerBlock);
         }),
         restakingFarm.capMintToken().then((tokenCap: any) => {

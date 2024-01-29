@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import MediaQuery from "react-responsive";
-import { IoStar } from "react-icons/io5";
 import { BigNumber } from "ethers";
 import * as Constants from "../../constants";
 import { Loading } from "../Loading";
@@ -23,7 +22,6 @@ export default function VaultDashboard() {
   const [isFetchFarmDataLoading, setIsFetchFarmDataLoading] = useState(true);
 
   useEffect(() => {
-    console.log(`start: ${Date.now()}`);
     async function loadData() {
       await Promise.all([
         purseTokenUpgradable
@@ -56,14 +54,13 @@ export default function VaultDashboard() {
           }),
       ]).then(() => {
         setIsFetchFarmDataLoading(false);
-        console.log(`end: ${Date.now()}`);
       });
     }
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purseTokenUpgradable, restakingFarm]);
 
-  const renderFullFarmTable = () => {
+  const renderFullVaultTable = () => {
     return (
       <div className="card mb-2 cardbody">
         <div className="card-body center">
@@ -173,7 +170,7 @@ export default function VaultDashboard() {
     );
   };
 
-  const renderNarrowFarmTable = () => {
+  const renderNarrowVaultTable = () => {
     return (
       <div className="card mb-2 cardbody" style={{ minWidth: "300px" }}>
         <div className="card-body center">
@@ -265,71 +262,10 @@ export default function VaultDashboard() {
     );
   };
 
-  const renderFarmRemarks = () => {
-    return (
-      <div
-        style={{
-          margin: "60px 0 140px 0",
-        }}
-      >
-        <div
-          className="text mt-2 common-title"
-          style={{ color: "#000", fontSize: "14px" }}
-        >
-          &nbsp;Remarks :
-        </div>
-        <br />
-        <div
-          className="rowC ml-2 mt-2"
-          style={{ color: "#000", fontSize: "12px" }}
-        >
-          &nbsp;
-          <div>
-            <IoStar className="mb-1" />
-            &nbsp;&nbsp;
-          </div>
-          <div>
-            Farm Cap Reward Token: Total capacity reward tokens will be minted
-            by this farm.
-          </div>
-        </div>
-        <div
-          className="rowC ml-2 mt-1"
-          style={{ color: "#000", fontSize: "12px" }}
-        >
-          &nbsp;
-          <div>
-            <IoStar className="mb-1" />
-            &nbsp;&nbsp;
-          </div>
-          <div>
-            Farm Minted Reward Token: Total reward tokens minted by this farm
-            until now.
-          </div>
-        </div>
-        <div
-          className="rowC ml-2 mt-1"
-          style={{ color: "#000", fontSize: "12px" }}
-        >
-          &nbsp;
-          <div>
-            <IoStar className="mb-1" />
-            &nbsp;&nbsp;
-          </div>
-          <div>
-            Farm's Reward Token: Total reward tokens inside this farm (smart
-            contract).
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <>
-      <MediaQuery minWidth={601}>{renderFullFarmTable()}</MediaQuery>
-      <MediaQuery maxWidth={600}>{renderNarrowFarmTable()}</MediaQuery>
-      {renderFarmRemarks()}
+      <MediaQuery minWidth={601}>{renderFullVaultTable()}</MediaQuery>
+      <MediaQuery maxWidth={600}>{renderNarrowVaultTable()}</MediaQuery>
     </>
   );
 }

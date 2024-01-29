@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import FarmDashboard from "./FarmDashboard";
 import TokenDashboard from "./TokenDashboard";
+import VaultDashboard from "./VaultDashboard";
 
 export default function Main() {
   const [selectedTab, setSelectedTab] = useState("main");
@@ -82,9 +83,9 @@ export default function Main() {
       <div style={{ display: selectedTab === "farm" ? "block" : "none" }}>
         <FarmDashboard />
       </div>
-      {/* <div style={{ display: selectedTab === "vault" ? "block" : "none" }}>
-          {renderFullVaultTable()}
-        </div> */}
+      <div style={{ display: selectedTab === "vault" ? "block" : "none" }}>
+        <VaultDashboard />
+      </div>
     </div>
   );
 }

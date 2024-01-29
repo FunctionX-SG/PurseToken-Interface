@@ -45,6 +45,48 @@ export default function TokenDashboard() {
 
   const [isFetchMainDataLoading, setIsFetchMainDataLoading] = useState(true);
 
+  useEffect(() => {
+    async function loadData() {
+      await Promise.all([
+        purseTokenUpgradable
+          ._totalSupply()
+          .then((res: BigNumber) => setPurseTokenTotalSupply(res)),
+        fetch(Constants.MONGO_RESPONSE_0_API).then((resp) => {
+          resp.json().then((json) => {
+            setTotalTransferAmount(json["TransferTotal"][0]);
+            setSum30TransferAmount(json["Transfer30Days"][0]);
+            setTotalBurnAmount(json["BurnTotal"][0]);
+            setSum30BurnAmount(json["Burn30Days"][0]);
+          });
+        }),
+        fetch(Constants.MONGO_RESPONSE_1_API).then((resp) => {
+          resp.json().then((json) => {
+            const _cumulateTransfer: { Sum: number; Date: string }[] = [];
+            json.forEach((item: { Sum: string; Date: string }) =>
+              _cumulateTransfer.push({
+                Sum: parseFloat(item.Sum),
+                Date: item.Date,
+              })
+            );
+            setCumulateTransfer(_cumulateTransfer);
+          });
+        }),
+        fetch(Constants.MONGO_RESPONSE_2_API).then((resp) => {
+          resp.json().then((json) => {
+            const _cumulateBurn: { Sum: number; Date: string }[] = [];
+            json.forEach((item: { Sum: string; Date: string }) =>
+              _cumulateBurn.push({ Sum: parseFloat(item.Sum), Date: item.Date })
+            );
+            setCumulateBurn(_cumulateBurn);
+          });
+        }),
+      ]).then(() => {
+        setIsFetchMainDataLoading(false);
+      });
+    }
+    loadData();
+  }, [purseTokenUpgradable]);
+
   const CustomTick = (propsCustomTick: any) => {
     const { x, y, payload } = propsCustomTick;
     const date = new Date(payload.value);
@@ -117,50 +159,6 @@ export default function TokenDashboard() {
 
     return null;
   };
-
-  useEffect(() => {
-    console.log(`start: ${Date.now()}`);
-    async function loadData() {
-      await Promise.all([
-        purseTokenUpgradable
-          ._totalSupply()
-          .then((res: BigNumber) => setPurseTokenTotalSupply(res)),
-        fetch(Constants.MONGO_RESPONSE_0_API).then((resp) => {
-          resp.json().then((json) => {
-            setTotalTransferAmount(json["TransferTotal"][0]);
-            setSum30TransferAmount(json["Transfer30Days"][0]);
-            setTotalBurnAmount(json["BurnTotal"][0]);
-            setSum30BurnAmount(json["Burn30Days"][0]);
-          });
-        }),
-        fetch(Constants.MONGO_RESPONSE_1_API).then((resp) => {
-          resp.json().then((json) => {
-            const _cumulateTransfer: { Sum: number; Date: string }[] = [];
-            json.forEach((item: { Sum: string; Date: string }) =>
-              _cumulateTransfer.push({
-                Sum: parseFloat(item.Sum),
-                Date: item.Date,
-              })
-            );
-            setCumulateTransfer(_cumulateTransfer);
-          });
-        }),
-        fetch(Constants.MONGO_RESPONSE_2_API).then((resp) => {
-          resp.json().then((json) => {
-            const _cumulateBurn: { Sum: number; Date: string }[] = [];
-            json.forEach((item: { Sum: string; Date: string }) =>
-              _cumulateBurn.push({ Sum: parseFloat(item.Sum), Date: item.Date })
-            );
-            setCumulateBurn(_cumulateBurn);
-          });
-        }),
-      ]).then(() => {
-        setIsFetchMainDataLoading(false);
-        console.log(`end: ${Date.now()}`);
-      });
-    }
-    loadData();
-  }, [purseTokenUpgradable]);
 
   const renderFullMainTable = () => {
     return (
@@ -372,19 +370,11 @@ export default function TokenDashboard() {
             <thead>
               <tr>
                 <th scope="col">(Past 30 days Sum)</th>
-                <th scope="col">(Past 30 days Sum)</th>
-                <th scope="col">(Past 30 days Sum)</th>
               </tr>
             </thead>
             <tbody>
               {isFetchMainDataLoading ? (
                 <tr>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
                   <td>
                     <Loading />
                   </td>
@@ -400,30 +390,6 @@ export default function TokenDashboard() {
                     / ${" "}
                     {(
                       parseFloat(formatUnits(sum30BurnAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatUnits(sum30TransferAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatUnits(sum30TransferAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(sum30TransferAmount, "ether")) *
                       PURSEPrice
                     ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                   </td>
@@ -745,44 +711,6 @@ export default function TokenDashboard() {
                     </Popup>
                   </span>
                 </th>
-                <th scope="col">(Past 30 days&nbsp;Sum)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(sum30TransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-              </tr>
-            </tbody>
-            <thead>
-              <tr>
-                <td></td>
-              </tr>
-            </thead>
-            <thead>
-              <tr>
                 <th scope="col">
                   Liquidity (Total)
                   <span className="">
@@ -806,7 +734,6 @@ export default function TokenDashboard() {
                     </Popup>
                   </span>
                 </th>
-                <th scope="col">(Past 30 days&nbsp;Sum)</th>
               </tr>
             </thead>
             <tbody>
@@ -825,13 +752,37 @@ export default function TokenDashboard() {
                 </td>
                 <td>
                   {parseFloat(
-                    formatUnits(sum30TransferAmount, "ether")
+                    formatUnits(totalTransferAmount, "ether")
                   ).toLocaleString("en-US", {
                     maximumFractionDigits: 0,
                   })}{" "}
                   / ${" "}
                   {(
-                    parseFloat(formatUnits(sum30TransferAmount, "ether")) *
+                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                </td>
+              </tr>
+            </tbody>
+            <thead>
+              <tr>
+                <td></td>
+              </tr>
+            </thead>
+            <thead>
+              <tr></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  {parseFloat(
+                    formatUnits(totalTransferAmount, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  / ${" "}
+                  {(
+                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
                     PURSEPrice
                   ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                 </td>
