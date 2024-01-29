@@ -128,80 +128,88 @@ export default function Main() {
     return null;
   };
 
+  // token data
   useEffect(() => {
     async function loadData() {
-      // trigger fetching data
-      const _purseTokenTotalSupply = purseTokenUpgradable._totalSupply();
-      const mongoResponse0 = fetch(Constants.MONGO_RESPONSE_0_API);
-      const cumulateTransferResponse = fetch(Constants.MONGO_RESPONSE_1_API);
-      const cumulateBurnResponse = fetch(Constants.MONGO_RESPONSE_2_API);
-
-      setPurseTokenTotalSupply(await _purseTokenTotalSupply);
-      const myJson0: any = await mongoResponse0.then((resp) => resp.json());
-
-      const _totalTransferAmount = myJson0["TransferTotal"][0];
-      setTotalTransferAmount(_totalTransferAmount);
-
-      const _sum30TransferAmount = myJson0["Transfer30Days"][0];
-      setSum30TransferAmount(_sum30TransferAmount);
-
-      const _totalBurnAmount = myJson0["BurnTotal"][0];
-      setTotalBurnAmount(_totalBurnAmount);
-
-      const _sum30BurnAmount = myJson0["Burn30Days"][0];
-      setSum30BurnAmount(_sum30BurnAmount);
-
-      let _cumulateTransfer: { Sum: number; Date: string }[] = [];
-      let _cumulateBurn: { Sum: number; Date: string }[] = [];
-      const cumulateTransferJson: any = await cumulateTransferResponse.then(
-        (resp) => resp.json()
-      );
-      cumulateTransferJson.forEach((item: { Sum: string; Date: string }) =>
-        _cumulateTransfer.push({ Sum: parseFloat(item.Sum), Date: item.Date })
-      );
-      const cumulateBurnJson: any = await cumulateBurnResponse.then((resp) =>
-        resp.json()
-      );
-      cumulateBurnJson.forEach((item: { Sum: string; Date: string }) =>
-        _cumulateBurn.push({ Sum: parseFloat(item.Sum), Date: item.Date })
-      );
-      setCumulateTransfer(_cumulateTransfer);
-      setCumulateBurn(_cumulateBurn);
-      setIsFetchMainDataLoading(false);
+      console.log(`start: ${Date.now()}`);
+      await Promise.all([
+        purseTokenUpgradable
+          ._totalSupply()
+          .then((res: BigNumber) => setPurseTokenTotalSupply(res)),
+        fetch(Constants.MONGO_RESPONSE_0_API).then((resp) => {
+          resp.json().then((json) => {
+            setTotalTransferAmount(json["TransferTotal"][0]);
+            setSum30TransferAmount(json["Transfer30Days"][0]);
+            setTotalBurnAmount(json["BurnTotal"][0]);
+            setSum30BurnAmount(json["Burn30Days"][0]);
+          });
+        }),
+        fetch(Constants.MONGO_RESPONSE_1_API).then((resp) => {
+          resp.json().then((json) => {
+            const _cumulateTransfer: { Sum: number; Date: string }[] = [];
+            json.forEach((item: { Sum: string; Date: string }) =>
+              _cumulateTransfer.push({
+                Sum: parseFloat(item.Sum),
+                Date: item.Date,
+              })
+            );
+            setCumulateTransfer(_cumulateTransfer);
+          });
+        }),
+        fetch(Constants.MONGO_RESPONSE_2_API).then((resp) => {
+          resp.json().then((json) => {
+            const _cumulateBurn: { Sum: number; Date: string }[] = [];
+            json.forEach((item: { Sum: string; Date: string }) =>
+              _cumulateBurn.push({ Sum: parseFloat(item.Sum), Date: item.Date })
+            );
+            setCumulateBurn(_cumulateBurn);
+          });
+        }),
+      ]).then(() => {
+        setIsFetchMainDataLoading(false);
+        console.log(`end: ${Date.now()}`);
+      });
     }
     loadData();
   }, [purseTokenUpgradable]);
 
+  // farm data
   useEffect(() => {
     async function loadData() {
-      // trigger fetching data
-      let _poolLength = restakingFarm.poolLength();
-      const _poolCapRewardToken = restakingFarm.capMintToken();
-      const _poolMintedRewardToken = restakingFarm.totalMintToken();
-      const _poolRewardToken = purseTokenUpgradable.balanceOf(
-        Constants.RESTAKING_FARM_ADDRESS
-      );
-
-      // start setting
-      _poolLength = parseFloat((await _poolLength).toString());
-      setPoolLength(_poolLength);
-      setPoolCapRewardToken(await _poolCapRewardToken);
-      setPoolMintedRewardToken(await _poolMintedRewardToken);
-      setPoolRewardToken(await _poolRewardToken);
-
-      let _totalRewardPerBlock: BigNumber = BigNumber.from("0");
-
-      for (let i = 0; i < _poolLength; i++) {
-        const _poolAddress = await restakingFarm.poolTokenList(i);
-        const _poolInfo = await restakingFarm.poolInfo(_poolAddress.toString());
-        _totalRewardPerBlock = _totalRewardPerBlock.add(
-          _poolInfo.pursePerBlock?.mul(_poolInfo.bonusMultiplier)
-        );
-      }
-      setTotalRewardPerBlock(_totalRewardPerBlock);
-      setIsFetchFarmDataLoading(false);
+      console.log(`start: ${Date.now()}`);
+      await Promise.all([
+        restakingFarm.poolLength().then((length: any) => {
+          setPoolLength(parseFloat(length.toString()));
+          let _totalRewardPerBlock: BigNumber = BigNumber.from("0");
+          for (let i = 0; i < length; i++) {
+            restakingFarm.poolTokenList(i).then((address: any) => {
+              restakingFarm.poolInfo(address.toString()).then((info: any) => {
+                totalRewardPerBlock.add(
+                  info.pursePerBlock?.mul(info.bonusMultiplier)
+                );
+              });
+            });
+          }
+          setTotalRewardPerBlock(_totalRewardPerBlock);
+        }),
+        restakingFarm.capMintToken().then((tokenCap: any) => {
+          setPoolCapRewardToken(tokenCap);
+        }),
+        restakingFarm.totalMintToken().then((tokenTotal: any) => {
+          setPoolMintedRewardToken(tokenTotal);
+        }),
+        purseTokenUpgradable
+          .balanceOf(Constants.RESTAKING_FARM_ADDRESS)
+          .then((tokenBalance: any) => {
+            setPoolRewardToken(tokenBalance);
+          }),
+      ]).then(() => {
+        setIsFetchFarmDataLoading(false);
+        console.log(`end: ${Date.now()}`);
+      });
     }
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purseTokenUpgradable, restakingFarm]);
 
   const renderFullMainTable = () => {
