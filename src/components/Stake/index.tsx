@@ -218,28 +218,28 @@ export default function Stake() {
 
   useEffect(() => {
     async function loadData() {
-      let _purseStakingLockPeriod = await purseStaking.lockPeriod();
-      setPurseStakingLockPeriod(parseFloat(_purseStakingLockPeriod.toString()));
-
-      let response = await fetch(Constants.MONGO_RESPONSE_0_API);
-      let myJson = await response.json();
-      let _sum30TransferAmount = myJson["Transfer30Days"][0];
-      setSum30TransferAmount(
-        parseFloat(formatUnits(_sum30TransferAmount, "ether"))
-      );
-
-      let unlockShareAmount = (
-        await checkPurseAmount(purseStakingUserReceipt)
-      )[3];
-      let lockShareAmount = (
-        await checkPurseAmount(purseStakingUserNewReceipt)
-      )[2];
-      setPurseAmountUnlock(parseFloat(unlockShareAmount));
-      setPurseAmountLock(parseFloat(lockShareAmount));
-
-      setIsLoading(false);
+      Promise.all([
+        purseStaking
+          .lockPeriod()
+          .then((resp: any) =>
+            setPurseStakingLockPeriod(parseFloat(resp.toString()))
+          ),
+        fetch(Constants.MONGO_RESPONSE_0_API).then((resp) => {
+          resp.json().then((json) => {
+            const _sum30TransferAmount = json["Transfer30Days"][0];
+            setSum30TransferAmount(
+              parseFloat(formatUnits(_sum30TransferAmount, "ether"))
+            );
+          });
+        }),
+        checkPurseAmount(purseStakingUserReceipt).then((amount) => {
+          setPurseAmountUnlock(parseFloat(amount[3]));
+          setPurseAmountLock(parseFloat(amount[2]));
+        }),
+      ]).then(() => setIsLoading(false));
     }
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     account,
     purseStaking,
