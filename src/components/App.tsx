@@ -37,7 +37,7 @@ export default function App() {
             <main
               role="main"
               className="col-lg-12 ml-auto mr-auto"
-              style={{ maxWidth: "1000px" }}
+              style={{ maxWidth: "100vw" }}
             >
               <div className="content mr-auto ml-auto" id="content">
                 <Routes>

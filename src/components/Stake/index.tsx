@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Button from "react-bootstrap/Button";
 import ButtonGroup from "react-bootstrap/ButtonGroup";
+import MediaQuery from "react-responsive";
 import { Popup as ReactPopup } from "reactjs-popup";
 import {
   BsFillQuestionCircleFill,
@@ -55,6 +56,9 @@ export default function Stake() {
     useState<BigNumber>(BigNumber.from("0"));
   const [purseStakingUserWithdrawReward, setPurseStakingUserWithdrawReward] =
     useState(0);
+  const [purseStakingVestingData, setPurseStakingVestingData] = useState<any[]>(
+    []
+  );
   const [purseStakingRemainingTime, setPurseStakingRemainingTime] = useState(0);
   const [purseStakingEndTime, setPurseStakingEndTime] = useState(0);
   const [purseStakingLockPeriod, setPurseStakingLockPeriod] = useState(0);
@@ -150,18 +154,6 @@ export default function Stake() {
     }
   );
 
-  const { data: purseStakingVestingData } = useSWR(
-    {
-      contract: "purseStakingVesting",
-      method: "getVestingSchedules",
-      params: [account],
-    },
-    {
-      fetcher: fetcher(purseStakingVesting),
-      refreshInterval: 5000,
-    }
-  );
-
   const { data: tokensPerInterval } = useSWR(
     {
       contract: "rewardDistributor",
@@ -173,6 +165,12 @@ export default function Stake() {
       refreshInterval: 5000,
     }
   );
+
+  const reloadVestingTable = () => {
+    purseStakingVesting
+      .getVestingSchedules(account)
+      .then((resp: any[]) => setPurseStakingVestingData(resp));
+  };
 
   useEffect(() => {
     if (purseStakingUserInfo) {
@@ -187,6 +185,10 @@ export default function Stake() {
       setPurseStakingUserWithdrawReward(
         parseFloat(formatUnits(_purseStakingUserWithdrawReward, "ether"))
       );
+
+      purseStakingVesting
+        .getVestingSchedules(account)
+        .then((resp: any[]) => setPurseStakingVestingData(resp));
 
       let _purseStakingUserLockTime = parseFloat(
         purseStakingUserInfo[3].toString()
@@ -330,6 +332,7 @@ export default function Stake() {
         );
         onChangeHandler("");
         if (tx?.hash) {
+          reloadVestingTable();
           const link = `https://bscscan.com/tx/${tx.hash}`;
           showToast("Transaction sent!", "success", link);
           await tx.wait();
@@ -470,6 +473,7 @@ export default function Stake() {
           );
         }
         if (tx?.hash) {
+          reloadVestingTable();
           const link = `https://bscscan.com/tx/${tx.hash}`;
           showToast("Transaction sent!", "success", link);
           await tx.wait();
@@ -566,376 +570,408 @@ export default function Stake() {
 
   const renderUserActionContainer = () => {
     return (
-      <>
-        <ButtonGroup>
-          <Button
-            type="button"
-            variant="ghost"
-            style={{
-              color: mode === "Stake" ? "#fff" : "#000",
-              backgroundColor: mode === "Stake" ? "#ba00ff" : "",
-            }}
-            onClick={(event) => {
-              setMode("Stake");
-            }}
-          >
-            Stake&nbsp;&nbsp;
-            <ReactPopup
-              trigger={(open) => (
-                <span
-                  style={{
-                    position: "relative",
-                    top: "-1.5px",
-                    color: mode === "Stake" ? "#fff" : "#000",
-                  }}
-                >
-                  <BsFillQuestionCircleFill size={14} />
-                </span>
-              )}
-              on="hover"
-              position="right center"
-              offsetY={-23}
-              offsetX={0}
-              contentStyle={{ padding: "3px" }}
+      <div style={{ marginLeft: "8px" }}>
+        <div
+          style={{
+            backgroundColor: "#fAf9f6",
+            border: "#e0dede inset 2px",
+            borderRadius: "8px",
+            padding: "12px 8px",
+          }}
+        >
+          <ButtonGroup style={{ width: "100%" }}>
+            <Button
+              type="button"
+              variant="ghost"
+              style={{
+                backgroundColor: mode === "Stake" ? "#ba00ff" : "",
+                color: mode === "Stake" ? "#fff" : "#000",
+                width: "100%",
+                padding: "8px 0",
+              }}
+              onClick={(event) => {
+                setMode("Stake");
+              }}
             >
-              <span className="textInfo">
-                {" "}
-                Stake your PURSE to earn auto-compounding PURSE rewards over
-                time
-              </span>
-            </ReactPopup>
-          </Button>
-
-          <Button
-            type="button"
-            variant="ghost"
-            style={{
-              color: mode === "Unstake" ? "#fff" : "#000",
-              backgroundColor: mode === "Unstake" ? "#ba00ff" : "",
-            }}
-            onClick={(event) => {
-              setMode("Unstake");
-            }}
-          >
-            Unstake&nbsp;&nbsp;
-            <ReactPopup
-              trigger={(open) => (
-                <span
-                  style={{
-                    position: "relative",
-                    top: "-1.5px",
-                    color: mode === "Unstake" ? "#fff" : "#000",
-                  }}
-                >
-                  <BsFillQuestionCircleFill size={14} />
-                </span>
-              )}
-              on="hover"
-              position="bottom center"
-              offsetY={-23}
-              offsetX={0}
-              contentStyle={{ padding: "3px" }}
-            >
-              <span className="textInfo">
-                {" "}
-                Unstake and earn PURSE rewards using your share
-              </span>
-            </ReactPopup>
-          </Button>
-        </ButtonGroup>
-
-        <div>
-          <div>
-            <div className="center mt-4">
-              <div className="input-group mb-0" style={{ width: "95%" }}>
-                <input
-                  type="text"
-                  onPaste={(event) => {
-                    event.preventDefault();
-                  }}
-                  className="form-control cardbody"
-                  placeholder="0"
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    onChangeHandler(value);
-                  }}
-                  value={amount}
-                  disabled={stakeLoading}
-                  required
-                />
-                <div className="input-group-append">
-                  <div
-                    className="input-group-text cardbody center"
-                    style={{ color: "#000", width: "80px" }}
-                  >
-                    {mode === "Stake" ? "PURSE" : "Share"}{" "}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="ml-4" style={{ color: "#DC143C" }}>
-              {message}{" "}
-            </div>
-
-            <div className="center mt-3 mb-3">
-              <ButtonGroup>
-                <Button
-                  type="submit"
-                  style={{ width: "140px" }}
-                  disabled={stakeLoading}
-                  onClick={async (event) => {
-                    if (valid) {
-                      if (mode === "Stake") {
-                        await onClickHandlerDeposit();
-                      } else if (mode === "Unstake") {
-                        await onClickHandlerWithdraw();
-                      }
-                    }
-                  }}
-                >
-                  {stakeLoading ? <Loading /> : mode}
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline-primary"
-                  style={{ width: "140px" }}
-                  disabled={stakeLoading}
-                  onClick={(event) => {
-                    if (mode === "Stake") {
-                      onChangeHandler(
-                        formatBigNumber(purseTokenUpgradableBalance, "ether")
-                      );
-                    } else if (mode === "Unstake") {
-                      onChangeHandler(
-                        formatBigNumber(purseStakingUserTotalReceipt, "ether")
-                      );
-                    }
-                  }}
-                >
-                  Max
-                </Button>
-              </ButtonGroup>
-            </div>
-            {mode === "Unstake" ? (
-              <div>
-                <div className="center textWhite mb-3">
-                  <div
+              Stake&nbsp;&nbsp;
+              <ReactPopup
+                trigger={(open) => (
+                  <span
                     style={{
-                      width: "90%",
-                      textAlign: "center",
-                      fontSize: "12px",
-                      backgroundColor: "rgb(186 0 255 / 38%)",
-                      padding: "8px",
+                      position: "relative",
+                      top: "-1.5px",
+                      color: mode === "Stake" ? "#fff" : "#000",
                     }}
                   >
-                    <AiFillAlert className="mb-1" />
-                    &nbsp;Notice: The withdrawal's lock mechanism has been
-                    revised. The lock period for pending request will no longer
-                    reset back to 21 days with a new unstaking entry. For more
-                    information, please consult the documentation.
-                  </div>
+                    <BsFillQuestionCircleFill size={14} />
+                  </span>
+                )}
+                on="hover"
+                position="right center"
+                offsetY={-23}
+                offsetX={0}
+                contentStyle={{ padding: "3px" }}
+              >
+                <span className="textInfo">
+                  {" "}
+                  Stake your PURSE to earn auto-compounding PURSE rewards over
+                  time
+                </span>
+              </ReactPopup>
+            </Button>
+
+            <Button
+              type="button"
+              variant="ghost"
+              style={{
+                backgroundColor: mode === "Unstake" ? "#ba00ff" : "",
+                color: mode === "Unstake" ? "#fff" : "#000",
+                width: "100%",
+                padding: "8px 0",
+              }}
+              onClick={(event) => {
+                setMode("Unstake");
+              }}
+            >
+              Unstake&nbsp;&nbsp;
+              <ReactPopup
+                trigger={(open) => (
+                  <span
+                    style={{
+                      position: "relative",
+                      top: "-1.5px",
+                      color: mode === "Unstake" ? "#fff" : "#000",
+                    }}
+                  >
+                    <BsFillQuestionCircleFill size={14} />
+                  </span>
+                )}
+                on="hover"
+                position="bottom center"
+                offsetY={-23}
+                offsetX={0}
+                contentStyle={{ padding: "3px" }}
+              >
+                <span className="textInfo">
+                  {" "}
+                  Unstake and earn PURSE rewards using your share
+                </span>
+              </ReactPopup>
+            </Button>
+          </ButtonGroup>
+          <div className="center mt-4">
+            <div className="input-group mb-0" style={{ width: "95%" }}>
+              <input
+                type="text"
+                onPaste={(event) => {
+                  event.preventDefault();
+                }}
+                className="form-control cardbody mr-1"
+                placeholder="0"
+                onChange={(e) => {
+                  const value = e.target.value;
+                  onChangeHandler(value);
+                }}
+                value={amount}
+                disabled={stakeLoading}
+                required
+              />
+              <div
+                className="input-group-append center"
+                style={{ color: "#000", width: "80px" }}
+              >
+                {mode === "Stake" ? "PURSE" : "Share"}{" "}
+              </div>
+            </div>
+          </div>
+          <div className="ml-4" style={{ color: "#DC143C" }}>
+            {message}{" "}
+          </div>
+
+          <div className="center mt-3">
+            <ButtonGroup style={{ width: "70%" }}>
+              <Button
+                type="submit"
+                disabled={stakeLoading}
+                onClick={async (event) => {
+                  if (valid) {
+                    if (mode === "Stake") {
+                      await onClickHandlerDeposit();
+                    } else if (mode === "Unstake") {
+                      await onClickHandlerWithdraw();
+                    }
+                  }
+                }}
+              >
+                {stakeLoading ? <Loading /> : mode}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline-primary"
+                disabled={stakeLoading}
+                onClick={(event) => {
+                  if (mode === "Stake") {
+                    onChangeHandler(
+                      formatBigNumber(purseTokenUpgradableBalance, "ether")
+                    );
+                  } else if (mode === "Unstake") {
+                    onChangeHandler(
+                      formatBigNumber(purseStakingUserTotalReceipt, "ether")
+                    );
+                  }
+                }}
+              >
+                Max
+              </Button>
+            </ButtonGroup>
+          </div>
+        </div>
+
+        <div>
+          <div className="center textWhite mt-3 mb-3">
+            <div
+              style={{
+                width: "90%",
+                textAlign: "center",
+                fontSize: "12px",
+                backgroundColor: "rgb(186 0 255 / 38%)",
+                padding: "8px",
+              }}
+            >
+              <AiFillAlert className="mb-1" />
+              &nbsp;Notice: The withdrawal's lock mechanism has been revised.
+              The lock period for pending request will no longer reset back to
+              21 days with a new unstaking entry. For more information, please
+              consult the documentation.
+            </div>
+          </div>
+
+          <div
+            className="mb-2"
+            style={{
+              padding: "5px",
+              width: "90%",
+              margin: "0 auto",
+              minWidth: "210px",
+            }}
+          >
+            <div className="row center" style={{ fontWeight: "900" }}>
+              <div
+                className="mb-1 mt-1"
+                style={{
+                  backgroundColor: "#ba00ff",
+                  color: "white",
+                  margin: "0 auto",
+                  padding: "4px 0",
+                  width: "90%",
+                  textAlign: "center",
+                  fontSize: "16px",
+                }}
+              >
+                Pending Withdrawal Requests
+              </div>
+            </div>
+
+            <div
+              className="row center mb-1"
+              style={{
+                fontWeight: "bold",
+                justifyContent: "space-between",
+                margin: "0 auto",
+                width: "100%",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "15px",
+                  padding: "0 10px",
+                  textAlign: "left",
+                  width: "35%",
+                }}
+              >
+                Amount
+              </div>
+              <div
+                style={{
+                  fontSize: "15px",
+                  padding: "0 10px",
+                  textAlign: "left",
+                  width: "40%",
+                }}
+              >
+                Completion Time
+              </div>
+              <div
+                style={{
+                  fontSize: "15px",
+                  padding: "0 10px",
+                  textAlign: "right",
+                  width: "25%",
+                }}
+              >
+                Status
+              </div>
+            </div>
+
+            {/* V2 Claim */}
+            {purseStakingUserWithdrawReward > 0 ? (
+              <div
+                className="row center"
+                style={{
+                  justifyContent: "space-between",
+                  margin: "0 auto",
+                  width: "100%",
+                }}
+              >
+                <div
+                  style={{
+                    width: "35%",
+                    textAlign: "left",
+                    fontSize: "14px",
+                    padding: "0 10px",
+                  }}
+                >
+                  {purseStakingUserWithdrawReward.toLocaleString("en-US", {
+                    maximumFractionDigits: 5,
+                  }) + " PURSE"}
                 </div>
+                <div
+                  style={{
+                    width: "40%",
+                    textAlign: "left",
+                    fontSize: "14px",
+                    padding: "0 10px",
+                  }}
+                >
+                  {getISOStringWithoutSecsAndMillisecs2(
+                    purseStakingEndTime * 1000
+                  )}
+                </div>
+                <div
+                  style={{
+                    width: "25%",
+                    textAlign: "right",
+                    fontSize: "14px",
+                    padding: "0 10px",
+                  }}
+                >
+                  {purseStakingEndTime > Date.now() / 1000 ? (
+                    <div>Not ready</div>
+                  ) : (
+                    <div>Available</div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <></>
+            )}
 
-                <div className="mb-2" style={{ padding: "5px" }}>
-                  <div className="row center" style={{ fontWeight: "900" }}>
-                    <div
-                      className="ml-2 mr-2 mb-1 mt-1"
-                      style={{
-                        backgroundColor: "#ba00ff",
-                        color: "white",
-                        paddingTop: "4px",
-                        paddingBottom: "4px",
-                        width: "57%",
-                        textAlign: "center",
-                        fontSize: "16px",
-                      }}
-                    >
-                      Pending Withdrawal Request
-                    </div>
+            {/* V3 Claim */}
+            {purseStakingVestingData.map((vestingData: any) => {
+              return (
+                <div
+                  className="row center"
+                  style={{
+                    justifyContent: "space-between",
+                    margin: "0 auto",
+                    width: "100%",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "35%",
+                      textAlign: "left",
+                      fontSize: "14px",
+                      padding: "0 10px",
+                    }}
+                  >
+                    {parseFloat(
+                      formatBigNumber(vestingData.quantity, "ether")
+                    ).toLocaleString("en-US", {
+                      maximumFractionDigits: 5,
+                    })}{" "}
+                    PURSE
                   </div>
-
-                  <div className="row center" style={{ fontWeight: "bold" }}>
-                    <div
-                      className="ml-2 mr-2 mb-1"
-                      style={{
-                        width: "20%",
-                        textAlign: "left",
-                        fontSize: "15px",
-                      }}
-                    >
-                      Amount
-                    </div>
-                    <div
-                      className="ml-2 mr-2 mb-1"
-                      style={{
-                        width: "20%",
-                        textAlign: "left",
-                        fontSize: "15px",
-                      }}
-                    >
-                      Completion Time
-                    </div>
-                    <div
-                      className="ml-2 mr-2 mb-1"
-                      style={{
-                        width: "12%",
-                        textAlign: "right",
-                        fontSize: "15px",
-                      }}
-                    >
-                      Status
-                    </div>
+                  <div
+                    style={{
+                      width: "40%",
+                      textAlign: "left",
+                      fontSize: "14px",
+                      padding: "0 10px",
+                    }}
+                  >
+                    {getISOStringWithoutSecsAndMillisecs2(
+                      vestingData.endTime * 1000
+                    )}
                   </div>
-
-                  {/* V2 Claim */}
-                  {purseStakingUserWithdrawReward > 0 ? (
-                    <div className="row center">
-                      <div
-                        className="ml-2 mr-2"
-                        style={{
-                          width: "20%",
-                          textAlign: "left",
-                          fontSize: "14px",
-                        }}
-                      >
-                        {purseStakingUserWithdrawReward.toLocaleString(
-                          "en-US",
-                          { maximumFractionDigits: 5 }
-                        ) + " PURSE"}
-                      </div>
-                      <div
-                        className="ml-2 mr-2"
-                        style={{
-                          width: "20%",
-                          textAlign: "left",
-                          fontSize: "14px",
-                        }}
-                      >
-                        {getISOStringWithoutSecsAndMillisecs2(
-                          purseStakingEndTime * 1000
-                        )}
-                      </div>
-                      <div
-                        className="ml-2 mr-2"
-                        style={{
-                          width: "12%",
-                          textAlign: "right",
-                          fontSize: "14px",
-                        }}
-                      >
-                        {purseStakingEndTime > Date.now() / 1000 ? (
-                          <div>Not ready</div>
+                  <div
+                    style={{
+                      width: "25%",
+                      textAlign: "right",
+                      fontSize: "14px",
+                      padding: "0 10px",
+                    }}
+                  >
+                    {vestingData.endTime > (Date.now() / 1000).toFixed(0) ? (
+                      <div>Not ready</div>
+                    ) : (
+                      <div>
+                        {vestingData.vestedQuantity.gt(vestingData.quantity) ? (
+                          <div>Redeemed</div>
                         ) : (
                           <div>Available</div>
                         )}
                       </div>
-                    </div>
-                  ) : (
-                    <></>
-                  )}
-
-                  {/* V3 Claim */}
-                  {purseStakingVestingData.map((vestingData: any) => {
-                    return (
-                      <div className="row center">
-                        <div
-                          className="ml-2 mr-2"
-                          style={{
-                            width: "20%",
-                            textAlign: "left",
-                            fontSize: "14px",
-                          }}
-                        >
-                          {parseFloat(
-                            formatBigNumber(vestingData.quantity, "ether")
-                          ).toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          })}{" "}
-                          PURSE
-                        </div>
-                        <div
-                          className="ml-2 mr-2"
-                          style={{
-                            width: "20%",
-                            textAlign: "left",
-                            fontSize: "14px",
-                          }}
-                        >
-                          {getISOStringWithoutSecsAndMillisecs2(
-                            vestingData.endTime * 1000
-                          )}
-                        </div>
-                        <div
-                          className="ml-2 mr-2"
-                          style={{
-                            width: "12%",
-                            textAlign: "right",
-                            fontSize: "14px",
-                          }}
-                        >
-                          {vestingData.endTime >
-                          (Date.now() / 1000).toFixed(0) ? (
-                            <div>Not ready</div>
-                          ) : (
-                            <div>
-                              {vestingData.vestedQuantity.gt(
-                                vestingData.quantity
-                              ) ? (
-                                <div>Redeemed</div>
-                              ) : (
-                                <div>Available</div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  <div className="row center">
-                    <Button
-                      type="button"
-                      className="btn btn-sm mt-3 mb-3"
-                      style={{ width: "100px" }}
-                      disabled={
-                        stakeLoading ||
-                        ((purseStakingEndTime === 0 ||
-                          purseStakingEndTime > Date.now() / 1000) &&
-                          !!!purseStakingVestingData?.reduce(
-                            (flag: number, curr: any) =>
-                              flag + +(Date.now() / 1000 > curr.endTime),
-                            0
-                          ))
-                      }
-                      onClick={(event) => {
-                        claimVesting();
-                      }}
-                    >
-                      Claim
-                    </Button>
+                    )}
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div></div>
-            )}
+              );
+            })}
+
+            <div className="row center">
+              <Button
+                type="button"
+                className="btn btn-sm mt-3 mb-3"
+                style={{ width: "100px" }}
+                disabled={
+                  stakeLoading ||
+                  ((purseStakingEndTime === 0 ||
+                    purseStakingEndTime > Date.now() / 1000) &&
+                    !!!purseStakingVestingData?.reduce(
+                      (flag: number, curr: any) =>
+                        flag + +(Date.now() / 1000 > curr.endTime),
+                      0
+                    ))
+                }
+                onClick={(event) => {
+                  claimVesting();
+                }}
+              >
+                Claim
+              </Button>
+            </div>
           </div>
         </div>
-      </>
+      </div>
     );
   };
 
-  return (
-    <div id="content" className="mt-4">
-      <label
-        className="textWhite center mb-1"
-        style={{ fontSize: "40px", textAlign: "center" }}
+  const renderWideUserActionContainer = () => {
+    return (
+      <div
+        style={{
+          minWidth: "50px",
+          width: "35%",
+        }}
       >
-        <big>
-          <b>PURSE Staking</b>
-        </big>
-      </label>
+        {renderUserActionContainer()}
+      </div>
+    );
+  };
+
+  const renderCombinedStakeInfo = () => {
+    return (
       <form
         className="mb-0"
         onSubmit={async (event) => {
@@ -943,14 +979,11 @@ export default function Stake() {
         }}
       >
         <div className="rowC center">
-          <div
-            className="card cardbody"
-            style={{ minWidth: "300px", width: "900px" }}
-          >
+          <div className="card cardbody">
             <div className="card-body">
               <div
                 className="mb-4"
-                style={{ backgroundColor: "#ba00ff", padding: "30px 40px" }}
+                style={{ backgroundColor: "#ba00ff", padding: "20px 40px" }}
               >
                 <div className="rowC textWhiteSmaller ml-2 mb-2">
                   <div className="ml-2" style={{ color: "#fff" }}>
@@ -1088,7 +1121,13 @@ export default function Stake() {
                 <div></div>
                 <hr></hr>
                 <div className="row mt-3 ml-2">
-                  <div style={{ width: "50%", minWidth: "250px" }}>
+                  <div
+                    style={{
+                      width: "50%",
+                      minWidth: "250px",
+                      paddingRight: "5%",
+                    }}
+                  >
                     <div>
                       <div className="textWhiteSmall mb-1">
                         <b>APR:&nbsp;&nbsp;</b>
@@ -1315,7 +1354,13 @@ export default function Stake() {
                 </div>
               ) : (
                 <div className="row mt-3 ml-2">
-                  <div style={{ width: "50%", minWidth: "250px" }}>
+                  <div
+                    style={{
+                      width: "50%",
+                      minWidth: "250px",
+                      paddingRight: "5%",
+                    }}
+                  >
                     <div className="textWhiteSmall mb-1">
                       <b>Address:</b>
                     </div>
@@ -1612,12 +1657,44 @@ export default function Stake() {
                 </div>
               )}
             </div>
-            {isActive && isSupportedChain(chainId)
-              ? renderUserActionContainer()
-              : null}
           </div>
         </div>
       </form>
+    );
+  };
+
+  return (
+    <div id="content" className="mt-4">
+      <label
+        className="textWhite center mb-2"
+        style={{ fontSize: "40px", textAlign: "center" }}
+      >
+        <big>
+          <b>PURSE Staking</b>
+        </big>
+      </label>
+      <MediaQuery minWidth={601}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "center",
+          }}
+        >
+          <div style={{ width: "65%" }}>{renderCombinedStakeInfo()}</div>
+          {isActive && isSupportedChain(chainId)
+            ? renderWideUserActionContainer()
+            : null}
+        </div>
+      </MediaQuery>
+      <MediaQuery maxWidth={600}>
+        <div>
+          {renderCombinedStakeInfo()}
+          {isActive && isSupportedChain(chainId)
+            ? renderUserActionContainer()
+            : null}
+        </div>
+      </MediaQuery>
     </div>
   );
 }
