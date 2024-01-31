@@ -66,7 +66,6 @@ export default function Stake() {
   const [purseAmountUnlock, setPurseAmountUnlock] = useState(0);
   const [purseAmountLock, setPurseAmountLock] = useState(0);
   const [stakeLoading, setStakeLoading] = useState(false);
-  const [sum30TransferAmount, setSum30TransferAmount] = useState(0);
   const [, setTrigger] = useWalletTrigger();
   const [isLoading, setIsLoading] = useState(true);
   const [valid, setValid] = useState(false);
@@ -224,14 +223,6 @@ export default function Stake() {
           .then((resp: any) =>
             setPurseStakingLockPeriod(parseFloat(resp.toString()))
           ),
-        fetch(Constants.MONGO_RESPONSE_0_API).then((resp) => {
-          resp.json().then((json) => {
-            const _sum30TransferAmount = json["Transfer30Days"][0];
-            setSum30TransferAmount(
-              parseFloat(formatUnits(_sum30TransferAmount, "ether"))
-            );
-          });
-        }),
         checkPurseAmount(purseStakingUserReceipt).then((amount) => {
           setPurseAmountUnlock(parseFloat(amount[3]));
           setPurseAmountLock(parseFloat(amount[2]));
@@ -277,7 +268,7 @@ export default function Stake() {
   const onClickHandlerWithdraw = async () => {
     let receiptWei = parseUnits(amount, "ether");
     if (receiptWei.gt(purseStakingUserTotalReceipt)) {
-      showToast("Insufficient Share to unstake!", "failure");
+      showToast("Insufficient Shares to unstake!", "failure");
     } else {
       await unstake(receiptWei);
     }
@@ -691,7 +682,7 @@ export default function Stake() {
               >
                 <span className="textInfo">
                   {" "}
-                  Unstake and earn PURSE rewards using your share
+                  Unstake and earn PURSE rewards using your shares
                 </span>
               </ReactPopup>
             </Button>
@@ -717,7 +708,7 @@ export default function Stake() {
                 className="input-group-append center"
                 style={{ color: "#000", width: "80px" }}
               >
-                {mode === "Stake" ? "PURSE" : "Share"}{" "}
+                {mode === "Stake" ? "PURSE" : "Shares"}{" "}
               </div>
             </div>
           </div>
@@ -998,9 +989,9 @@ export default function Stake() {
     return (
       <div
         style={{
-          marginLeft: "3%",
+          marginLeft: "0 1vw 0 2vw",
           minWidth: "300px",
-          width: "32%",
+          width: "50%",
         }}
       >
         {renderUserActionContainer()}
@@ -1015,6 +1006,7 @@ export default function Stake() {
         onSubmit={async (event) => {
           event.preventDefault();
         }}
+        style={{ paddingRight: "5%" }}
       >
         <div>
           <div>
@@ -1132,6 +1124,56 @@ export default function Stake() {
               >
                 <div>
                   <div className="textWhiteSmall mb-1">
+                    <b style={{ fontFamily: "arial" }}>TVL:&nbsp;&nbsp;</b>
+                    <ReactPopup
+                      trigger={(open) => (
+                        <span style={{ position: "relative", top: "-1.5px" }}>
+                          <BsInfoCircleFill size={10} />
+                        </span>
+                      )}
+                      on="hover"
+                      position="top center"
+                      offsetY={20}
+                      offsetX={0}
+                      contentStyle={{ padding: "3px" }}
+                    >
+                      <span className="textInfo">
+                        Total PURSE amount in the PURSE Staking contract
+                      </span>
+                      <span className="textInfo mt-2">
+                        Calculated based on PURSE staked by PURSE holders +
+                        PURSE Distribution
+                      </span>
+                    </ReactPopup>
+                  </div>
+                  <div
+                    className="textWhiteSmall mb-2"
+                    style={{ color: "#000" }}
+                  >
+                    {isLoading ? (
+                      <Loading />
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <b>
+                          {parseFloat(
+                            formatBigNumber(purseStakingTotalStake, "ether")
+                          ).toLocaleString("en-US", {
+                            maximumFractionDigits: 5,
+                          }) + " PURSE"}
+                        </b>
+                        <b>
+                          {`(${(
+                            parseFloat(
+                              formatBigNumber(purseStakingTotalStake, "ether")
+                            ) * PURSEPrice
+                          ).toLocaleString("en-US", {
+                            maximumFractionDigits: 5,
+                          })} USD)`}
+                        </b>
+                      </div>
+                    )}
+                  </div>
+                  <div className="textWhiteSmall mb-1">
                     <b style={{ fontFamily: "arial" }}>APR:&nbsp;&nbsp;</b>
                     <ReactPopup
                       trigger={(open) => (
@@ -1166,38 +1208,15 @@ export default function Stake() {
                     )}
                   </div>
                 </div>
-
-                <div
-                  style={{
-                    width: "50%",
-                  }}
-                >
-                  <div className="textWhiteSmall mb-1">
-                    <b style={{ fontFamily: "arial" }}>
-                      Distribution Total [30d]:
-                    </b>
-                  </div>
-                  <div
-                    className="textWhiteSmall mb-2"
-                    style={{ color: "#000" }}
-                  >
-                    {isLoading ? (
-                      <Loading />
-                    ) : (
-                      <b>
-                        {sum30TransferAmount.toLocaleString("en-US", {
-                          maximumFractionDigits: 5,
-                        }) + " PURSE"}
-                      </b>
-                    )}
-                  </div>
-                </div>
               </div>
 
               <div style={{ width: "50%" }}>
-                <div className="textWhiteSmall mb-1">
+                <div
+                  className="textWhiteSmall mb-1"
+                  style={{ minWidth: "151px" }}
+                >
                   <b style={{ fontFamily: "arial" }}>
-                    Total Share (Pool):&nbsp;&nbsp;
+                    Total Shares (Pool):&nbsp;&nbsp;
                   </b>
                   <ReactPopup
                     trigger={(open) => (
@@ -1216,7 +1235,7 @@ export default function Stake() {
                       contract
                     </span>
                     <span className="textInfo mt-2">
-                      Total Share (Pool) ≡ Total Staked (Pool)
+                      Total Shares (Pool) ≡ Total Staked (Pool)
                     </span>
                   </ReactPopup>
                 </div>
@@ -1229,57 +1248,8 @@ export default function Stake() {
                         formatBigNumber(purseStakingTotalReceipt, "ether")
                       ).toLocaleString("en-US", {
                         maximumFractionDigits: 5,
-                      }) + " Share (100%)"}
+                      }) + " Shares"}
                     </b>
-                  )}
-                </div>
-                <div className="textWhiteSmall mb-1">
-                  <b style={{ fontFamily: "arial" }}>
-                    Total Staked (Pool):&nbsp;&nbsp;
-                  </b>
-                  <ReactPopup
-                    trigger={(open) => (
-                      <span style={{ position: "relative", top: "-1.5px" }}>
-                        <BsInfoCircleFill size={10} />
-                      </span>
-                    )}
-                    on="hover"
-                    position="top center"
-                    offsetY={20}
-                    offsetX={0}
-                    contentStyle={{ padding: "3px" }}
-                  >
-                    <span className="textInfo">
-                      Total PURSE amount in the PURSE Staking contract
-                    </span>
-                    <span className="textInfo mt-2">
-                      Calculated based on PURSE staked by PURSE holders + PURSE
-                      Distribution
-                    </span>
-                  </ReactPopup>
-                </div>
-                <div className="textWhiteSmall mb-2" style={{ color: "#000" }}>
-                  {isLoading ? (
-                    <Loading />
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <b>
-                        {parseFloat(
-                          formatBigNumber(purseStakingTotalStake, "ether")
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 5,
-                        }) + " PURSE"}
-                      </b>
-                      <b>
-                        {`(${(
-                          parseFloat(
-                            formatBigNumber(purseStakingTotalStake, "ether")
-                          ) * PURSEPrice
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 5,
-                        })} USD)`}
-                      </b>
-                    </div>
                   )}
                 </div>
               </div>
@@ -1348,7 +1318,80 @@ export default function Stake() {
             </div>
           ) : (
             <div className="row mt-3 ml-2 mr-2">
-              <div style={{ width: "50%", paddingRight: "5px" }}>
+              <div
+                style={{
+                  paddingRight: "5px",
+                  width: "50%",
+                }}
+              >
+                <div className="textWhiteSmall mb-1">
+                  <b style={{ fontFamily: "arial" }}>Address:</b>
+                </div>
+                <div className="textWhiteSmall mb-3" style={{ color: "#000" }}>
+                  <b>{formatShortenAddress(account)}</b>
+                </div>
+                <div className="textWhiteSmall mb-1">
+                  <b style={{ fontFamily: "arial" }}>PURSE Balance:</b>
+                </div>
+                <div className="textWhiteSmall mb-3" style={{ color: "#000" }}>
+                  {isLoading ? (
+                    <Loading />
+                  ) : (
+                    <b>
+                      {parseFloat(
+                        formatBigNumber(purseTokenUpgradableBalance, "ether")
+                      ).toLocaleString("en-US", {
+                        maximumFractionDigits: 5,
+                      }) + " PURSE"}
+                    </b>
+                  )}
+                </div>
+
+                <div className="textWhiteSmall mb-1">
+                  <b style={{ fontFamily: "arial" }}>Reward:&nbsp;&nbsp;</b>
+                  {/* <ReactPopup trigger={open => (
+                              <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
+                              )}
+                              on="hover"
+                              position="top center"
+                              offsetY={20}
+                              offsetX={0}
+                              contentStyle={{ padding: '3px' }}>
+                              <span className="textInfo">Represents the total amount of PURSE in the PURSE Staking contract</span>
+                              <span className="textInfo mt-2">Total Shares (Pool) ≡ Total Staked (Pool)</span>
+                            </ReactPopup> */}
+                </div>
+                <div className="textWhiteSmall mb-2" style={{ color: "#000" }}>
+                  {isLoading ? (
+                    <Loading />
+                  ) : (
+                    <b>
+                      {parseFloat(
+                        formatBigNumber(purseStakingReward, "ether")
+                      ).toLocaleString("en-US", {
+                        maximumFractionDigits: 5,
+                      }) + " PURSE"}
+                    </b>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  className="btn btn-sm mb-3"
+                  style={{ padding: "6px 20px" }}
+                  variant="outline-success"
+                  disabled={
+                    isLoading ||
+                    formatBigNumber(purseStakingReward, "ether") === "0" ||
+                    stakeLoading
+                  }
+                  onClick={(event) => {
+                    claim();
+                  }}
+                >
+                  Claim
+                </Button>
+              </div>
+              <div style={{ width: "50%" }}>
                 <div>
                   <div className="textWhiteSmall mb-1">
                     <b style={{ fontFamily: "arial" }}>
@@ -1376,7 +1419,7 @@ export default function Stake() {
                         PURSE Staking contract
                       </span>
                       <span className="textInfo mt-2">
-                        Staked Balance = Share Balance / Total Share (Pool) x
+                        Staked Balance = Share Balance / Total Shares (Pool) x
                         Total Staked (Pool)
                       </span>
                     </ReactPopup>
@@ -1396,7 +1439,7 @@ export default function Stake() {
                           ).toString()
                         ).toLocaleString("en-US", {
                           maximumFractionDigits: 5,
-                        }) + " Share"}
+                        }) + " Shares"}
                       </b>
                     )}
                   </div>
@@ -1409,7 +1452,7 @@ export default function Stake() {
                       }}
                     >
                       {" "}
-                      Unlocked Share
+                      Unlocked Shares
                     </b>
                     &nbsp;&nbsp;
                     <ReactPopup
@@ -1430,7 +1473,7 @@ export default function Stake() {
                       contentStyle={{ padding: "3px" }}
                     >
                       <span className="textInfo">
-                        Share received previously when staked into contract
+                        Shares received previously when staked into contract
                         before the 21-Day Lock implementation
                       </span>
                     </ReactPopup>
@@ -1442,18 +1485,24 @@ export default function Stake() {
                     {isLoading ? (
                       <Loading />
                     ) : (
-                      <b>
-                        {parseFloat(
-                          formatBigNumber(purseStakingUserReceipt, "ether")
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 5,
-                        }) +
-                          " Share (" +
-                          purseAmountUnlock.toLocaleString("en-US", {
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <b>
+                          {parseFloat(
+                            formatBigNumber(purseStakingUserReceipt, "ether")
+                          ).toLocaleString("en-US", {
                             maximumFractionDigits: 5,
-                          }) +
-                          " PURSE)"}
-                      </b>
+                          }) + " Shares"}
+                        </b>
+                        <b>
+                          {`(${(
+                            parseFloat(
+                              formatBigNumber(purseStakingUserReceipt, "ether")
+                            ) * PURSEPrice
+                          ).toLocaleString("en-US", {
+                            maximumFractionDigits: 5,
+                          })} PURSE)`}
+                        </b>
+                      </div>
                     )}
                   </div>
                   <div className="textWhiteSmaller">
@@ -1465,7 +1514,7 @@ export default function Stake() {
                       }}
                     >
                       {" "}
-                      Locked Share
+                      Locked Shares
                     </b>
                     &nbsp;&nbsp;
                     <ReactPopup
@@ -1486,7 +1535,7 @@ export default function Stake() {
                       contentStyle={{ padding: "3px" }}
                     >
                       <span className="textInfo">
-                        Locked share received when staked into contract after
+                        Locked shares received when staked into contract after
                         the 21-Day Lock implementation
                       </span>
                     </ReactPopup>
@@ -1498,18 +1547,20 @@ export default function Stake() {
                     {isLoading ? (
                       <Loading />
                     ) : (
-                      <b>
-                        {parseFloat(
-                          formatBigNumber(purseStakingUserNewReceipt, "ether")
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 5,
-                        }) +
-                          " Share (" +
-                          purseAmountLock.toLocaleString("en-US", {
+                      <div style={{ display: "flex", flexDirection: "column" }}>
+                        <b>
+                          {parseFloat(
+                            formatBigNumber(purseStakingUserNewReceipt, "ether")
+                          ).toLocaleString("en-US", {
                             maximumFractionDigits: 5,
-                          }) +
-                          " PURSE)"}
-                      </b>
+                          }) + " Shares"}
+                        </b>
+                        <b>
+                          {`(${purseAmountLock.toLocaleString("en-US", {
+                            maximumFractionDigits: 5,
+                          })} PURSE)`}
+                        </b>
+                      </div>
                     )}
                   </div>
                   <div className="textWhiteSmall mb-1">
@@ -1567,78 +1618,6 @@ export default function Stake() {
                     )}
                   </div>
                 </div>
-              </div>
-              <div
-                style={{
-                  width: "50%",
-                }}
-              >
-                <div className="textWhiteSmall mb-1">
-                  <b style={{ fontFamily: "arial" }}>Address:</b>
-                </div>
-                <div className="textWhiteSmall mb-3" style={{ color: "#000" }}>
-                  <b>{formatShortenAddress(account)}</b>
-                </div>
-                <div className="textWhiteSmall mb-1">
-                  <b style={{ fontFamily: "arial" }}>PURSE Balance:</b>
-                </div>
-                <div className="textWhiteSmall mb-3" style={{ color: "#000" }}>
-                  {isLoading ? (
-                    <Loading />
-                  ) : (
-                    <b>
-                      {parseFloat(
-                        formatBigNumber(purseTokenUpgradableBalance, "ether")
-                      ).toLocaleString("en-US", {
-                        maximumFractionDigits: 5,
-                      }) + " PURSE"}
-                    </b>
-                  )}
-                </div>
-
-                <div className="textWhiteSmall mb-1">
-                  <b style={{ fontFamily: "arial" }}>Reward:&nbsp;&nbsp;</b>
-                  {/* <ReactPopup trigger={open => (
-                              <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
-                              )}
-                              on="hover"
-                              position="top center"
-                              offsetY={20}
-                              offsetX={0}
-                              contentStyle={{ padding: '3px' }}>
-                              <span className="textInfo">Represents the total amount of PURSE in the PURSE Staking contract</span>
-                              <span className="textInfo mt-2">Total Share (Pool) ≡ Total Staked (Pool)</span>
-                            </ReactPopup> */}
-                </div>
-                <div className="textWhiteSmall mb-2" style={{ color: "#000" }}>
-                  {isLoading ? (
-                    <Loading />
-                  ) : (
-                    <b>
-                      {parseFloat(
-                        formatBigNumber(purseStakingReward, "ether")
-                      ).toLocaleString("en-US", {
-                        maximumFractionDigits: 5,
-                      }) + " PURSE"}
-                    </b>
-                  )}
-                </div>
-                <Button
-                  type="button"
-                  className="btn btn-sm mb-3"
-                  style={{ padding: "6px 20px" }}
-                  variant="outline-success"
-                  disabled={
-                    isLoading ||
-                    formatBigNumber(purseStakingReward, "ether") === "0" ||
-                    stakeLoading
-                  }
-                  onClick={(event) => {
-                    claim();
-                  }}
-                >
-                  Claim
-                </Button>
               </div>
             </div>
           )}
