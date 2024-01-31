@@ -2,7 +2,7 @@ import { MetaMask } from "@web3-react/metamask";
 import { WalletConnect } from "@web3-react/walletconnect-v2";
 import type { Connector } from "@web3-react/types";
 import PurseFarm from "../farm/farmPurse.json";
-import { Signer, ethers } from "ethers";
+import { BigNumber, Signer, ethers } from "ethers";
 import { formatUnits, solidityPack } from "ethers/lib/utils";
 import keccak256 from "keccak256";
 import MerkleTree from "merkletreejs";
@@ -145,19 +145,8 @@ export function formatBigNumber(bignumber: any, units: string) {
 }
 
 export function isSupportedChain(chainId: number | undefined) {
-  if (chainId !== 56) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-export function supportedChain(chainId: number | undefined) {
-  if (chainId !== 56) {
-    return 56;
-  } else {
-    return chainId;
-  }
+  const supportedChains = [56, 1];
+  return chainId && supportedChains.includes(chainId);
 }
 
 export async function callContract(
@@ -193,10 +182,41 @@ export const DataFormater = (number: number) => {
   }
 };
 
-export const NumberFormater = (number: string) => {
+export const NumberFormatter = (number: string) => {
   return parseFloat(number).toLocaleString("en-US", {
     maximumFractionDigits: 2,
   });
+};
+
+export const FormatNumberToString = ({
+  bigNum,
+  units = "ether",
+  locale = "en-US",
+  multiplier = 1,
+  decimalPlaces,
+  prefix = "",
+  suffix = "",
+}: {
+  bigNum: BigNumber;
+  decimalPlaces: number;
+  units?: string;
+  locale?: string;
+  multiplier?: number;
+  prefix?: string;
+  suffix?: string;
+}) => {
+  if (BigNumber.from(0).eq(bigNum)) {
+    return prefix + "0" + suffix;
+  }
+  let resString = (
+    parseFloat(formatBigNumber(bigNum, units)) * multiplier
+  ).toLocaleString(locale, {
+    maximumFractionDigits: decimalPlaces,
+  });
+  if (resString === "0") {
+    resString = `< ${1 / 10 ** decimalPlaces}`;
+  }
+  return prefix + resString + suffix;
 };
 
 // turns 0x123456789abcd => 0x1234 ... abcd

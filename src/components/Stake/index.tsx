@@ -20,6 +20,7 @@ import {
   isSupportedChain,
   getShortTxHash,
   formatShortenAddress,
+  FormatNumberToString,
 } from "../utils";
 
 import "../App.css";
@@ -914,12 +915,11 @@ export default function Stake() {
                       padding: "0 10px",
                     }}
                   >
-                    {parseFloat(
-                      formatBigNumber(vestingData.quantity, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 5,
-                    })}{" "}
-                    PURSE
+                    {FormatNumberToString({
+                      bigNum: vestingData.quantity,
+                      decimalPlaces: 5,
+                      suffix: " PURSE",
+                    })}
                   </div>
                   <div
                     style={{
@@ -1155,20 +1155,19 @@ export default function Stake() {
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column" }}>
                         <b>
-                          {parseFloat(
-                            formatBigNumber(purseStakingTotalStake, "ether")
-                          ).toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          }) + " PURSE"}
+                          {FormatNumberToString({
+                            bigNum: purseStakingTotalStake,
+                            decimalPlaces: 5,
+                            suffix: " PURSE",
+                          })}
                         </b>
                         <b>
-                          {`(${(
-                            parseFloat(
-                              formatBigNumber(purseStakingTotalStake, "ether")
-                            ) * PURSEPrice
-                          ).toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          })} USD)`}
+                          {FormatNumberToString({
+                            bigNum: purseStakingTotalStake,
+                            decimalPlaces: 5,
+                            prefix: "(",
+                            suffix: " USD)",
+                          })}
                         </b>
                       </div>
                     )}
@@ -1244,11 +1243,11 @@ export default function Stake() {
                     <Loading />
                   ) : (
                     <b>
-                      {parseFloat(
-                        formatBigNumber(purseStakingTotalReceipt, "ether")
-                      ).toLocaleString("en-US", {
-                        maximumFractionDigits: 5,
-                      }) + " Shares"}
+                      {FormatNumberToString({
+                        bigNum: purseStakingTotalReceipt,
+                        decimalPlaces: 5,
+                        suffix: "Shares",
+                      })}
                     </b>
                   )}
                 </div>
@@ -1338,11 +1337,11 @@ export default function Stake() {
                     <Loading />
                   ) : (
                     <b>
-                      {parseFloat(
-                        formatBigNumber(purseTokenUpgradableBalance, "ether")
-                      ).toLocaleString("en-US", {
-                        maximumFractionDigits: 5,
-                      }) + " PURSE"}
+                      {FormatNumberToString({
+                        bigNum: purseTokenUpgradableBalance,
+                        decimalPlaces: 5,
+                        suffix: " PURSE",
+                      })}
                     </b>
                   )}
                 </div>
@@ -1366,11 +1365,11 @@ export default function Stake() {
                     <Loading />
                   ) : (
                     <b>
-                      {parseFloat(
-                        formatBigNumber(purseStakingReward, "ether")
-                      ).toLocaleString("en-US", {
-                        maximumFractionDigits: 5,
-                      }) + " PURSE"}
+                      {FormatNumberToString({
+                        bigNum: purseStakingReward,
+                        decimalPlaces: 5,
+                        suffix: " PURSE",
+                      })}
                     </b>
                   )}
                 </div>
@@ -1432,14 +1431,11 @@ export default function Stake() {
                       <Loading />
                     ) : (
                       <b>
-                        {parseFloat(
-                          formatBigNumber(
-                            purseStakingUserTotalReceipt,
-                            "ether"
-                          ).toString()
-                        ).toLocaleString("en-US", {
-                          maximumFractionDigits: 5,
-                        }) + " Shares"}
+                        {FormatNumberToString({
+                          bigNum: purseStakingUserTotalReceipt,
+                          decimalPlaces: 5,
+                          suffix: " Shares",
+                        })}
                       </b>
                     )}
                   </div>
@@ -1487,20 +1483,20 @@ export default function Stake() {
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column" }}>
                         <b>
-                          {parseFloat(
-                            formatBigNumber(purseStakingUserReceipt, "ether")
-                          ).toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          }) + " Shares"}
+                          {FormatNumberToString({
+                            bigNum: purseStakingUserReceipt,
+                            decimalPlaces: 5,
+                            suffix: " Shares",
+                          })}
                         </b>
                         <b>
-                          {`(${(
-                            parseFloat(
-                              formatBigNumber(purseStakingUserReceipt, "ether")
-                            ) * PURSEPrice
-                          ).toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          })} PURSE)`}
+                          {FormatNumberToString({
+                            bigNum: purseStakingUserReceipt,
+                            multiplier: PURSEPrice,
+                            decimalPlaces: 5,
+                            prefix: "(",
+                            suffix: " PURSE)",
+                          })}
                         </b>
                       </div>
                     )}
@@ -1549,11 +1545,11 @@ export default function Stake() {
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column" }}>
                         <b>
-                          {parseFloat(
-                            formatBigNumber(purseStakingUserNewReceipt, "ether")
-                          ).toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          }) + " Shares"}
+                          {FormatNumberToString({
+                            bigNum: purseStakingUserNewReceipt,
+                            decimalPlaces: 5,
+                            suffix: " Shares",
+                          })}
                         </b>
                         <b>
                           {`(${purseAmountLock.toLocaleString("en-US", {
@@ -1599,20 +1595,20 @@ export default function Stake() {
                     ) : (
                       <div style={{ display: "flex", flexDirection: "column" }}>
                         <b>
-                          {parseFloat(
-                            formatBigNumber(purseStakingUserStake, "ether")
-                          ).toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          }) + " PURSE"}
+                          {FormatNumberToString({
+                            bigNum: purseStakingUserStake,
+                            decimalPlaces: 5,
+                            suffix: " PURSE",
+                          })}
                         </b>
                         <b>
-                          {`(${(
-                            parseFloat(
-                              formatBigNumber(purseStakingUserStake, "ether")
-                            ) * PURSEPrice
-                          ).toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          })} USD)`}
+                          {FormatNumberToString({
+                            bigNum: purseStakingUserStake,
+                            decimalPlaces: 5,
+                            multiplier: PURSEPrice,
+                            prefix: "(",
+                            suffix: " USD)",
+                          })}
                         </b>
                       </div>
                     )}
