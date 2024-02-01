@@ -23,6 +23,7 @@ import CloseButton from "react-bootstrap/CloseButton";
 import { NavLink, NavLinkHome } from "./NavMenu";
 import { usePursePrice } from "../state/PursePrice/hooks";
 import { useNetwork } from "../state/network/hooks";
+import { Link } from "react-router-dom";
 
 export default function Navb() {
   const FULL_VIEWABLE_NAV_MIN_WIDTH = 961;
@@ -248,7 +249,10 @@ export default function Navb() {
                 <NavLink to="/lpfarm/menu">Farm</NavLink>
               </div>
               <div className="dropdown0">
-                <NavLink to="/stake">Stake</NavLink>
+                <NavLink to="/stake/bsc">Stake - BSC</NavLink>
+              </div>
+              <div className="dropdown0">
+                <NavLink to="/stake/eth">Stake - Eth</NavLink>
               </div>
               <div className="dropdown0">
                 <NavLink to="/rewards">Rewards</NavLink>
@@ -294,7 +298,30 @@ export default function Navb() {
               <NavLink to="/lpfarm/menu">Farm</NavLink>
             </div>
             <div className="mr-4">
-              <NavLink to="/stake">Stake</NavLink>
+              <Dropdown>
+                <Dropdown.Toggle
+                  className="center"
+                  variant="transparent"
+                  style={{ padding: 0, color: "#fff" }}
+                >
+                  Stake
+                </Dropdown.Toggle>
+                <Dropdown.Menu
+                  style={{ backgroundColor: "#181818", marginTop: "8px" }}
+                >
+                  <Dropdown.Item as={Link} to="/stake/bsc">
+                    <div
+                      className="dropdown0"
+                      style={{ paddingBottom: "12px" }}
+                    >
+                      Binance
+                    </div>
+                  </Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/stake/eth">
+                    <div className="dropdown">Ethereum</div>
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
             </div>
             <div className="mr-4">
               <NavLink to="/rewards">Rewards</NavLink>

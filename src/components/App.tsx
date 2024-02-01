@@ -4,7 +4,8 @@ import Navb from "./Navbar";
 import Main from "./Main";
 import FarmMenu from "./FarmMenu";
 import FXSwap from "./FXSwap";
-import Stake from "./Stake";
+import PurseStakeBinance from "../pages/PurseStakeBinance";
+import PurseStakeEth from "../pages/PurseStakeEth";
 import Reward from "./Reward";
 import Landing from "./Landing";
 import Footer from "./Footer";
@@ -51,7 +52,12 @@ export default function App() {
 
                   <Route path="/rewards" element={<Reward />}></Route>
 
-                  <Route path="/stake" element={<Stake />}></Route>
+                  <Route
+                    path="/stake/bsc"
+                    element={<PurseStakeBinance />}
+                  ></Route>
+
+                  <Route path="/stake/eth" element={<PurseStakeEth />}></Route>
                 </Routes>
               </div>
             </main>
