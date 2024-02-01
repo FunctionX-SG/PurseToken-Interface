@@ -36,6 +36,7 @@ import { useNetwork } from "../state/network/hooks";
 
 export default function Stake() {
   const { isActive, chainId, account } = useWeb3React();
+  const showSwitchChain = chainId !== 56;
   const [, switchNetwork] = useNetwork();
   const [PURSEPrice] = usePursePrice();
   const { signer } = useProvider();
@@ -226,6 +227,8 @@ export default function Stake() {
           ),
         checkPurseAmount(purseStakingUserReceipt).then((amount) => {
           setPurseAmountUnlock(parseFloat(amount[3]));
+        }),
+        checkPurseAmount(purseStakingUserNewReceipt).then((amount) => {
           setPurseAmountLock(parseFloat(amount[2]));
         }),
       ]).then(() => setIsLoading(false));
@@ -1164,6 +1167,7 @@ export default function Stake() {
                         <b>
                           {FormatNumberToString({
                             bigNum: purseStakingTotalStake,
+                            multiplier: PURSEPrice,
                             decimalPlaces: 5,
                             prefix: "(",
                             suffix: " USD)",
@@ -1285,11 +1289,10 @@ export default function Stake() {
                 </div>
               </div>
             </div>
-          ) : !isSupportedChain(chainId) ? (
+          ) : showSwitchChain ? (
             <div
               className="card cardbody"
               style={{
-                width: "50vw",
                 height: "200px",
                 color: "White",
               }}
@@ -1490,13 +1493,9 @@ export default function Stake() {
                           })}
                         </b>
                         <b>
-                          {FormatNumberToString({
-                            bigNum: purseStakingUserReceipt,
-                            multiplier: PURSEPrice,
-                            decimalPlaces: 5,
-                            prefix: "(",
-                            suffix: " PURSE)",
-                          })}
+                          {`(${purseAmountUnlock.toLocaleString("en-US", {
+                            maximumFractionDigits: 5,
+                          })} PURSE)`}
                         </b>
                       </div>
                     )}
@@ -1654,7 +1653,7 @@ export default function Stake() {
             <div style={{ minWidth: "330px", width: "65%" }}>
               {renderCombinedStakeInfo()}
             </div>
-            {isActive && isSupportedChain(chainId)
+            {isActive && !showSwitchChain
               ? renderWideUserActionContainer()
               : null}
           </div>
@@ -1665,9 +1664,7 @@ export default function Stake() {
           {renderInfoBanner()}
           {renderCombinedStakeInfo()}
           <hr style={{ marginBottom: "24px" }} />
-          {isActive && isSupportedChain(chainId)
-            ? renderUserActionContainer()
-            : null}
+          {isActive && !showSwitchChain ? renderUserActionContainer() : null}
         </div>
       </MediaQuery>
     </div>
