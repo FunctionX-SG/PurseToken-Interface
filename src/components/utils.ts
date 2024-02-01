@@ -145,7 +145,7 @@ export function formatBigNumber(bignumber: any, units: string) {
 }
 
 export function isSupportedChain(chainId: number | undefined) {
-  const supportedChains = [56, 1];
+  const supportedChains = [56];
   return chainId && supportedChains.includes(chainId);
 }
 
