@@ -28,6 +28,18 @@ export const FIP20UPGRADABLE_ADDRESS =
 export const MASTERCHEFV2_ADDRESS =
   "0x4bd522b2E25f6b1A874C78518EF25f5914C522dC";
 
+// eth
+export const PURSE_STAKING_ADDRESS_ETH =
+  "0x1b6d1D232c35F3534EDeB9A989DB62831Ff87A40";
+export const PURSE_STAKING_VESTING_ADDRESS_ETH =
+  "0x6935a78b5ff92435662FB365085e5E490cC032C5";
+export const PURSE_TOKEN_UPGRADABLE_ADDRESS_ETH =
+  "0x95987b0cdC7F65d989A30B3B7132a38388c548Eb";
+export const REWARD_DISTRIBUTOR_ADDRESS_ETH =
+  "0x6e752c65dfE3A96d0E2d5B962a496ae3184a1C27";
+export const TREASURY_ADDRESS_ETH =
+  "0x7B49F36d18c309fc4B26b529BA4433B3116049Ce";
+
 //Provider
 export const PROVIDER = "https://fx-json-web3.functionx.io:8545";
 
@@ -47,6 +59,12 @@ export const BSC_TESTNET_RPC_URL_S2 = `https://data-seed-prebsc-1-s2.binance.org
 export const BSC_TESTNET_RPC_URL_S3 = `https://data-seed-prebsc-1-s3.binance.org:8545/`;
 export const BSC_MAINNET_BLOCKEXPLORER = "https://bscscan.com/";
 export const BSC_TESTNET_BLOCKEXPLORER = "https://testnet.bscscan.com/";
+
+export const ETH_MAINNET_RPCURL = `https://eth-mainnet.g.alchemy.com/v2/ys3HjCPG2MtGQKu3W0W7_mxKWkcVW91n`;
+export const ETH_TESTNET_RPCURL = `https://eth-sepolia.g.alchemy.com/v2/fEw7Yl72IyAkRazUK8rq9HmH0ICsOgpO`;
+export const ETH_MAINNET_BLOCKEXPLORER = "https://etherscan.io/";
+export const ETH_TESTNET_SEPOLIA_BLOCKEXPLORER =
+  "https://sepolia.etherscan.io/";
 
 //Retroactive Rewards figures
 export const RETROACTIVE_INITIAL_REWARDS = 162164878;

@@ -15,6 +15,7 @@ import ToastList from "./ToastList/ToastList";
 import useSWR from "swr";
 import { usePursePrice } from "./state/PursePrice/hooks";
 import ConnectWallet from "./ConnectWallet";
+import PurseStakeEth from "../pages/PurseStakeEth";
 
 export default function App() {
   const [, setPursePrice] = usePursePrice();
@@ -47,7 +48,12 @@ export default function App() {
 
                   <Route path="/rewards" element={<Reward />}></Route>
 
-                  <Route path="/stake" element={<PurseStakeBinance />}></Route>
+                  <Route
+                    path="/stake/bsc"
+                    element={<PurseStakeBinance />}
+                  ></Route>
+
+                  <Route path="/stake/eth" element={<PurseStakeEth />}></Route>
                 </Routes>
               </div>
             </main>
