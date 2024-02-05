@@ -573,7 +573,6 @@ export default function PurseStakeBinance() {
             <div
               className="card cardbody"
               style={{
-                width: "50vw",
                 height: "200px",
                 color: "White",
               }}
