@@ -21,27 +21,29 @@ import { Loading } from "../../components/Loading";
 import useSWR from "swr";
 import { useToast } from "../../components/state/toast/hooks";
 import { useProvider } from "../../components/state/provider/hooks";
-import { usePursePrice } from "../../components/state/PursePrice/hooks";
+// import { usePursePrice } from "../../components/state/PursePrice/hooks";
 import { useContract } from "../../components/state/contract/hooks";
 import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import { useNetwork } from "../../components/state/network/hooks";
 import StakeShell from "../../components/Stake/StakeShell";
 
-export default function PurseStakeBinance() {
+export default function PurseStakeEth() {
   const { isActive, chainId, account } = useWeb3React();
-  const targetChain = 56;
+  const targetChain = 1;
   const isTargetChainMatch = chainId === targetChain;
   const [, switchNetwork] = useNetwork();
-  const [PURSEPrice] = usePursePrice();
+  // const [PURSEPrice] = usePursePrice(); // JTODO
+  const PURSEPrice = 1;
+  const showUSD = false; // JTODO
   const { signer } = useProvider();
   const [, showToast] = useToast();
 
   const {
-    purseStaking,
-    purseStakingVesting,
-    purseTokenUpgradable,
-    treasuryContract,
-    rewardDistributor,
+    purseStakingEth,
+    purseStakingVestingEth,
+    purseToken404UpgradableEth,
+    treasuryContractEth,
+    rewardDistributorEth,
   } = useContract();
 
   const [purseStakingUserReceipt, setPurseStakingUserReceipt] =
@@ -63,102 +65,102 @@ export default function PurseStakeBinance() {
 
   const { data: purseStakingTotalStake } = useSWR(
     {
-      contract: "purseTokenUpgradable",
+      contract: "purseToken404UpgradableEth",
       method: "balanceOf",
-      params: [Constants.PURSE_STAKING_ADDRESS],
+      params: [Constants.PURSE_STAKING_ADDRESS_ETH],
     },
     {
-      fetcher: fetcher(purseTokenUpgradable),
+      fetcher: fetcher(purseToken404UpgradableEth),
       refreshInterval: 5000,
     }
   );
 
   const { data: purseTokenUpgradableBalance } = useSWR(
     {
-      contract: "purseTokenUpgradable",
+      contract: "purseToken404UpgradableEth",
       method: "balanceOf",
       params: [account],
     },
     {
-      fetcher: fetcher(purseTokenUpgradable),
+      fetcher: fetcher(purseToken404UpgradableEth),
       refreshInterval: 5000,
     }
   );
 
   const { data: purseStakingUserAllowance } = useSWR(
     {
-      contract: "purseTokenUpgradable",
+      contract: "purseToken404UpgradableEth",
       method: "allowance",
-      params: [account, Constants.PURSE_STAKING_ADDRESS],
+      params: [account, Constants.PURSE_STAKING_ADDRESS_ETH],
     },
     {
-      fetcher: fetcher(purseTokenUpgradable),
+      fetcher: fetcher(purseToken404UpgradableEth),
       refreshInterval: 5000,
     }
   );
 
   const { data: purseStakingTotalReceipt } = useSWR(
     {
-      contract: "purseStaking",
+      contract: "purseStakingEth",
       method: "totalReceiptSupply",
       params: [],
     },
     {
-      fetcher: fetcher(purseStaking),
+      fetcher: fetcher(purseStakingEth),
       refreshInterval: 5000,
     }
   );
 
   const { data: purseStakingUserStake } = useSWR(
     {
-      contract: "purseStaking",
+      contract: "purseStakingEth",
       method: "getTotalPurse",
       params: [account],
     },
     {
-      fetcher: fetcher(purseStaking),
+      fetcher: fetcher(purseStakingEth),
       refreshInterval: 5000,
     }
   );
 
   const { data: purseStakingUserInfo } = useSWR(
     {
-      contract: "purseStaking",
+      contract: "purseStakingEth",
       method: "userInfo",
       params: [account],
     },
     {
-      fetcher: fetcher(purseStaking),
+      fetcher: fetcher(purseStakingEth),
       refreshInterval: 5000,
     }
   );
 
   const { data: purseStakingReward } = useSWR(
     {
-      contract: "purseStaking",
+      contract: "purseStakingEth",
       method: "previewClaimableRewards",
       params: [account],
     },
     {
-      fetcher: fetcher(purseStaking),
+      fetcher: fetcher(purseStakingEth),
       refreshInterval: 5000,
     }
   );
 
   const { data: tokensPerInterval } = useSWR(
     {
-      contract: "rewardDistributor",
+      contract: "rewardDistributorEth",
       method: "tokensPerInterval",
       params: [],
     },
     {
-      fetcher: fetcher(rewardDistributor),
+      fetcher: fetcher(rewardDistributorEth),
       refreshInterval: 5000,
     }
   );
 
   const reloadVestingTable = () => {
-    purseStakingVesting
+    purseStakingVestingEth
       .getVestingSchedules(account)
       .then((resp: any[]) => setPurseStakingVestingData(resp));
   };
@@ -177,7 +179,7 @@ export default function PurseStakeBinance() {
         parseFloat(formatUnits(_purseStakingUserWithdrawReward, "ether"))
       );
 
-      purseStakingVesting
+      purseStakingVestingEth
         .getVestingSchedules(account)
         .then((resp: any[]) => setPurseStakingVestingData(resp));
 
@@ -193,14 +195,14 @@ export default function PurseStakeBinance() {
   }, [
     purseStakingUserInfo,
     purseStakingLockPeriod,
-    purseStakingVesting,
+    purseStakingVestingEth,
     account,
   ]);
 
   useEffect(() => {
     async function loadData() {
       Promise.all([
-        purseStaking
+        purseStakingEth
           .lockPeriod()
           .then((resp: any) =>
             setPurseStakingLockPeriod(parseFloat(resp.toString()))
@@ -217,7 +219,7 @@ export default function PurseStakeBinance() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     account,
-    purseStaking,
+    purseStakingEth,
     purseStakingUserReceipt,
     purseStakingUserNewReceipt,
   ]);
@@ -249,7 +251,7 @@ export default function PurseStakeBinance() {
     try {
       const tx = await promise;
       if (tx?.hash) {
-        const link = `https://bscscan.com/tx/${tx.hash}`;
+        const link = `https://etherscan.com/tx/${tx.hash}`;
         showToast("Transaction sent!", "success", link);
         await tx.wait();
         if (refresh !== undefined) {
@@ -285,7 +287,7 @@ export default function PurseStakeBinance() {
     }
     setStakeLoading(true);
     const success = await handleTxResponse(
-      callContract(signer, purseStaking, "enter", amount)
+      callContract(signer, purseStakingEth, "enter", amount)
     );
     setStakeLoading(false);
     return success;
@@ -297,7 +299,7 @@ export default function PurseStakeBinance() {
     }
     setStakeLoading(true);
     const success = await handleTxResponse(
-      callContract(signer, purseStaking, "leave", receipt),
+      callContract(signer, purseStakingEth, "leave", receipt),
       reloadVestingTable
     );
     setStakeLoading(false);
@@ -311,9 +313,9 @@ export default function PurseStakeBinance() {
     return await handleTxResponse(
       callContract(
         signer,
-        purseTokenUpgradable,
+        purseToken404UpgradableEth,
         "approve",
-        Constants.PURSE_STAKING_ADDRESS,
+        Constants.PURSE_STAKING_ADDRESS_ETH,
         "115792089237316195423570985008687907853269984665640564039457584007913129639935"
       )
     );
@@ -325,7 +327,7 @@ export default function PurseStakeBinance() {
     }
     setStakeLoading(true);
     const success = await handleTxResponse(
-      callContract(signer, treasuryContract, "claimRewards", account)
+      callContract(signer, treasuryContractEth, "claimRewards", account)
     );
     setStakeLoading(false);
     return success;
@@ -341,11 +343,11 @@ export default function PurseStakeBinance() {
       purseStakingUserWithdrawReward > 0 &&
       purseStakingEndTime < Date.now() / 1000
     ) {
-      promise = callContract(signer, purseStaking, "withdrawLockedAmount");
+      promise = callContract(signer, purseStakingEth, "withdrawLockedAmount");
     } else {
       promise = callContract(
         signer,
-        purseStakingVesting,
+        purseStakingVestingEth,
         "vestCompletedSchedules"
       );
     }
@@ -356,16 +358,21 @@ export default function PurseStakeBinance() {
 
   const checkPurseAmount = async (receipt: BigNumber) => {
     let _purseStakingAvailableSupply: BigNumber =
-      await purseStaking.availablePurseSupply();
+      await purseStakingEth.availablePurseSupply();
     let _purseStakingTotalReceipt: BigNumber =
-      await purseStaking.totalReceiptSupply();
+      await purseStakingEth.totalReceiptSupply();
     let receiptToken: BigNumber = purseStakingUserReceipt;
     let newArray: string[];
     let _receipt = parseFloat(formatUnits(receipt, "ether"));
     if (receiptToken.lte(0)) {
       let purseReward = receipt
         .mul(_purseStakingAvailableSupply)
-        .div(_purseStakingTotalReceipt ?? 1);
+        .div(
+          !_purseStakingTotalReceipt ||
+            BigNumber.from(0).eq(_purseStakingTotalReceipt)
+            ? 1
+            : _purseStakingTotalReceipt
+        );
       newArray = [
         "0",
         _receipt.toString(),
@@ -377,11 +384,21 @@ export default function PurseStakeBinance() {
         let newReceipt = receipt.sub(receiptToken);
         let purseReward = newReceipt
           .mul(_purseStakingAvailableSupply)
-          .div(_purseStakingTotalReceipt ?? 1);
+          .div(
+            !_purseStakingTotalReceipt ||
+              BigNumber.from(0).eq(_purseStakingTotalReceipt)
+              ? 1
+              : _purseStakingTotalReceipt
+          );
 
         let purse = receiptToken
           .mul(_purseStakingAvailableSupply)
-          .div(_purseStakingTotalReceipt ?? 1);
+          .div(
+            !_purseStakingTotalReceipt ||
+              BigNumber.from(0).eq(_purseStakingTotalReceipt)
+              ? 1
+              : _purseStakingTotalReceipt
+          );
         newArray = [
           formatBigNumber(receiptToken, "ether"),
           formatBigNumber(newReceipt, "ether"),
@@ -406,6 +423,9 @@ export default function PurseStakeBinance() {
   let purseStakingUserTotalReceipt = purseStakingUserReceipt.add(
     purseStakingUserNewReceipt
   );
+
+  const validAPR =
+    false && parseFloat(formatBigNumber(purseStakingTotalStake, "ether")) !== 0; // JTODO
 
   let apr =
     ((parseFloat(formatBigNumber(tokensPerInterval, "ether")) * 31536000) /
@@ -474,15 +494,17 @@ export default function PurseStakeBinance() {
                             suffix: " PURSE",
                           })}
                         </b>
-                        <b>
-                          {FormatNumberToString({
-                            bigNum: purseStakingTotalStake,
-                            multiplier: PURSEPrice,
-                            decimalPlaces: 5,
-                            prefix: "(",
-                            suffix: " USD)",
-                          })}
-                        </b>
+                        {showUSD ? (
+                          <b>
+                            {FormatNumberToString({
+                              bigNum: purseStakingTotalStake,
+                              multiplier: PURSEPrice,
+                              decimalPlaces: 5,
+                              prefix: "(",
+                              suffix: " USD)",
+                            })}
+                          </b>
+                        ) : null}
                       </div>
                     )}
                   </div>
@@ -514,9 +536,11 @@ export default function PurseStakeBinance() {
                       <Loading />
                     ) : (
                       <b>
-                        {`${apr.toLocaleString("en-US", {
-                          maximumFractionDigits: 5,
-                        })} %`}
+                        {validAPR
+                          ? `${apr.toLocaleString("en-US", {
+                              maximumFractionDigits: 5,
+                            })} %`
+                          : "-"}
                       </b>
                     )}
                   </div>
@@ -909,15 +933,17 @@ export default function PurseStakeBinance() {
                             suffix: " PURSE",
                           })}
                         </b>
-                        <b>
-                          {FormatNumberToString({
-                            bigNum: purseStakingUserStake,
-                            decimalPlaces: 5,
-                            multiplier: PURSEPrice,
-                            prefix: "(",
-                            suffix: " USD)",
-                          })}
-                        </b>
+                        {showUSD ? (
+                          <b>
+                            {FormatNumberToString({
+                              bigNum: purseStakingUserStake,
+                              decimalPlaces: 5,
+                              multiplier: PURSEPrice,
+                              prefix: "(",
+                              suffix: " USD)",
+                            })}
+                          </b>
+                        ) : null}
                       </div>
                     )}
                   </div>
@@ -931,13 +957,13 @@ export default function PurseStakeBinance() {
   };
 
   return (
-    <div id="content" className="mt-4" style={{ minWidth: "410px" }}>
+    <div id="content" className="mt-4" style={{ minWidth: "513px" }}>
       <label
         className="textWhite center mb-2"
-        style={{ fontSize: "40px", minWidth: "410px" }}
+        style={{ fontSize: "40px", minWidth: "513px", textAlign: "center" }}
       >
         <big>
-          <b style={{ textAlign: "center" }}>PURSE Staking </b>
+          <b>PURSE Staking </b>
         </big>
         <b
           style={{
@@ -946,7 +972,7 @@ export default function PurseStakeBinance() {
             transform: "translateY(-20px)",
           }}
         >
-          BSC
+          Ethereum
         </b>
       </label>
       <StakeShell

@@ -24,6 +24,7 @@ export const contractSlice = createSlice({
       Constants.ETH_MAINNET_RPCURL
     );
     const fxProvider = new ethers.providers.JsonRpcProvider(Constants.PROVIDER);
+
     const purseTokenUpgradable = new ethers.Contract(
       Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS,
       PurseTokenUpgradable.abi,
@@ -74,9 +75,32 @@ export const contractSlice = createSlice({
       MasterChefV2.abi,
       fxProvider
     );
+
+    // ETH Contracts (MainNet)
     const purseToken404UpgradableEth = new ethers.Contract(
       Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH,
       PurseToken404UpgradableEth.abi,
+      ethProvider
+    );
+
+    const purseStakingEth = new ethers.Contract(
+      Constants.PURSE_STAKING_ADDRESS_ETH,
+      PurseStaking.abi,
+      ethProvider
+    );
+    const purseStakingVestingEth = new ethers.Contract(
+      Constants.PURSE_STAKING_VESTING_ADDRESS_ETH,
+      PurseStakingVesting.abi,
+      ethProvider
+    );
+    const rewardDistributorEth = new ethers.Contract(
+      Constants.REWARD_DISTRIBUTOR_ADDRESS_ETH,
+      RewardDistributor.abi,
+      ethProvider
+    );
+    const treasuryContractEth = new ethers.Contract(
+      Constants.TREASURY_ADDRESS_ETH,
+      Treasury.abi,
       ethProvider
     );
 
@@ -93,6 +117,10 @@ export const contractSlice = createSlice({
         rewardDistributor,
         rewardContract,
         purseToken404UpgradableEth,
+        purseStakingEth,
+        purseStakingVestingEth,
+        rewardDistributorEth,
+        treasuryContractEth,
       },
     };
   },
