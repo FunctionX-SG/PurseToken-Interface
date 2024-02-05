@@ -18,7 +18,7 @@ import * as Constants from "../../constants";
 import { Loading } from "../Loading";
 import { usePursePrice } from "../state/PursePrice/hooks";
 import { useContract } from "../state/contract/hooks";
-import { DataFormater, NumberFormater, formatBigNumber } from "../utils";
+import { DataFormater, NumberFormatter, formatBigNumber } from "../utils";
 interface CustomTooltipProps {
   payload?: any[];
   label?: string;
@@ -685,7 +685,7 @@ export default function Main() {
                   strokeDasharray: "2 2",
                 }}
                 itemStyle={{ color: "#8884d8" }}
-                formatter={NumberFormater}
+                formatter={NumberFormatter}
               />
             </AreaChart>
           </div>
@@ -766,7 +766,7 @@ export default function Main() {
                   strokeDasharray: "2 2",
                 }}
                 itemStyle={{ color: "#8884d8" }}
-                formatter={NumberFormater}
+                formatter={NumberFormatter}
               />
             </AreaChart>
           </div>
@@ -1224,7 +1224,7 @@ export default function Main() {
                     strokeDasharray: "2 2",
                   }}
                   itemStyle={{ color: "#8884d8" }}
-                  formatter={NumberFormater}
+                  formatter={NumberFormatter}
                 />
               </AreaChart>
             </div>
@@ -1310,7 +1310,7 @@ export default function Main() {
                   strokeDasharray: "2 2",
                 }}
                 itemStyle={{ color: "#8884d8" }}
-                formatter={NumberFormater}
+                formatter={NumberFormatter}
               />
             </AreaChart>
           </div>
@@ -1381,7 +1381,11 @@ export default function Main() {
   };
 
   return (
-    <div id="content" className="mt-4">
+    <div
+      id="content"
+      className="mt-4"
+      style={{ margin: "0 auto", maxWidth: "1000px" }}
+    >
       <label
         className="textWhite center mb-2"
         style={{ fontSize: "40px", textAlign: "center" }}

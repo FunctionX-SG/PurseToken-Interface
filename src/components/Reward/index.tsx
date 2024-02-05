@@ -6,7 +6,6 @@ import UserAmount from "../../abis/userAmount.json";
 import { BigNumber } from "ethers";
 import {
   timeConverter,
-  isSupportedChain,
   callContract,
   getShortTxHash,
   getMerkleProof,
@@ -27,6 +26,7 @@ import UserRewardAmount from "../../constants/purseBusdUserAmounts.json";
 
 export default function Rewards() {
   const { isActive, account, chainId } = useWeb3React();
+  const isCorrectChain = chainId === 56;
   const [, switchNetwork] = useNetwork();
   const [PURSEPrice] = usePursePrice();
   const { signer } = useProvider();
@@ -206,7 +206,7 @@ export default function Rewards() {
 
   // useEffect(()=>{
   //     const setClaim = async() => {
-  //         if (isSupportedChain(chainId)) {
+  //         if (isCorrectChain) {
   //             const isClaimed = await rewardContract.isClaim(account,0) //false false true
   //             const rewardPeriod = await rewardContract.rewardPeriods(0)
   //             const startTime = parseFloat(rewardPeriod.startTime.toString())
@@ -344,7 +344,7 @@ export default function Rewards() {
               </div>
             </div>
           </div>
-        ) : !isSupportedChain(chainId) ? (
+        ) : !isCorrectChain ? (
           <div
             className="card cardbody mb-3"
             style={{ width: "450px", minHeight: "400px", color: "white" }}
