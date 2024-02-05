@@ -16,7 +16,6 @@ import {
   callContract,
   formatBigNumber,
   getShortTxHash,
-  isSupportedChain,
   fetcher,
 } from "../utils";
 import * as Constants from "../../constants";
@@ -30,6 +29,7 @@ import { useNetwork } from "../state/network/hooks";
 
 export default function Deposit(props: any) {
   const {
+    targetChainId,
     selectedPoolInfo,
     pairName,
     harvest,
@@ -40,6 +40,7 @@ export default function Deposit(props: any) {
   } = props;
 
   const { account, isActive, chainId } = useWeb3React();
+  const isCorrectChain = chainId === targetChainId;
   const { bscProvider, signer } = useProvider();
   const [, switchNetwork] = useNetwork();
   const [, showToast] = useToast();
@@ -277,7 +278,7 @@ export default function Deposit(props: any) {
             type="submit"
             className="btn btn-success btn-sm float-right center mb-3"
             style={{ position: "absolute", right: "20px" }}
-            disabled={isHarvest || !isSupportedChain(chainId)}
+            disabled={isHarvest || !isCorrectChain}
             onClick={async (event) => {
               event.preventDefault();
               setIsHarvest(true);
@@ -334,12 +335,12 @@ export default function Deposit(props: any) {
                     Connect Wallet
                   </button>
                 </div>
-              ) : !isSupportedChain(chainId) ? (
+              ) : !isCorrectChain ? (
                 <div className="rowC center">
                   <button
                     className="btn btn-primary"
                     onClick={async () => {
-                      switchNetwork();
+                      switchNetwork(targetChainId);
                     }}
                   >
                     Switch Chain

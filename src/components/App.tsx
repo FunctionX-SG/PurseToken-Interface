@@ -5,7 +5,6 @@ import Main from "./Main";
 import FarmMenu from "./FarmMenu";
 import FXSwap from "./FXSwap";
 import PurseStakeBinance from "../pages/PurseStakeBinance";
-import PurseStakeEth from "../pages/PurseStakeEth";
 import Reward from "./Reward";
 import Landing from "./Landing";
 import Footer from "./Footer";
@@ -35,11 +34,7 @@ export default function App() {
         <Navb />
         <div className="container-fluid mt-4">
           <div className="row">
-            <main
-              role="main"
-              className="col-lg-12 ml-auto mr-auto"
-              style={{ maxWidth: "100vw" }}
-            >
+            <main role="main" className="col-lg-12 ml-auto mr-auto">
               <div className="content mr-auto ml-auto" id="content">
                 <Routes>
                   <Route path="/" element={<Landing />}></Route>
@@ -52,12 +47,7 @@ export default function App() {
 
                   <Route path="/rewards" element={<Reward />}></Route>
 
-                  <Route
-                    path="/stake/bsc"
-                    element={<PurseStakeBinance />}
-                  ></Route>
-
-                  <Route path="/stake/eth" element={<PurseStakeEth />}></Route>
+                  <Route path="/stake" element={<PurseStakeBinance />}></Route>
                 </Routes>
               </div>
             </main>

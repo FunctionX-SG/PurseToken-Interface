@@ -185,7 +185,7 @@ export default function FarmMenu() {
     setAprLoading(true);
     setFarmLoading(true);
     setIsUserLoading(false);
-  }, [account, chainId, purseTokenUpgradable, restakingFarm]);
+  }, [account, bscProvider, purseTokenUpgradable, restakingFarm]);
 
   useEffect(() => {
     loadData();
@@ -199,7 +199,7 @@ export default function FarmMenu() {
   ]);
 
   return (
-    <div>
+    <div style={{ margin: "0 auto", maxWidth: "1000px" }}>
       <div id="content" className="mt-3">
         <div className="text-center">
           <ButtonGroup>
@@ -395,6 +395,7 @@ export default function FarmMenu() {
                 apyDaily={apyDaily[key]}
                 apyWeekly={apyWeekly[key]}
                 apyMonthly={apyMonthly[key]}
+                targetChainId={poolInfos[key].token[farmNetwork]["chainId"]}
                 poolInfo={poolInfos[key]}
                 userInfo={userInfos[key]}
                 isUserLoading={isUserLoading}

@@ -205,6 +205,9 @@ export const FormatNumberToString = ({
   prefix?: string;
   suffix?: string;
 }) => {
+  if (!bigNum) {
+    return bigNum;
+  }
   if (BigNumber.from(0).eq(bigNum)) {
     return prefix + "0" + suffix;
   }

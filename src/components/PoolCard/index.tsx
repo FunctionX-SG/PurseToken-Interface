@@ -13,10 +13,8 @@ import {
   callContract,
   formatBigNumber,
   getShortTxHash,
-  isSupportedChain,
   fetcher,
 } from "../utils";
-import * as Constants from "../../constants";
 import { useToast } from "../state/toast/hooks";
 import { useProvider } from "../state/provider/hooks";
 import { useContract } from "../state/contract/hooks";
@@ -31,6 +29,7 @@ export default function PoolCard(props: any) {
     apyDaily,
     apyWeekly,
     apyMonthly,
+    targetChainId,
     poolInfo,
     userInfo,
     isUserLoading,
@@ -38,6 +37,7 @@ export default function PoolCard(props: any) {
   } = props;
 
   const { account, isActive, chainId } = useWeb3React();
+  const isCorrectChain = chainId === targetChainId;
   const [, switchNetwork] = useNetwork();
   const { signer } = useProvider();
   const [, showToast] = useToast();
@@ -102,9 +102,9 @@ export default function PoolCard(props: any) {
       showToast("Connect wallet to try again.", "warning");
       setTrigger(true);
     } else {
-      if (!isSupportedChain(chainId)) {
+      if (!isCorrectChain) {
         showToast("Switch chain to try again.", "warning");
-        switchNetwork();
+        switchNetwork(targetChainId);
       } else if (isActive && poolInfo && chainId) {
         try {
           const tx: any = await callContract(
@@ -154,7 +154,9 @@ export default function PoolCard(props: any) {
                 <div className="">
                   <small>
                     Deposit
-                    <small className="textSmall">{pairName} PANCAKE LP</small>{" "}
+                    <small className="textSmall">
+                      {pairName} PANCAKE LP
+                    </small>{" "}
                     to Earn PURSE
                   </small>
                 </div>
@@ -385,7 +387,7 @@ export default function PoolCard(props: any) {
                     type="submit"
                     size="sm"
                     style={{ minWidth: "80px" }}
-                    disabled={isHarvest || !isSupportedChain(chainId)}
+                    disabled={isHarvest || !isCorrectChain}
                     onClick={async (event) => {
                       event.preventDefault();
                       setIsHarvest(true);
@@ -405,6 +407,7 @@ export default function PoolCard(props: any) {
         <Popup trigger={depositTrigger} setTrigger={setDepositTrigger}>
           <div className="container-fluid">
             <Deposit
+              targetChainId={targetChainId}
               selectedPoolInfo={poolInfo}
               selectedPoolUserInfo={userInfo}
               pairName={pairName}

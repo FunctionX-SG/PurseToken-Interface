@@ -29,7 +29,8 @@ import StakeShell from "../../components/Stake/StakeShell";
 
 export default function PurseStakeBinance() {
   const { isActive, chainId, account } = useWeb3React();
-  const isTargetChainMatch = chainId === 56;
+  const targetChain = 56;
+  const isTargetChainMatch = chainId === targetChain;
   const [, switchNetwork] = useNetwork();
   const [PURSEPrice] = usePursePrice();
   const { signer } = useProvider();
@@ -559,7 +560,7 @@ export default function PurseStakeBinance() {
                       {FormatNumberToString({
                         bigNum: purseStakingTotalReceipt,
                         decimalPlaces: 5,
-                        suffix: "Shares",
+                        suffix: " Shares",
                       })}
                     </b>
                   )}
@@ -618,7 +619,7 @@ export default function PurseStakeBinance() {
                     <button
                       type="button"
                       className="btn btn-primary mt-3"
-                      onClick={() => switchNetwork(1)}
+                      onClick={() => switchNetwork(targetChain)}
                     >
                       {" "}
                       Switch{" "}
@@ -937,7 +938,7 @@ export default function PurseStakeBinance() {
         style={{ fontSize: "40px", textAlign: "center" }}
       >
         <big>
-          <b>PURSE Staking BSC</b>
+          <b>PURSE Staking</b>
         </big>
       </label>
       <StakeShell

@@ -328,7 +328,7 @@ export default function StakeShell(props: StakeShellProps) {
                   width: "35%",
                 }}
               >
-                Amount
+                Amount (PURSE)
               </div>
               <div
                 style={{
@@ -373,7 +373,6 @@ export default function StakeShell(props: StakeShellProps) {
                     {FormatNumberToString({
                       bigNum: vestingData.quantity,
                       decimalPlaces: 5,
-                      suffix: " PURSE",
                     })}
                   </div>
                   <div
@@ -446,7 +445,7 @@ export default function StakeShell(props: StakeShellProps) {
         style={{
           marginLeft: "0 1vw 0 2vw",
           minWidth: "300px",
-          width: "50%",
+          width: "40%",
         }}
       >
         {renderUserActionContainer()}
@@ -462,22 +461,24 @@ export default function StakeShell(props: StakeShellProps) {
           style={{
             margin: "0 auto",
             padding: "24px",
-            width: "80%",
-            minWidth: "660px",
+            width: "70%",
+            minWidth: "750px",
           }}
         >
           {renderInfoBanner()}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-            }}
-          >
-            <div style={{ minWidth: "330px", width: "65%" }}>{stakeInfo}</div>
-            {isActive && isTargetChainMatch
-              ? renderWideUserActionContainer()
-              : null}
+          <div style={{ padding: "0 5px" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "center",
+              }}
+            >
+              <div style={{ minWidth: "330px", width: "65%" }}>{stakeInfo}</div>
+              {isActive && isTargetChainMatch
+                ? renderWideUserActionContainer()
+                : null}
+            </div>
           </div>
         </div>
       </MediaQuery>
