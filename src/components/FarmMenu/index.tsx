@@ -395,7 +395,9 @@ export default function FarmMenu() {
                 apyDaily={apyDaily[key]}
                 apyWeekly={apyWeekly[key]}
                 apyMonthly={apyMonthly[key]}
-                targetChainId={poolInfos[key].token[farmNetwork]["chainId"]}
+                targetChainId={Number(
+                  poolInfos[key].token[farmNetwork]["chainId"]
+                )}
                 poolInfo={poolInfos[key]}
                 userInfo={userInfos[key]}
                 isUserLoading={isUserLoading}
