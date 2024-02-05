@@ -23,7 +23,6 @@ export default function FarmDashboard() {
   const [isFetchFarmDataLoading, setIsFetchFarmDataLoading] = useState(true);
 
   useEffect(() => {
-    console.log(`start: ${Date.now()}`);
     async function loadData() {
       await Promise.all([
         purseTokenUpgradable
@@ -60,7 +59,6 @@ export default function FarmDashboard() {
           }),
       ]).then(() => {
         setIsFetchFarmDataLoading(false);
-        console.log(`end: ${Date.now()}`);
       });
     }
     loadData();
@@ -77,7 +75,7 @@ export default function FarmDashboard() {
           >
             <thead>
               <tr>
-                <th scope="col">Total Pool</th>
+                <th scope="col">Total Pools</th>
                 <th scope="col">PURSE Token Total Supply</th>
                 <th scope="col">Farm's PURSE Reward</th>
               </tr>
@@ -184,7 +182,7 @@ export default function FarmDashboard() {
           <table className="textWhiteSmaller text-center">
             <thead>
               <tr>
-                <th scope="col">Total Pool</th>
+                <th scope="col">Total Pools</th>
                 <th scope="col">Farm's PURSE Reward</th>
               </tr>
             </thead>

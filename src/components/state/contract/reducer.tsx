@@ -2,10 +2,11 @@ import { createSlice } from "@reduxjs/toolkit";
 import { ethers } from "ethers";
 import * as Constants from "../../../constants";
 import PurseTokenUpgradable from "../../../abis/PurseTokenUpgradable.json";
-import IPancakePair from "../../../abis/IPancakePair.json";
 import MasterChefV2 from "../../../abis/MasterChefV2.json";
 import PurseStaking from "../../../abis/PurseStaking.json";
 import PurseStakingVesting from "../../../abis/PurseStakingVesting.json";
+import StakePurseVault from "../../../abis/StakePurseVault.json";
+import StakePurseVaultVesting from "../../../abis/StakePurseVaultVesting.json";
 import Treasury from "../../../abis/Treasury.json";
 import RestakingFarm from "../../../abis/RestakingFarm.json";
 import RetroactiveRewards from "../../../abis/RetroactiveRewards.json";
@@ -18,6 +19,9 @@ export const contractSlice = createSlice({
   initialState: () => {
     const bscProvider = new ethers.providers.JsonRpcProvider(
       Constants.BSC_MAINNET_RPCURL
+    );
+    const bscProviderTestnet = new ethers.providers.JsonRpcProvider(
+      Constants.BSC_TESTNET_RPC_URL_S2
     );
     const fxProvider = new ethers.providers.JsonRpcProvider(Constants.PROVIDER);
     const purseTokenUpgradable = new ethers.Contract(
@@ -35,15 +39,30 @@ export const contractSlice = createSlice({
       RestakingFarm.abi,
       bscProvider
     );
-    const purseStaking = new ethers.Contract(
-      Constants.PURSE_STAKING_ADDRESS,
+    // const purseStaking = new ethers.Contract(
+    //   Constants.PURSE_STAKING_ADDRESS,
+    //   PurseStaking.abi,
+    //   bscProvider
+    // );
+    const purseStaking = new ethers.Contract( // TODO: Testnet
+      "0x8A6aFc7D27cDFf9FDC6b4efa63a757333eB58508",
       PurseStaking.abi,
-      bscProvider
+      bscProviderTestnet
     );
     const purseStakingVesting = new ethers.Contract(
       Constants.PURSE_STAKING_VESTING_ADDRESS,
       PurseStakingVesting.abi,
       bscProvider
+    );
+    const stakePurseVault = new ethers.Contract( // TODO: Testnet
+      Constants.STAKE_PURSE_VAULT_ADDRESS,
+      StakePurseVault.abi,
+      bscProviderTestnet
+    );
+    const stakePurseVaultVesting = new ethers.Contract( // TODO: Testnet
+      Constants.STAKE_PURSE_VAULT_VESTING_ADDRESS,
+      StakePurseVaultVesting.abi,
+      bscProviderTestnet
     );
     const treasuryContract = new ethers.Contract(
       Constants.TREASURY_ADDRESS,
@@ -78,6 +97,8 @@ export const contractSlice = createSlice({
         restakingFarm,
         purseStaking,
         purseStakingVesting,
+        stakePurseVault,
+        stakePurseVaultVesting,
         tokenOnFXCore,
         masterChef,
         treasuryContract,

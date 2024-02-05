@@ -24,6 +24,14 @@ export function getShortAccount(account: string | undefined) {
   return _shortAccount;
 }
 
+export const getISOStringWithoutSecsAndMillisecs = (x: number) => {
+  var now = new Date(x * 1000);
+  now.setSeconds(0, 0);
+  var stamp = now.toString().substring(3, 21);
+
+  return stamp;
+};
+
 export function getShortTxHash(txHash: string | undefined) {
   if (!txHash) {
     return "";
@@ -144,6 +152,25 @@ export function formatBigNumber(bignumber: any, units: string) {
   }
 }
 
+export const formatDisplayedBigNumber = (
+  bigNumber: any,
+  units: string,
+  decimalPlaces: number = 5
+) => {
+  const floatNumber = parseFloat(formatBigNumber(bigNumber, units));
+  if (floatNumber === 0) {
+    return "0";
+  }
+  const comparator = 1 / 10 ** decimalPlaces;
+  return floatNumber < comparator
+    ? `< ${comparator.toLocaleString("en-US", {
+        maximumFractionDigits: decimalPlaces,
+      })}`
+    : floatNumber.toLocaleString("en-US", {
+        maximumFractionDigits: decimalPlaces,
+      });
+};
+
 export function isSupportedChain(chainId: number | undefined) {
   const supportedChains = [56];
   return chainId && supportedChains.includes(chainId);
@@ -180,12 +207,6 @@ export const DataFormater = (number: number) => {
   } else {
     return number.toString();
   }
-};
-
-export const NumberFormatter = (number: string) => {
-  return parseFloat(number).toLocaleString("en-US", {
-    maximumFractionDigits: 2,
-  });
 };
 
 export const FormatNumberToString = ({
@@ -232,6 +253,11 @@ export const formatShortenAddress = (fullAddr: string | undefined) => {
     strLen - 5,
     strLen - 1
   )}`;
+};
+export const NumberFormater = (number: string) => {
+  return parseFloat(number).toLocaleString("en-US", {
+    maximumFractionDigits: 2,
+  });
 };
 
 export const getMerkleProof = async (account: string) => {

@@ -66,7 +66,11 @@ export default function Main() {
   };
 
   return (
-    <div id="content" className="mt-4">
+    <div
+      id="content"
+      className="mt-4"
+      style={{ margin: "0 auto", maxWidth: "1000px" }}
+    >
       <label
         className="textWhite center mb-2"
         style={{ fontSize: "40px", textAlign: "center" }}
