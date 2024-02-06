@@ -296,9 +296,6 @@ export default function Navb() {
             <div className="mr-4">
               <NavLink to="/stake">Stake</NavLink>
             </div>
-            <div className="mr-4">
-              <NavLink to="/rewards">Rewards</NavLink>
-            </div>
             <div>
               <span
                 className="hover"
