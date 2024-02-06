@@ -202,51 +202,51 @@ export default function PoolCard(props: any) {
                         </ReactPopup>
                       </span>
                       <br />
-                      <span>
-                        <small>
-                          APY:{" "}
-                          {parseFloat(apyDaily.toString()).toLocaleString(
-                            "en-US",
-                            { maximumFractionDigits: 0 }
-                          )}{" "}
-                          % &nbsp;
-                        </small>
-                      </span>
-                      <span className="">
-                        <ReactPopup
-                          trigger={(open) => (
-                            <span style={{ position: "relative", top: "-1px" }}>
-                              <BsFillQuestionCircleFill size={10} />
-                            </span>
-                          )}
-                          on="hover"
-                          position="right center"
-                          offsetY={-23}
-                          offsetX={0}
-                          contentStyle={{ padding: "5px" }}
-                        >
-                          <span className="textInfo">
-                            <small>
-                              APY is calculated using APR and the compounding
-                              period.{" "}
-                            </small>
-                          </span>
-                          <span className="textInfo mt-2">
-                            <small>
-                              The value shown is based on daily compounding
-                              frequency.{" "}
-                            </small>
-                          </span>
-                          <span className="textInfo mt-2">
-                            <small>
-                              For weekly and monthly compounding frequency, APY
-                              is {parseFloat(apyWeekly.toString()).toFixed(0)} %
-                              and {parseFloat(apyMonthly.toString()).toFixed(0)}{" "}
-                              % respectively
-                            </small>
-                          </span>
-                        </ReactPopup>
-                      </span>
+                      {/*<span>*/}
+                      {/*  <small>*/}
+                      {/*    APY:{" "}*/}
+                      {/*    {parseFloat(apyDaily.toString()).toLocaleString(*/}
+                      {/*      "en-US",*/}
+                      {/*      { maximumFractionDigits: 0 }*/}
+                      {/*    )}{" "}*/}
+                      {/*    % &nbsp;*/}
+                      {/*  </small>*/}
+                      {/*</span>*/}
+                      {/*<span className="">*/}
+                      {/*  <ReactPopup*/}
+                      {/*    trigger={(open) => (*/}
+                      {/*      <span style={{ position: "relative", top: "-1px" }}>*/}
+                      {/*        <BsFillQuestionCircleFill size={10} />*/}
+                      {/*      </span>*/}
+                      {/*    )}*/}
+                      {/*    on="hover"*/}
+                      {/*    position="right center"*/}
+                      {/*    offsetY={-23}*/}
+                      {/*    offsetX={0}*/}
+                      {/*    contentStyle={{ padding: "5px" }}*/}
+                      {/*  >*/}
+                      {/*    <span className="textInfo">*/}
+                      {/*      <small>*/}
+                      {/*        APY is calculated using APR and the compounding*/}
+                      {/*        period.{" "}*/}
+                      {/*      </small>*/}
+                      {/*    </span>*/}
+                      {/*    <span className="textInfo mt-2">*/}
+                      {/*      <small>*/}
+                      {/*        The value shown is based on daily compounding*/}
+                      {/*        frequency.{" "}*/}
+                      {/*      </small>*/}
+                      {/*    </span>*/}
+                      {/*    <span className="textInfo mt-2">*/}
+                      {/*      <small>*/}
+                      {/*        For weekly and monthly compounding frequency, APY*/}
+                      {/*        is {parseFloat(apyWeekly.toString()).toFixed(0)} %*/}
+                      {/*        and {parseFloat(apyMonthly.toString()).toFixed(0)}{" "}*/}
+                      {/*        % respectively*/}
+                      {/*      </small>*/}
+                      {/*    </span>*/}
+                      {/*  </ReactPopup>*/}
+                      {/*</span>*/}
                     </div>
                   ) : (
                     <div className="">
