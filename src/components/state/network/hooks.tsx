@@ -22,7 +22,7 @@ export function useNetwork(): [number, (chainId?: number) => void] {
       }
       if (!isSupportedChain(chainId)) {
         // trying to switch user to an unsupported chain
-        console.log(chainId);
+        console.log(`unsupported chain: ${chainId}`);
         return;
       }
       try {
