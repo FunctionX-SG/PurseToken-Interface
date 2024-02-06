@@ -202,6 +202,7 @@ export default function PoolCard(props: any) {
                         </ReactPopup>
                       </span>
                       <br />
+                      {/*The following lines are for displaying the APY*/}
                       {/*<span>*/}
                       {/*  <small>*/}
                       {/*    APY:{" "}*/}
