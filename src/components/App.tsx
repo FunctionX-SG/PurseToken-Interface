@@ -37,9 +37,9 @@ export default function App() {
             <main role="main" className="col-lg-12 ml-auto mr-auto">
               <div className="content mr-auto ml-auto" id="content">
                 <Routes>
-                  <Route path="/" element={<Landing />}></Route>
+                  <Route path="/" element={<Main />}></Route>
 
-                  <Route path="/home" element={<Main />}></Route>
+                  {/*<Route path="/home" element={<Main />}></Route>*/}
 
                   <Route path="/lpfarm/menu" element={<FarmMenu />}></Route>
 
