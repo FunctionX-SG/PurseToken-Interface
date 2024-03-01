@@ -19,6 +19,7 @@ import { Loading } from "../Loading";
 import { usePursePrice } from "../state/PursePrice/hooks";
 import { useContract } from "../state/contract/hooks";
 import { DataFormater, NumberFormatter, formatBigNumber } from "../utils";
+import {Bounce} from "react-awesome-reveal";
 interface CustomTooltipProps {
   payload?: any[];
   label?: string;
@@ -607,12 +608,20 @@ export default function Main() {
   const renderFullCharts = () => {
     return (
       <div
-        className="container"
+        className="container pt-4"
         style={{
           display: selectedTab === "main" ? "block" : "none",
           width: "fit-content",
         }}
       >
+        <label
+            className="textWhite center mb-2 pt-4"
+            style={{ fontSize: "40px", textAlign: "center" }}
+        >
+          <big>
+            <b>CHARTS</b>
+          </big>
+        </label>
         <div className="row center" style={{ gap: "20px" }}>
           <div>
             {/* <AreaChart width={460} height={300} data={cumulateBurn}>
@@ -1143,12 +1152,20 @@ export default function Main() {
   const renderNarrowCharts = () => {
     return (
       <div
-        className="container"
+        className="container pt-4"
         style={{
           display: selectedTab === "main" ? "block" : "none",
           width: "fit-content",
         }}
       >
+        <label
+            className="textWhite center mb-2 pt-4"
+            style={{ fontSize: "40px", textAlign: "center" }}
+        >
+          <big>
+            <b>CHARTS</b>
+          </big>
+        </label>
         <div className="row center">
           {cumulateBurn ? (
             // <div>
@@ -1380,6 +1397,59 @@ export default function Main() {
     );
   };
 
+  const renderProtocolRemarks = () => {
+    return (
+        <>
+          <label
+              className="textWhite center mb-2 pt-4"
+              style={{ fontSize: "40px", textAlign: "center" }}
+          >
+            <big>
+              <b>PROTOCOLS</b>
+            </big>
+          </label>
+          <Bounce direction="left" triggerOnce>
+            <div
+                className="mt-2"
+                style={{
+                  minWidth: "300px",
+                  padding: "15px",
+                  backgroundColor: "var(--basic-ash)",
+                }}
+            >
+              <div className="textWhiteSmall">
+                <b>LP Restaking Farm</b>
+              </div>
+              <div className="textWhite mt-2" style={{ fontSize: "13px" }}>
+                <b>
+                  Providing liquidity on respective platform to receive LP Tokens
+                  and earn PURSE by staking the LP Tokens in the LP Restaking
+                  Farm.
+                </b>
+              </div>
+            </div>
+          </Bounce>
+          <Bounce direction="left" triggerOnce>
+            <div
+                className="mt-2"
+                style={{
+                  minWidth: "300px",
+                  padding: "15px",
+                  backgroundColor: "var(--basic-ash)",
+                }}
+            >
+              <div className="textWhiteSmall">
+                <b>PURSE Staking</b>
+              </div>
+              <div className="textWhite mt-2" style={{ fontSize: "13px" }}>
+                <b>Stake PURSE and amplify your earnings with PURSE Staking.</b>
+              </div>
+            </div>
+          </Bounce>
+        </>
+    )
+  }
+
   return (
     <div
       id="content"
@@ -1438,10 +1508,12 @@ export default function Main() {
 
       <MediaQuery minWidth={601}>
         {renderFullTable()}
+        {renderProtocolRemarks()}
         {renderFullCharts()}
       </MediaQuery>
       <MediaQuery maxWidth={600}>
         {renderNarrowTable()}
+        {renderProtocolRemarks()}
         {renderNarrowCharts()}
       </MediaQuery>
       {renderFarmRemarks()}

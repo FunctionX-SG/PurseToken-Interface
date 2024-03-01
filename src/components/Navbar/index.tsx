@@ -241,9 +241,9 @@ export default function Navb() {
         <div className="navbar-brand col-sm-3 col-md-2 mt-1 md-1 mr-0 rowB">
           <MediaQuery maxWidth={FULL_VIEWABLE_NAV_MIN_WIDTH - 1}>
             <Menu>
-              <div className="dropdown0">
-                <NavLink to="/home">Home</NavLink>
-              </div>
+              {/*<div className="dropdown0">*/}
+              {/*  <NavLink to="/home">Home</NavLink>*/}
+              {/*</div>*/}
               <div className="dropdown0">
                 <NavLink to="/lpfarm/menu">Farm</NavLink>
               </div>
@@ -284,9 +284,9 @@ export default function Navb() {
           </NavLinkHome>
           &nbsp;&nbsp;&nbsp;
           <MediaQuery minWidth={FULL_VIEWABLE_NAV_MIN_WIDTH}>
-            <div className="mr-4">
-              <NavLink to="/home">Home</NavLink>
-            </div>
+            {/*<div className="mr-4">*/}
+            {/*  <NavLink to="/home">Home</NavLink>*/}
+            {/*</div>*/}
             <div className="mr-4">
               <NavLink to="/lpfarm/menu">Farm</NavLink>
             </div>
