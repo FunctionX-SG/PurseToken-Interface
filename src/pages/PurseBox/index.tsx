@@ -70,19 +70,19 @@ export default function PurseBox() {
           </div>
           <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
             <div className="center img">
-              <img src={red} height="180" alt=""/>
+              <img src={red} height="135" alt=""/>
             </div>
             <div className="center img">
-              <img src={green} height="180" alt=""/>
+              <img src={green} height="135" alt=""/>
             </div>
             <div className="center img">
-              <img src={blue} height="180" alt=""/>
+              <img src={blue} height="135" alt=""/>
             </div>
             <div className="center img">
-              <img src={orange} height="180" alt=""/>
+              <img src={orange} height="135" alt=""/>
             </div>
             <div className="center img">
-              <img src={purple} height="180" alt=""/>
+              <img src={purple} height="135" alt=""/>
             </div>
           </div>
           <div className="pt-4">
@@ -129,19 +129,19 @@ export default function PurseBox() {
           </div>
           <div style={{display: 'block', alignItems: 'center', justifyContent: 'center'}}>
             <div className="center img">
-              <img src={red} height="180" alt=""/>
+              <img src={red} height="135" alt=""/>
             </div>
             <div className="center img">
-              <img src={green} height="180" alt=""/>
+              <img src={green} height="135" alt=""/>
             </div>
             <div className="center img">
-              <img src={blue} height="180" alt=""/>
+              <img src={blue} height="135" alt=""/>
             </div>
             <div className="center img">
-              <img src={orange} height="180" alt=""/>
+              <img src={orange} height="135" alt=""/>
             </div>
             <div className="center img">
-              <img src={purple} height="180" alt=""/>
+              <img src={purple} height="135" alt=""/>
             </div>
           </div>
           <div>
