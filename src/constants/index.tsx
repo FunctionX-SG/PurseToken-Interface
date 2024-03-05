@@ -1,6 +1,8 @@
 //BSC mainnet: 56, testnet: 97
 export const NETWORK_ID = "56";
-export const CHAIN_ID = 56;
+export const BSC_CHAIN_ID = 56;
+
+export const ETH_CHAIN_ID = 1;
 
 //Contract Addresses
 // bsc
@@ -27,6 +29,13 @@ export const FIP20UPGRADABLE_ADDRESS =
   "0x5FD55A1B9FC24967C4dB09C513C3BA0DFa7FF687";
 export const MASTERCHEFV2_ADDRESS =
   "0x4bd522b2E25f6b1A874C78518EF25f5914C522dC";
+//eth
+export const PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH =
+  "0x95987b0cdC7F65d989A30B3B7132a38388c548Eb";
+
+//goerli
+export const PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH_GOERLI =
+  "0xEf6209FbA140A6e7b74bEa978a9788d185EA2eED";
 
 //Provider
 export const PROVIDER = "https://fx-json-web3.functionx.io:8545";
@@ -47,6 +56,14 @@ export const BSC_TESTNET_RPC_URL_S2 = `https://data-seed-prebsc-1-s2.binance.org
 export const BSC_TESTNET_RPC_URL_S3 = `https://data-seed-prebsc-1-s3.binance.org:8545/`;
 export const BSC_MAINNET_BLOCKEXPLORER = "https://bscscan.com/";
 export const BSC_TESTNET_BLOCKEXPLORER = "https://testnet.bscscan.com/";
+
+export const ETH_MAINNET_RPCURL = `https://eth-mainnet.g.alchemy.com/v2/ys3HjCPG2MtGQKu3W0W7_mxKWkcVW91n`;
+export const ETH_TESTNET_RPCURL_SEPOLIA = `https://eth-sepolia.g.alchemy.com/v2/fEw7Yl72IyAkRazUK8rq9HmH0ICsOgpO`;
+export const ETH_TESTNET_RPCURL_GOERLI = `https://endpoints.omniatech.io/v1/eth/goerli/public`;
+export const ETH_MAINNET_BLOCKEXPLORER = "https://etherscan.io/";
+export const ETH_TESTNET_BLOCKEXPLORER_SEPOLIA =
+  "https://sepolia.etherscan.io/";
+export const ETH_TESTNET_BLOCKEXPLORER_GOERLI = "https://goerli.etherscan.io/";
 
 //Retroactive Rewards figures
 export const RETROACTIVE_INITIAL_REWARDS = 162164878;
