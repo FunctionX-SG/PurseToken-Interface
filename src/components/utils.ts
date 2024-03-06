@@ -248,15 +248,16 @@ export const FormatBigIntToString = ({
 };
 
 // turns 0x123456789abcd => 0x1234 ... abcd
-export const formatShortenAddress = (fullAddr: string | undefined) => {
-  if (!fullAddr || fullAddr.length < 10) {
+export const formatShortenAddress = (
+  fullAddr: string | undefined,
+  head = 7,
+  tail = 4
+) => {
+  if (!fullAddr || fullAddr.length < 10 || head < 0 || tail < 0) {
     return fullAddr;
   }
   const strLen = fullAddr.length;
-  return `${fullAddr.slice(0, 5)} ... ${fullAddr.slice(
-    strLen - 5,
-    strLen - 1
-  )}`;
+  return `${fullAddr.slice(0, head)} ... ${fullAddr.slice(strLen - tail)}`;
 };
 
 export const getMerkleProof = async (account: string) => {

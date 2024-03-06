@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import MediaQuery from "react-responsive";
 import red from "../../assets/images/red.png";
 import blue from "../../assets/images/blue.png";
@@ -20,8 +20,16 @@ import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import {
   FormatBigIntToString,
   callContract,
+  formatShortenAddress,
   getShortTxHash,
 } from "../../components/utils";
+import { CopyIcon } from "../../components/Icons/Icons";
+
+type NFTMeta = {
+  id: bigint;
+  color: string;
+  image: string;
+};
 
 const MintContainer = () => {
   const { isActive, chainId, account } = useWeb3React();
@@ -42,8 +50,36 @@ const MintContainer = () => {
   const [mintAmount, setMintAmount] = useState<number>(1);
   const [maxMint, setMaxMint] = useState<number>(0);
   const [availableTokens, setAvailableTokens] = useState<number>();
-  const [userTokens, setUserTokens] = useState<bigint[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  const [isTokenMetaLoading, setIsTokenMetaLoading] = useState<boolean>(true);
+  const [tokenMeta, setTokenMeta] = useState<NFTMeta[]>([]);
+
+  const fetchTokenMeta = (tokenIds: bigint[]) => {
+    setIsTokenMetaLoading(true);
+    Promise.all(
+      tokenIds.map(async (tokenId) => {
+        return await fetch(
+          `https://raw.githubusercontent.com/pundix/purse-box/main/metadata/${tokenId.toString()}`,
+          {
+            method: "GET",
+            cache: "force-cache",
+          }
+        )
+          .then((raw) => raw.json())
+          .then((json) => {
+            return {
+              id: tokenId,
+              color: json.attributes[0].value,
+              image: json.image.split("ipfs://").slice(-1),
+            } as NFTMeta;
+          });
+      })
+    ).then((jsonArray) => {
+      setTokenMeta(jsonArray);
+      setIsTokenMetaLoading(false);
+    });
+  };
 
   useEffect(() => {
     if (!(isTargetChainMatch && purseToken404UpgradableEth)) return;
@@ -78,7 +114,7 @@ const MintContainer = () => {
           setUserInactiveBalance(userInactiveBalance)
         ),
       purseToken404UpgradableEth.owned(account).then((userTokens: bigint[]) => {
-        setUserTokens(userTokens);
+        fetchTokenMeta(userTokens);
         setNumUserTokens(userTokens.length);
       }),
       purseToken404UpgradableEth
@@ -164,7 +200,7 @@ const MintContainer = () => {
       purseToken404UpgradableEth
         .erc721BalanceOf(account)
         .then((userTokens: bigint[]) => {
-          setUserTokens(userTokens);
+          fetchTokenMeta(userTokens);
           setNumUserTokens(userTokens.length);
         }),
       purseToken404UpgradableEth
@@ -213,221 +249,314 @@ const MintContainer = () => {
   };
 
   return (
-    <div
-      className="card cardbody"
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        margin: "0 auto",
-        padding: "1%",
-        width: "50%",
-        minWidth: "430px",
-        maxWidth: "565px",
-        border: "2px inset grey",
-        borderRadius: "10px",
-      }}
-    >
-      {!isActive ? (
-        <div
-          className="card cardbody"
-          style={{
-            height: "200px",
-            color: "White",
-          }}
-        >
-          <div className="card-body">
-            <div>
-              <div
-                className="center textWhiteMedium mt-3 mb-3"
-                style={{ textAlign: "center" }}
-              >
-                <text>Connect wallet to mint PURSE BOX</text>
-              </div>
-              <div className="center">
-                <button
-                  type="button"
-                  className="btn btn-primary mt-3"
-                  onClick={() => setTrigger(true)}
-                >
-                  {" "}
-                  Connect{" "}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : !isTargetChainMatch ? (
-        <div
-          className="card cardbody"
-          style={{
-            height: "200px",
-            color: "White",
-          }}
-        >
-          <div className="card-body">
-            <div>
-              <div
-                className="center textWhiteMedium mt-3 mb-3"
-                style={{ textAlign: "center" }}
-              >
-                <text>Switch chain to mint PURSE BOX</text>
-              </div>
-              <div className="center">
-                <button
-                  type="button"
-                  className="btn btn-primary mt-3"
-                  onClick={() => switchNetwork(targetChain)}
-                >
-                  {" "}
-                  Switch{" "}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : !isLoading ? (
-        <>
+    <>
+      <div
+        className="card cardbody"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          margin: "0 auto",
+          padding: "1%",
+          width: "50%",
+          minWidth: "430px",
+          maxWidth: "565px",
+          border: "2px inset grey",
+          borderRadius: "10px",
+        }}
+      >
+        {!isActive ? (
           <div
+            className="card cardbody"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              marginBottom: "2%",
+              height: "200px",
+              color: "White",
             }}
           >
-            <div style={{ display: "flex" }}>
-              <text style={{ marginRight: "auto" }}>Total NFTs: </text>
-              <text>{Number(10000).toLocaleString()} PURSEBOX</text>
-            </div>
-            {availableTokens !== undefined ? (
-              <div style={{ display: "flex" }}>
-                <text style={{ marginRight: "auto" }}>NFTs Available: </text>
-                <text>{availableTokens.toLocaleString()} PURSEBOX</text>
-              </div>
-            ) : null}
-            <div style={{ display: "flex" }}>
-              <text style={{ marginRight: "auto" }}>Your NFTs: </text>
-              <text>{Number(numUserTokens).toLocaleString()} PURSEBOX</text>
-            </div>
-            {userBalance !== undefined ? (
-              <div style={{ display: "flex" }}>
-                <div style={{ marginRight: "auto" }}>
-                  <text>Your $PURSE Tokens: </text>
-                  {numUserTokens > 0 ? (
-                    <ReactPopup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1.5px" }}>
-                          <BsInfoCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="top center"
-                      offsetY={20}
-                      offsetX={0}
-                      contentStyle={{ padding: "3px" }}
-                    >
-                      <span className="textInfo">
-                        {`${(numUserTokens ?? 0).toLocaleString()} NFTs = ${(
-                          BigInt(purseRatio ?? 0) * BigInt(numUserTokens)
-                        ).toLocaleString()} $Purse`}
-                      </span>
-                      <span className="textInfo mt-2">
-                        {`${userBalance.toLocaleString()} = ${(
-                          numUserTokens ?? 0
-                        ).toLocaleString()} NFTs + ${Number(
-                          userInactiveBalance ?? 0
-                        ).toLocaleString()} $PURSE`}
-                      </span>
-                    </ReactPopup>
-                  ) : null}
+            <div className="card-body">
+              <div>
+                <div
+                  className="center textWhiteMedium mt-3 mb-3"
+                  style={{ textAlign: "center" }}
+                >
+                  <text>Connect wallet to mint PURSE BOX</text>
                 </div>
-                <text>
-                  {FormatBigIntToString({
-                    bigInt: userBalance,
-                    decimalPlaces: 3,
-                    suffix: " $PURSE",
-                  })}
-                </text>
+                <div className="center">
+                  <button
+                    type="button"
+                    className="btn btn-primary mt-3"
+                    onClick={() => setTrigger(true)}
+                  >
+                    {" "}
+                    Connect{" "}
+                  </button>
+                </div>
               </div>
-            ) : null}
-            {maxMint !== undefined ? (
-              <div style={{ display: "flex" }}>
-                <text style={{ marginRight: "auto" }}>You can mint: </text>
-                <text>
-                  {(availableTokens
-                    ? Math.min(maxMint, availableTokens)
-                    : maxMint
-                  ).toLocaleString()}{" "}
-                  PURSEBOX
-                </text>
-              </div>
-            ) : null}
+            </div>
           </div>
+        ) : !isTargetChainMatch ? (
           <div
+            className="card cardbody"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              textAlign: "right",
+              height: "200px",
+              color: "White",
             }}
           >
-            <text>
-              {mintAmount} PURSEBOX ={" "}
-              {mintingCost !== undefined
-                ? FormatBigIntToString({
-                    bigInt: mintingCost,
-                    multiplier: mintAmount,
-                    decimalPlaces: 4,
-                    suffix: " ETH + ",
-                  })
-                : `${(0.01).toLocaleString()} ETH + `}
-              {purseRatio !== undefined
-                ? FormatBigIntToString({
-                    bigInt: purseRatio,
-                    multiplier: mintAmount,
-                    decimalPlaces: 3,
-                    suffix: " $PURSE",
-                  })
-                : `${Number(1000000).toLocaleString()} $PURSE`}
-            </text>
+            <div className="card-body">
+              <div>
+                <div
+                  className="center textWhiteMedium mt-3 mb-3"
+                  style={{ textAlign: "center" }}
+                >
+                  <text>Switch chain to mint PURSE BOX</text>
+                </div>
+                <div className="center">
+                  <button
+                    type="button"
+                    className="btn btn-primary mt-3"
+                    onClick={() => switchNetwork(targetChain)}
+                  >
+                    {" "}
+                    Switch{" "}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-          <div style={{ margin: "1% 0" }}>
-            <input
-              style={{ width: "85%", verticalAlign: "middle" }}
-              type="number"
-              min="0"
-              value={mintAmount}
-              onChange={handleInputChange}
-              placeholder="1"
-            />
-            <Button
-              variant="outline-primary"
+        ) : !isLoading ? (
+          <>
+            <div
               style={{
-                width: "15%",
-                height: "100%",
-                color: "#ba00ff",
+                display: "flex",
+                flexDirection: "column",
+                marginBottom: "2%",
               }}
-              onClick={() =>
-                setMintAmount(
-                  availableTokens ? Math.min(maxMint, availableTokens) : maxMint
-                )
-              }
             >
-              Max
+              <div style={{ display: "flex" }}>
+                <text style={{ marginRight: "auto" }}>Total NFTs: </text>
+                <text>{Number(10000).toLocaleString()} PURSEBOX</text>
+              </div>
+              {availableTokens !== undefined ? (
+                <div style={{ display: "flex" }}>
+                  <text style={{ marginRight: "auto" }}>NFTs Available: </text>
+                  <text>{availableTokens.toLocaleString()} PURSEBOX</text>
+                </div>
+              ) : null}
+              <div style={{ display: "flex" }}>
+                <text style={{ marginRight: "auto" }}>Your NFTs: </text>
+                <text>{Number(numUserTokens).toLocaleString()} PURSEBOX</text>
+              </div>
+              {userBalance !== undefined ? (
+                <div style={{ display: "flex" }}>
+                  <div style={{ marginRight: "auto" }}>
+                    <text>Your $PURSE Tokens: </text>
+                    {numUserTokens > 0 ? (
+                      <ReactPopup
+                        trigger={(open) => (
+                          <span style={{ position: "relative", top: "-1.5px" }}>
+                            <BsInfoCircleFill size={10} />
+                          </span>
+                        )}
+                        on="hover"
+                        position="top center"
+                        offsetY={20}
+                        offsetX={0}
+                        contentStyle={{ padding: "3px" }}
+                      >
+                        <span className="textInfo">
+                          {`${(numUserTokens ?? 0).toLocaleString()} NFTs = ${(
+                            BigInt(purseRatio ?? 0) * BigInt(numUserTokens)
+                          ).toLocaleString()} $Purse`}
+                        </span>
+                        <span className="textInfo mt-2">
+                          {`${userBalance.toLocaleString()} = ${(
+                            numUserTokens ?? 0
+                          ).toLocaleString()} NFTs + ${Number(
+                            userInactiveBalance ?? 0
+                          ).toLocaleString()} $PURSE`}
+                        </span>
+                      </ReactPopup>
+                    ) : null}
+                  </div>
+                  <text>
+                    {FormatBigIntToString({
+                      bigInt: userBalance,
+                      decimalPlaces: 3,
+                      suffix: " $PURSE",
+                    })}
+                  </text>
+                </div>
+              ) : null}
+              {maxMint !== undefined ? (
+                <div style={{ display: "flex" }}>
+                  <text style={{ marginRight: "auto" }}>You can mint: </text>
+                  <text>
+                    {(availableTokens
+                      ? Math.min(maxMint, availableTokens)
+                      : maxMint
+                    ).toLocaleString()}{" "}
+                    PURSEBOX
+                  </text>
+                </div>
+              ) : null}
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "right",
+              }}
+            >
+              <text>
+                {mintAmount} PURSEBOX ={" "}
+                {mintingCost !== undefined
+                  ? FormatBigIntToString({
+                      bigInt: mintingCost,
+                      multiplier: mintAmount,
+                      decimalPlaces: 4,
+                      suffix: " ETH + ",
+                    })
+                  : `${(0.01).toLocaleString()} ETH + `}
+                {purseRatio !== undefined
+                  ? FormatBigIntToString({
+                      bigInt: purseRatio,
+                      multiplier: mintAmount,
+                      decimalPlaces: 3,
+                      suffix: " $PURSE",
+                    })
+                  : `${Number(1000000).toLocaleString()} $PURSE`}
+              </text>
+            </div>
+            <div style={{ margin: "1% 0" }}>
+              <input
+                style={{ width: "85%", verticalAlign: "middle" }}
+                type="number"
+                min="0"
+                value={mintAmount}
+                onChange={handleInputChange}
+                placeholder="1"
+              />
+              <Button
+                variant="outline-primary"
+                style={{
+                  width: "15%",
+                  height: "100%",
+                  color: "#ba00ff",
+                }}
+                onClick={() =>
+                  setMintAmount(
+                    availableTokens
+                      ? Math.min(maxMint, availableTokens)
+                      : maxMint
+                  )
+                }
+              >
+                Max
+              </Button>
+            </div>
+            <Button
+              disabled={mintAmount === 0}
+              style={{ backgroundColor: "#ba00ff" }}
+              onClick={handleMint}
+            >
+              Mint
             </Button>
+          </>
+        ) : (
+          <div style={{ margin: "10% auto" }}>
+            <Loading />
           </div>
-          <Button
-            disabled={mintAmount === 0}
-            style={{ backgroundColor: "#ba00ff" }}
-            onClick={handleMint}
+        )}
+      </div>
+      {!isTokenMetaLoading ? (
+        <div
+          className="card cardbody"
+          style={{
+            display: "flex",
+            margin: "3% auto 0 auto",
+            padding: "1%",
+            width: "50%",
+            minWidth: "430px",
+            maxWidth: "565px",
+            border: "1px inset grey",
+          }}
+        >
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: "25px",
+              fontWeight: "bold",
+              margin: "2% 0 4% 0",
+            }}
           >
-            Mint
-          </Button>
-        </>
-      ) : (
-        <div style={{ margin: "10% auto" }}>
-          <Loading />
+            Your NFTs
+          </p>
+          <ol style={{ listStyleType: "decimal" }}>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                marginBottom: "2%",
+                verticalAlign: "middle",
+                fontSize: "20px",
+              }}
+            >
+              <div style={{ paddingLeft: "5%", marginRight: "25%" }}>
+                NFT ID
+              </div>
+              <div>Color Trait</div>
+              <div
+                style={{
+                  paddingRight: "5%",
+                  marginLeft: "auto",
+                  textAlign: "right",
+                  width: "20%",
+                }}
+              >
+                Preview
+              </div>
+            </div>
+            {tokenMeta.map((token) => (
+              <li>
+                <div
+                  style={{
+                    display: "flex",
+                    paddingRight: "9%",
+                    verticalAlign: "middle",
+                  }}
+                >
+                  <div style={{ marginRight: "25%" }}>
+                    <text>
+                      {formatShortenAddress(token.id.toLocaleString(), 4, 4)}
+                    </text>
+                    <button
+                      style={{
+                        border: "none",
+                        color: "light-grey",
+                        backgroundColor: "transparent",
+                        translate: "-3px -5px",
+                      }}
+                      onClick={() => {
+                        navigator.clipboard.writeText(token.toLocaleString());
+                        showToast("Token ID copied to clipboard", "success");
+                      }}
+                    >
+                      <CopyIcon />
+                    </button>
+                  </div>
+                  <text>{token.color}</text>
+                  <img
+                    alt=""
+                    height="35px"
+                    style={{ translate: "0 -7px", marginLeft: "auto" }}
+                    src={`https://gateway.ipfs.io/ipfs/${token.image}`}
+                  />
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
-      )}
-    </div>
+      ) : null}
+    </>
   );
 };
 
