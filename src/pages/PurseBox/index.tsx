@@ -35,6 +35,7 @@ const MintContainer = () => {
   const [mintingCost, setMintingCost] = useState<bigint>();
   const [purseRatio, setPurseRatio] = useState<bigint>();
   const [userBalance, setUserBalance] = useState<bigint>();
+  const [userTokens, setUserTokens] = useState<bigint>();
   const [mintAmount, setMintAmount] = useState<number>(1);
   const [maxMint, setMaxMint] = useState<number>(0);
   const [availableTokens, setAvailableTokens] = useState<number>();
@@ -67,6 +68,9 @@ const MintContainer = () => {
       purseToken404UpgradableEth
         .balanceOf(account)
         .then((userBalance: bigint) => setUserBalance(userBalance)),
+      purseToken404UpgradableEth
+        .erc721BalanceOf(account)
+        .then((userTokens: bigint) => setUserTokens(userTokens)),
       purseToken404UpgradableEth
         .units()
         .then((purseRatio: bigint) => setPurseRatio(purseRatio)),
@@ -124,10 +128,12 @@ const MintContainer = () => {
     if (!purseToken404UpgradableEth) {
       return;
     }
-    const mintCost: bigint = await purseToken404UpgradableEth.mintingCost();
-    if (!mintCost) return;
-    setMintingCost(mintCost);
-    const etherCost: bigint = BigInt(mintCost) * BigInt(mintAmount);
+    if (!mintingCost) {
+      const mintCost: bigint = await purseToken404UpgradableEth.mintingCost();
+      if (!mintCost) return;
+      setMintingCost(mintCost);
+    }
+    const etherCost: bigint = BigInt(mintingCost!) * BigInt(mintAmount);
     await handleTxResponse(
       callContract(
         signer,
@@ -155,12 +161,13 @@ const MintContainer = () => {
     <div
       className="card cardbody"
       style={{
-        alignItems: "center",
         display: "flex",
         justifyContent: "center",
         margin: "0 auto",
-        padding: "2%",
+        padding: "1%",
         width: "50%",
+        minWidth: "430px",
+        maxWidth: "565px",
         border: "2px inset grey",
         borderRadius: "10px",
       }}
@@ -226,24 +233,54 @@ const MintContainer = () => {
         </div>
       ) : !isLoading ? (
         <>
-          {availableTokens !== undefined ? (
-            <text>
-              Tokens Available: {availableTokens.toLocaleString()} PURSEBOX
-            </text>
-          ) : null}
-          {userBalance !== undefined ? (
-            <text>Your PURSE: {userBalance.toLocaleString()} PURSE</text>
-          ) : null}
-          {maxMint !== undefined ? (
-            <text>
-              You can mint:{" "}
-              {(availableTokens
-                ? Math.min(maxMint, availableTokens)
-                : maxMint
-              ).toLocaleString()}{" "}
-              PURSEBOX
-            </text>
-          ) : null}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              marginBottom: "2%",
+            }}
+          >
+            <div style={{ display: "flex" }}>
+              <text style={{ marginRight: "auto" }}>Total NFTs: </text>
+              <text>{Number(10000).toLocaleString()} PURSEBOX</text>
+            </div>
+            {availableTokens !== undefined ? (
+              <div style={{ display: "flex" }}>
+                <text style={{ marginRight: "auto" }}>NFTs Available: </text>
+                <text>{availableTokens.toLocaleString()} PURSEBOX</text>
+              </div>
+            ) : null}
+            {userTokens !== undefined ? (
+              <div style={{ display: "flex" }}>
+                <text style={{ marginRight: "auto" }}>Your NFTs: </text>
+                <text>{Number(userTokens).toLocaleString()} PURSEBOX</text>
+              </div>
+            ) : null}
+            {userBalance !== undefined ? (
+              <div style={{ display: "flex" }}>
+                <text style={{ marginRight: "auto" }}>Your PURSE Tokens: </text>
+                <text>
+                  {FormatBigIntToString({
+                    bigInt: userBalance,
+                    decimalPlaces: 3,
+                    suffix: " PURSE",
+                  })}
+                </text>
+              </div>
+            ) : null}
+            {maxMint !== undefined ? (
+              <div style={{ display: "flex" }}>
+                <text style={{ marginRight: "auto" }}>You can mint </text>
+                <text>
+                  {(availableTokens
+                    ? Math.min(maxMint, availableTokens)
+                    : maxMint
+                  ).toLocaleString()}{" "}
+                  PURSEBOX
+                </text>
+              </div>
+            ) : null}
+          </div>
           <div
             style={{
               display: "flex",
@@ -251,64 +288,63 @@ const MintContainer = () => {
               textAlign: "right",
             }}
           >
-            <text>{mintAmount} PURSEBOX =</text>
-            {mintingCost !== undefined ? (
-              <text>
-                {FormatBigIntToString({
-                  bigInt: mintingCost,
-                  multiplier: mintAmount,
-                  decimalPlaces: 3,
-                  suffix: " ETH + ",
-                })}
-              </text>
-            ) : null}
-            {purseRatio !== undefined ? (
-              <text>
-                {FormatBigIntToString({
-                  bigInt: purseRatio,
-                  multiplier: mintAmount,
-                  decimalPlaces: 3,
-                  suffix: " PURSE",
-                })}
-              </text>
-            ) : null}
-            <div className="col-auto">
-              <input
-                style={{ width: "75%" }}
-                type="number"
-                min="0"
-                value={mintAmount}
-                onChange={handleInputChange}
-                placeholder="1"
-              />
-              <Button
-                variant="outline-primary"
-                style={{
-                  height: "100%",
-                  color: "#ba00ff",
-                }}
-                onClick={() =>
-                  setMintAmount(
-                    availableTokens
-                      ? Math.min(maxMint, availableTokens)
-                      : maxMint
-                  )
-                }
-              >
-                Max
-              </Button>
-            </div>
+            <text>
+              {mintAmount} PURSEBOX ={" "}
+              {mintingCost !== undefined
+                ? FormatBigIntToString({
+                    bigInt: mintingCost,
+                    multiplier: mintAmount,
+                    decimalPlaces: 4,
+                    suffix: " ETH + ",
+                  })
+                : `${(0.01).toLocaleString()} ETH + `}
+              {purseRatio !== undefined
+                ? FormatBigIntToString({
+                    bigInt: purseRatio,
+                    multiplier: mintAmount,
+                    decimalPlaces: 3,
+                    suffix: " PURSE",
+                  })
+                : `${Number(1000000).toLocaleString()} PURSE`}
+            </text>
+          </div>
+          <div style={{ margin: "1% 0" }}>
+            <input
+              style={{ width: "85%", verticalAlign: "middle" }}
+              type="number"
+              min="0"
+              value={mintAmount}
+              onChange={handleInputChange}
+              placeholder="1"
+            />
+            <Button
+              variant="outline-primary"
+              style={{
+                width: "15%",
+                height: "100%",
+                color: "#ba00ff",
+              }}
+              onClick={() =>
+                setMintAmount(
+                  availableTokens ? Math.min(maxMint, availableTokens) : maxMint
+                )
+              }
+            >
+              Max
+            </Button>
           </div>
           <Button
-            disabled={mintAmount == 0}
-            style={{ backgroundColor: "#ba00ff", padding: "1% 20%" }}
+            disabled={mintAmount === 0}
+            style={{ backgroundColor: "#ba00ff" }}
             onClick={handleMint}
           >
             Mint
           </Button>
         </>
       ) : (
-        <Loading />
+        <div style={{ margin: "10% auto" }}>
+          <Loading />
+        </div>
       )}
     </div>
   );
