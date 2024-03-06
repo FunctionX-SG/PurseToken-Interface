@@ -362,18 +362,14 @@ const MintContainer = () => {
                         offsetX={0}
                         contentStyle={{ padding: "3px" }}
                       >
-                        <span className="textInfo">
-                          {`${(numUserTokens ?? 0).toLocaleString()} NFTs = ${(
-                            BigInt(purseRatio ?? 0) * BigInt(numUserTokens)
-                          ).toLocaleString()} $Purse`}
-                        </span>
-                        <span className="textInfo mt-2">
-                          {`${userBalance.toLocaleString()} = ${(
-                            numUserTokens ?? 0
-                          ).toLocaleString()} NFTs + ${Number(
-                            userInactiveBalance ?? 0
-                          ).toLocaleString()} $PURSE`}
-                        </span>
+                        <text className="textInfo">{`${FormatBigIntToString({
+                          bigInt: userBalance,
+                        })} Total $PURSE = \
+                        ${(
+                          numUserTokens ?? 0
+                        ).toLocaleString()} PURSEBOX + ${FormatBigIntToString({
+                          bigInt: userInactiveBalance ?? BigInt(0),
+                        })} $PURSE`}</text>
                       </ReactPopup>
                     ) : null}
                   </div>
