@@ -8,6 +8,8 @@ import { Loading } from "../../components/Loading";
 import purple from "../../assets/images/purple.png";
 import { useWeb3React } from "@web3-react/core";
 import Button from "react-bootstrap/esm/Button";
+import { Popup as ReactPopup } from "reactjs-popup";
+import { BsInfoCircleFill } from "react-icons/bs";
 import { useProvider } from "../../components/state/provider/hooks";
 import { useNetwork } from "../../components/state/network/hooks";
 import { useContract } from "../../components/state/contract/hooks";
@@ -305,9 +307,39 @@ const MintContainer = () => {
             ) : null}
             {userBalance !== undefined ? (
               <div style={{ display: "flex" }}>
-                <text style={{ marginRight: "auto" }}>
-                  Your $PURSE Tokens:{" "}
-                </text>
+                <div style={{ marginRight: "auto" }}>
+                  <text>Your $PURSE Tokens: </text>
+                  {userTokens && Number(userTokens) > 0 ? (
+                    <ReactPopup
+                      trigger={(open) => (
+                        <span style={{ position: "relative", top: "-1.5px" }}>
+                          <BsInfoCircleFill size={10} />
+                        </span>
+                      )}
+                      on="hover"
+                      position="top center"
+                      offsetY={20}
+                      offsetX={0}
+                      contentStyle={{ padding: "3px" }}
+                    >
+                      <span className="textInfo">
+                        {`${(
+                          userTokens ?? 0
+                        ).toLocaleString()} NFTs = ${(purseRatio && userTokens
+                          ? purseRatio * userTokens
+                          : 0
+                        ).toLocaleString()} $Purse`}
+                      </span>
+                      <span className="textInfo mt-2">
+                        {`${userBalance.toLocaleString()} = ${(
+                          userTokens ?? 0
+                        ).toLocaleString()} NFTs + ${Number(
+                          userInactiveBalance ?? 0
+                        ).toLocaleString()} $PURSE`}
+                      </span>
+                    </ReactPopup>
+                  ) : null}
+                </div>
                 <text>
                   {FormatBigIntToString({
                     bigInt: userBalance,
