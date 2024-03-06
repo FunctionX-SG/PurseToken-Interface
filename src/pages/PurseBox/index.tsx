@@ -38,10 +38,11 @@ const MintContainer = () => {
   const [purseRatio, setPurseRatio] = useState<bigint>();
   const [userBalance, setUserBalance] = useState<bigint>();
   const [userInactiveBalance, setUserInactiveBalance] = useState<bigint>();
-  const [userTokens, setUserTokens] = useState<bigint>();
+  const [numUserTokens, setNumUserTokens] = useState<number>(0);
   const [mintAmount, setMintAmount] = useState<number>(1);
   const [maxMint, setMaxMint] = useState<number>(0);
   const [availableTokens, setAvailableTokens] = useState<number>();
+  const [userTokens, setUserTokens] = useState<bigint[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -76,9 +77,10 @@ const MintContainer = () => {
         .then((userInactiveBalance: bigint) =>
           setUserInactiveBalance(userInactiveBalance)
         ),
-      purseToken404UpgradableEth
-        .erc721BalanceOf(account)
-        .then((userTokens: bigint) => setUserTokens(userTokens)),
+      purseToken404UpgradableEth.owned(account).then((userTokens: bigint[]) => {
+        setUserTokens(userTokens);
+        setNumUserTokens(userTokens.length);
+      }),
       purseToken404UpgradableEth
         .units()
         .then((purseRatio: bigint) => setPurseRatio(purseRatio)),
@@ -161,7 +163,10 @@ const MintContainer = () => {
       ),
       purseToken404UpgradableEth
         .erc721BalanceOf(account)
-        .then((userTokens: bigint) => setUserTokens(userTokens)),
+        .then((userTokens: bigint[]) => {
+          setUserTokens(userTokens);
+          setNumUserTokens(userTokens.length);
+        }),
       purseToken404UpgradableEth
         .inactiveBalance(account)
         .then((userInactiveBalance: bigint) =>
@@ -299,17 +304,15 @@ const MintContainer = () => {
                 <text>{availableTokens.toLocaleString()} PURSEBOX</text>
               </div>
             ) : null}
-            {userTokens !== undefined ? (
-              <div style={{ display: "flex" }}>
-                <text style={{ marginRight: "auto" }}>Your NFTs: </text>
-                <text>{Number(userTokens).toLocaleString()} PURSEBOX</text>
-              </div>
-            ) : null}
+            <div style={{ display: "flex" }}>
+              <text style={{ marginRight: "auto" }}>Your NFTs: </text>
+              <text>{Number(numUserTokens).toLocaleString()} PURSEBOX</text>
+            </div>
             {userBalance !== undefined ? (
               <div style={{ display: "flex" }}>
                 <div style={{ marginRight: "auto" }}>
                   <text>Your $PURSE Tokens: </text>
-                  {userTokens && Number(userTokens) > 0 ? (
+                  {numUserTokens > 0 ? (
                     <ReactPopup
                       trigger={(open) => (
                         <span style={{ position: "relative", top: "-1.5px" }}>
@@ -323,16 +326,13 @@ const MintContainer = () => {
                       contentStyle={{ padding: "3px" }}
                     >
                       <span className="textInfo">
-                        {`${(
-                          userTokens ?? 0
-                        ).toLocaleString()} NFTs = ${(purseRatio && userTokens
-                          ? purseRatio * userTokens
-                          : 0
+                        {`${(numUserTokens ?? 0).toLocaleString()} NFTs = ${(
+                          BigInt(purseRatio ?? 0) * BigInt(numUserTokens)
                         ).toLocaleString()} $Purse`}
                       </span>
                       <span className="textInfo mt-2">
                         {`${userBalance.toLocaleString()} = ${(
-                          userTokens ?? 0
+                          numUserTokens ?? 0
                         ).toLocaleString()} NFTs + ${Number(
                           userInactiveBalance ?? 0
                         ).toLocaleString()} $PURSE`}
