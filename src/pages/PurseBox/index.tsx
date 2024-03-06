@@ -35,6 +35,7 @@ const MintContainer = () => {
   const [mintingCost, setMintingCost] = useState<bigint>();
   const [purseRatio, setPurseRatio] = useState<bigint>();
   const [userBalance, setUserBalance] = useState<bigint>();
+  const [userInactiveBalance, setUserInactiveBalance] = useState<bigint>();
   const [userTokens, setUserTokens] = useState<bigint>();
   const [mintAmount, setMintAmount] = useState<number>(1);
   const [maxMint, setMaxMint] = useState<number>(0);
@@ -69,6 +70,11 @@ const MintContainer = () => {
         .balanceOf(account)
         .then((userBalance: bigint) => setUserBalance(userBalance)),
       purseToken404UpgradableEth
+        .inactiveBalance(account)
+        .then((userInactiveBalance: bigint) =>
+          setUserInactiveBalance(userInactiveBalance)
+        ),
+      purseToken404UpgradableEth
         .erc721BalanceOf(account)
         .then((userTokens: bigint) => setUserTokens(userTokens)),
       purseToken404UpgradableEth
@@ -81,14 +87,16 @@ const MintContainer = () => {
   }, [account, isTargetChainMatch, purseToken404UpgradableEth]);
 
   useEffect(() => {
-    if (!(userBalance !== undefined && purseRatio !== undefined)) return;
-    const maxMint = Math.floor(Number(userBalance / purseRatio));
+    if (!(userInactiveBalance !== undefined && purseRatio !== undefined))
+      return;
+    const maxMint = Math.floor(Number(userInactiveBalance / purseRatio));
     setMaxMint(
       availableTokens !== undefined
         ? Math.min(maxMint, availableTokens)
         : maxMint
     );
-  }, [userBalance, purseRatio, availableTokens]);
+  }, [userInactiveBalance, purseRatio, availableTokens]);
+
   const handleTxResponse = async (
     promise: Promise<any>,
     refresh?: () => void
@@ -98,10 +106,12 @@ const MintContainer = () => {
       if (tx?.hash) {
         const link = `${Constants.ETH_MAINNET_BLOCKEXPLORER}/tx/${tx.hash}`;
         showToast("Transaction sent!", "success", link);
+        setIsLoading(true);
         await tx.wait();
         if (refresh !== undefined) {
           refresh();
         }
+        setIsLoading(false);
         const message = `Transaction confirmed!\nTransaction Hash: ${getShortTxHash(
           tx.hash
         )}`;
@@ -117,11 +127,48 @@ const MintContainer = () => {
         showToast("Something went wrong.", "failure");
       }
     } catch (err) {
+      setIsLoading(false);
       showToast("Something went wrong.", "failure");
       console.log(err);
       return false;
     }
     return false;
+  };
+
+  const handleRefreshAfterMint = async () => {
+    await Promise.all([
+      Promise.all([
+        purseToken404UpgradableEth.erc721MaxTokenId(),
+        purseToken404UpgradableEth.getERC721QueueLength(),
+        purseToken404UpgradableEth.erc721TotalSupply(),
+      ]).then(
+        ([maxTokenIdRaw, queueLength, totalSupply]: [
+          bigint,
+          bigint,
+          bigint
+        ]) => {
+          setAvailableTokens(
+            Number(
+              BigInt(maxTokenIdRaw) -
+                BigInt(2 ** 255) +
+                BigInt(queueLength) -
+                BigInt(totalSupply)
+            )
+          );
+        }
+      ),
+      purseToken404UpgradableEth
+        .erc721BalanceOf(account)
+        .then((userTokens: bigint) => setUserTokens(userTokens)),
+      purseToken404UpgradableEth
+        .inactiveBalance(account)
+        .then((userInactiveBalance: bigint) =>
+          setUserInactiveBalance(userInactiveBalance)
+        ),
+      purseToken404UpgradableEth
+        .balanceOf(account)
+        .then((userBalance: bigint) => setUserBalance(userBalance)),
+    ]);
   };
 
   const handleMint = async () => {
@@ -143,7 +190,8 @@ const MintContainer = () => {
         {
           value: etherCost,
         }
-      )
+      ),
+      handleRefreshAfterMint
     );
   };
 
@@ -172,7 +220,6 @@ const MintContainer = () => {
         borderRadius: "10px",
       }}
     >
-      {" "}
       {!isActive ? (
         <div
           className="card cardbody"
@@ -258,19 +305,21 @@ const MintContainer = () => {
             ) : null}
             {userBalance !== undefined ? (
               <div style={{ display: "flex" }}>
-                <text style={{ marginRight: "auto" }}>Your PURSE Tokens: </text>
+                <text style={{ marginRight: "auto" }}>
+                  Your $PURSE Tokens:{" "}
+                </text>
                 <text>
                   {FormatBigIntToString({
                     bigInt: userBalance,
                     decimalPlaces: 3,
-                    suffix: " PURSE",
+                    suffix: " $PURSE",
                   })}
                 </text>
               </div>
             ) : null}
             {maxMint !== undefined ? (
               <div style={{ display: "flex" }}>
-                <text style={{ marginRight: "auto" }}>You can mint </text>
+                <text style={{ marginRight: "auto" }}>You can mint: </text>
                 <text>
                   {(availableTokens
                     ? Math.min(maxMint, availableTokens)
@@ -303,9 +352,9 @@ const MintContainer = () => {
                     bigInt: purseRatio,
                     multiplier: mintAmount,
                     decimalPlaces: 3,
-                    suffix: " PURSE",
+                    suffix: " $PURSE",
                   })
-                : `${Number(1000000).toLocaleString()} PURSE`}
+                : `${Number(1000000).toLocaleString()} $PURSE`}
             </text>
           </div>
           <div style={{ margin: "1% 0" }}>
@@ -370,7 +419,7 @@ export default function PurseBox() {
             </big>
           </label>
           {/*</div>*/}
-          <div className="textMedium pt-4">
+          <div className="textMedium py-4">
             <big>
               <span className="textWhiteMedium">PURSE</span> adopts the
               experimental <span className="textWhiteMedium">ERC404</span>,
@@ -383,9 +432,6 @@ export default function PurseBox() {
               <span className="textWhiteMedium">PURSE</span>'s commitment to
               broadening digital asset utility and innovation.
             </big>
-          </div>
-          <div className="textWhiteSmall pt-4">
-            <p>Sample PURSE404 NFTs:</p>
           </div>
           <div
             style={{
@@ -433,7 +479,7 @@ export default function PurseBox() {
               <text>PURSE BOX</text>
             </big>
           </label>
-          <div className="textMedium pt-4">
+          <div className="textMedium py-4">
             <big>
               <span className="textWhiteMedium">PURSE</span> adopts the
               experimental <span className="textWhiteMedium">ERC404</span>,
@@ -446,9 +492,6 @@ export default function PurseBox() {
               <span className="textWhiteMedium">PURSE</span>'s commitment to
               broadening digital asset utility and innovation.
             </big>
-          </div>
-          <div className="textWhiteSmall pt-4">
-            <p>Sample PURSE404 NFTs:</p>
           </div>
           <div
             style={{
