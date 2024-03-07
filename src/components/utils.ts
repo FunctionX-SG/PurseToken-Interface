@@ -260,6 +260,12 @@ export const formatShortenAddress = (
   return `${fullAddr.slice(0, head)} ... ${fullAddr.slice(strLen - tail)}`;
 };
 
+export const capitalizeString = (str: string | undefined) => {
+  if (!str) return undefined;
+  if (str.length === 0) return str;
+  return str.charAt(0).toLocaleUpperCase() + str.slice(1);
+};
+
 export const getMerkleProof = async (account: string) => {
   const keys = Object.keys(UserAmount);
   const values = Object.values(UserAmount);

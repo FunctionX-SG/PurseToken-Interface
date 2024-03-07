@@ -20,6 +20,7 @@ import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import {
   FormatBigIntToString,
   callContract,
+  capitalizeString,
   formatShortenAddress,
   getShortTxHash,
 } from "../../components/utils";
@@ -70,7 +71,7 @@ const MintContainer = () => {
           .then((json) => {
             return {
               id: tokenId,
-              color: json.attributes[0].value,
+              color: capitalizeString(json.attributes[0].value),
               image: json.image.split("ipfs://").slice(-1),
             } as NFTMeta;
           });
@@ -248,8 +249,8 @@ const MintContainer = () => {
     }
   };
 
-  return (
-    <>
+  const renderMintContainer = () => {
+    return (
       <div
         className="card cardbody"
         style={{
@@ -365,9 +366,9 @@ const MintContainer = () => {
                         <text className="textInfo">{`${FormatBigIntToString({
                           bigInt: userBalance,
                         })} Total $PURSE = \
-                        ${(
-                          numUserTokens ?? 0
-                        ).toLocaleString()} PURSEBOX + ${FormatBigIntToString({
+                      ${(
+                        numUserTokens ?? 0
+                      ).toLocaleString()} PURSEBOX + ${FormatBigIntToString({
                           bigInt: userInactiveBalance ?? BigInt(0),
                         })} $PURSE`}</text>
                       </ReactPopup>
@@ -463,95 +464,103 @@ const MintContainer = () => {
           </div>
         )}
       </div>
-      {!isTokenMetaLoading ? (
-        <div
-          className="card cardbody"
+    );
+  };
+
+  const renderTokenTable = () => {
+    return (
+      <div
+        className="card cardbody"
+        style={{
+          display: "flex",
+          margin: "3% auto 0 auto",
+          padding: "1%",
+          width: "50%",
+          minWidth: "430px",
+          maxWidth: "565px",
+          border: "1px inset grey",
+        }}
+      >
+        <p
           style={{
-            display: "flex",
-            margin: "3% auto 0 auto",
-            padding: "1%",
-            width: "50%",
-            minWidth: "430px",
-            maxWidth: "565px",
-            border: "1px inset grey",
+            textAlign: "center",
+            fontSize: "25px",
+            fontWeight: "bold",
+            margin: "2% 0 4% 0",
           }}
         >
-          <p
+          Your NFTs
+        </p>
+        <ol style={{ listStyleType: "decimal" }}>
+          <div
             style={{
-              textAlign: "center",
-              fontSize: "25px",
-              fontWeight: "bold",
-              margin: "2% 0 4% 0",
+              display: "flex",
+              flexDirection: "row",
+              marginBottom: "2%",
+              verticalAlign: "middle",
+              fontSize: "20px",
             }}
           >
-            Your NFTs
-          </p>
-          <ol style={{ listStyleType: "decimal" }}>
+            <div style={{ paddingLeft: "5%", marginRight: "27%" }}>NFT ID</div>
+            <div>Color Trait</div>
             <div
               style={{
-                display: "flex",
-                flexDirection: "row",
-                marginBottom: "2%",
-                verticalAlign: "middle",
-                fontSize: "20px",
+                paddingRight: "5%",
+                marginLeft: "auto",
+                textAlign: "right",
+                width: "20%",
               }}
             >
-              <div style={{ paddingLeft: "5%", marginRight: "25%" }}>
-                NFT ID
-              </div>
-              <div>Color Trait</div>
+              Preview
+            </div>
+          </div>
+          {tokenMeta.map((token) => (
+            <li>
               <div
                 style={{
-                  paddingRight: "5%",
-                  marginLeft: "auto",
-                  textAlign: "right",
-                  width: "20%",
+                  display: "flex",
+                  paddingRight: "9%",
+                  verticalAlign: "middle",
                 }}
               >
-                Preview
-              </div>
-            </div>
-            {tokenMeta.map((token) => (
-              <li>
-                <div
-                  style={{
-                    display: "flex",
-                    paddingRight: "9%",
-                    verticalAlign: "middle",
-                  }}
-                >
-                  <div style={{ marginRight: "25%" }}>
-                    <text>
-                      {formatShortenAddress(token.id.toLocaleString(), 4, 4)}
-                    </text>
-                    <button
-                      style={{
-                        border: "none",
-                        color: "light-grey",
-                        backgroundColor: "transparent",
-                        translate: "-3px -5px",
-                      }}
-                      onClick={() => {
-                        navigator.clipboard.writeText(token.toLocaleString());
-                        showToast("Token ID copied to clipboard", "success");
-                      }}
-                    >
-                      <CopyIcon />
-                    </button>
-                  </div>
-                  <text>{token.color}</text>
-                  <img
-                    alt=""
-                    height="35px"
-                    style={{ translate: "0 -7px", marginLeft: "auto" }}
-                    src={`https://gateway.ipfs.io/ipfs/${token.image}`}
-                  />
+                <div style={{ marginRight: "25%" }}>
+                  <text>
+                    {formatShortenAddress(token.id.toLocaleString(), 4, 4)}
+                  </text>
+                  <button
+                    style={{
+                      border: "none",
+                      color: "light-grey",
+                      backgroundColor: "transparent",
+                      translate: "-3px -5px",
+                    }}
+                    onClick={() => {
+                      navigator.clipboard.writeText(token.id.toLocaleString());
+                      showToast("Token ID copied to clipboard", "success");
+                    }}
+                  >
+                    <CopyIcon />
+                  </button>
                 </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      ) : null}
+                <text>{token.color}</text>
+                <img
+                  alt=""
+                  height="35px"
+                  style={{ translate: "0 -7px", marginLeft: "auto" }}
+                  src={`https://gateway.ipfs.io/ipfs/${token.image}`}
+                />
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    );
+  };
+
+  return (
+    <>
+      {renderMintContainer()}
+      {!isTokenMetaLoading && tokenMeta.length > 0 ? renderTokenTable() : null}
     </>
   );
 };
