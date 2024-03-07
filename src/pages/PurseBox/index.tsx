@@ -27,6 +27,7 @@ import {
 } from "../../components/utils";
 import { CopyIcon } from "../../components/Icons/Icons";
 import { MetaMask } from "@web3-react/metamask";
+import { BigNumber } from "ethers";
 
 type NFTMeta = {
   id: bigint;
@@ -45,10 +46,12 @@ const MintContainer = () => {
 
   const { purseToken404UpgradableEth } = useContract();
 
-  const { signer } = useProvider();
+  const { signer, ethProvider } = useProvider();
   const [mintingCost, setMintingCost] = useState<bigint>();
   const [purseRatio, setPurseRatio] = useState<bigint>();
   const [userBalance, setUserBalance] = useState<bigint>();
+  const [userEth, setUserEth] = useState<BigNumber>();
+  const [isInsufficientEth, setIsInsufficientEth] = useState<boolean>(false);
   const [userInactiveBalance, setUserInactiveBalance] = useState<bigint>();
   const [numUserTokens, setNumUserTokens] = useState<number>(0);
   const [mintAmount, setMintAmount] = useState<number>(1);
@@ -86,7 +89,7 @@ const MintContainer = () => {
   };
 
   useEffect(() => {
-    if (!(isTargetChainMatch && purseToken404UpgradableEth)) return;
+    if (!(isTargetChainMatch && account && purseToken404UpgradableEth)) return;
     setIsLoading(true);
     Promise.all([
       Promise.all([
@@ -125,10 +128,13 @@ const MintContainer = () => {
         .units()
         .then((purseRatio: bigint) => setPurseRatio(purseRatio)),
       purseToken404UpgradableEth.mintingCost().then((res: bigint) => {
-        if (res !== undefined) setMintingCost(res);
+        setMintingCost(res);
       }),
+      ethProvider
+        .getBalance(account)
+        .then((ethBalance) => setUserEth(ethBalance)),
     ]).then(() => setIsLoading(false));
-  }, [account, isTargetChainMatch, purseToken404UpgradableEth]);
+  }, [account, ethProvider, isTargetChainMatch, purseToken404UpgradableEth]);
 
   useEffect(() => {
     if (!(userInactiveBalance !== undefined && purseRatio !== undefined))
@@ -140,6 +146,14 @@ const MintContainer = () => {
         : maxMint
     );
   }, [userInactiveBalance, purseRatio, availableTokens]);
+
+  useEffect(() => {
+    if (!(mintingCost && userEth)) return;
+    const etherCost: BigNumber = BigNumber.from(
+      BigInt(mintingCost) * BigInt(mintAmount)
+    );
+    setIsInsufficientEth(etherCost.gt(userEth));
+  }, [mintAmount, mintingCost, userEth]);
 
   const handleTxResponse = async (
     promise: Promise<any>,
@@ -180,6 +194,7 @@ const MintContainer = () => {
   };
 
   const handleRefreshAfterMint = async () => {
+    if (!(isTargetChainMatch && account && purseToken404UpgradableEth)) return;
     await Promise.all([
       Promise.all([
         purseToken404UpgradableEth.erc721MaxTokenId(),
@@ -213,6 +228,9 @@ const MintContainer = () => {
       purseToken404UpgradableEth
         .balanceOf(account)
         .then((userBalance: bigint) => setUserBalance(userBalance)),
+      ethProvider
+        .getBalance(account)
+        .then((ethBalance) => setUserEth(ethBalance)),
     ]);
   };
 
@@ -474,8 +492,11 @@ const MintContainer = () => {
                 Max
               </Button>
             </div>
+            {isInsufficientEth ? (
+              <small style={{ color: "red" }}>Insufficient ETH balance</small>
+            ) : null}
             <Button
-              disabled={mintAmount === 0}
+              disabled={mintAmount === 0 || isInsufficientEth}
               style={{ backgroundColor: "#ba00ff" }}
               onClick={handleMint}
             >
