@@ -25,12 +25,6 @@ const SepoliaETH: AddEthereumChainParameter["nativeCurrency"] = {
   decimals: 18,
 };
 
-const GoerliETH: AddEthereumChainParameter["nativeCurrency"] = {
-  name: "GoerliETH",
-  symbol: "GoerliETH",
-  decimals: 18,
-};
-
 const MATIC: AddEthereumChainParameter["nativeCurrency"] = {
   name: "Matic",
   symbol: "MATIC",
@@ -62,18 +56,6 @@ export const MAINNET_CHAINS: ChainConfig = {
     blockExplorerUrls: [Constants.ETH_MAINNET_BLOCKEXPLORER],
     nativeCurrency: ETH,
   },
-  5: {
-    urls: [Constants.ETH_TESTNET_RPCURL_GOERLI].filter(Boolean),
-    name: "ETH Testnet Goerli",
-    blockExplorerUrls: [Constants.ETH_TESTNET_BLOCKEXPLORER_GOERLI],
-    nativeCurrency: GoerliETH,
-  },
-  11155111: {
-    urls: [Constants.ETH_TESTNET_RPCURL_SEPOLIA].filter(Boolean),
-    name: "ETH Testnet Sepolia",
-    blockExplorerUrls: [Constants.ETH_TESTNET_BLOCKEXPLORER_SEPOLIA],
-    nativeCurrency: SepoliaETH,
-  },
   56: {
     urls: [Constants.BSC_MAINNET_RPCURL, Constants.BSC_MAINNET_RPCURL_1].filter(
       Boolean
@@ -81,6 +63,12 @@ export const MAINNET_CHAINS: ChainConfig = {
     name: "BSC",
     blockExplorerUrls: [Constants.BSC_MAINNET_BLOCKEXPLORER],
     nativeCurrency: BNB,
+  },
+  11155111: {
+    urls: [Constants.ETH_TESTNET_RPCURL_SEPOLIA].filter(Boolean),
+    name: "ETH Testnet Sepolia",
+    blockExplorerUrls: [Constants.ETH_TESTNET_BLOCKEXPLORER_SEPOLIA],
+    nativeCurrency: SepoliaETH,
   },
   97: {
     urls: [

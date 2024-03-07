@@ -26,6 +26,7 @@ import {
   getShortTxHash,
 } from "../../components/utils";
 import { CopyIcon } from "../../components/Icons/Icons";
+import { MetaMask } from "@web3-react/metamask";
 
 type NFTMeta = {
   id: bigint;
@@ -34,9 +35,10 @@ type NFTMeta = {
 };
 
 const MintContainer = () => {
-  const { isActive, chainId, account } = useWeb3React();
+  const { isActive, chainId, connector, account } = useWeb3React();
   const targetChain = Constants.ETH_CHAIN_ID;
   const isTargetChainMatch = chainId === targetChain;
+  const isMetaMaskConnected = connector instanceof MetaMask;
   const [, switchNetwork] = useNetwork();
   const [, showToast] = useToast();
   const [, setTrigger] = useWalletTrigger();
@@ -199,12 +201,10 @@ const MintContainer = () => {
           );
         }
       ),
-      purseToken404UpgradableEth
-        .erc721BalanceOf(account)
-        .then((userTokens: bigint[]) => {
-          fetchTokenMeta(userTokens);
-          setNumUserTokens(userTokens.length);
-        }),
+      purseToken404UpgradableEth.owned(account).then((userTokens: bigint[]) => {
+        fetchTokenMeta(userTokens);
+        setNumUserTokens(userTokens.length);
+      }),
       purseToken404UpgradableEth
         .inactiveBalance(account)
         .then((userInactiveBalance: bigint) =>
@@ -283,7 +283,7 @@ const MintContainer = () => {
           margin: "0 auto",
           padding: "1%",
           width: "50%",
-          minWidth: "430px",
+          minWidth: "535px",
           maxWidth: "565px",
           border: "2px inset grey",
           borderRadius: "10px",
@@ -500,7 +500,7 @@ const MintContainer = () => {
           margin: "3% auto 0 auto",
           padding: "1%",
           width: "50%",
-          minWidth: "430px",
+          minWidth: "535px",
           maxWidth: "565px",
           border: "1px inset grey",
         }}
@@ -547,9 +547,11 @@ const MintContainer = () => {
                   verticalAlign: "middle",
                 }}
               >
-                <div style={{ marginRight: "25%" }}>
+                <div
+                  style={{ marginRight: isMetaMaskConnected ? "18%" : "25%" }}
+                >
                   <text>
-                    {formatShortenAddress(token.id.toLocaleString(), 4, 4)}
+                    {formatShortenAddress(token.id.toLocaleString(), 4, 5)}
                   </text>
                   <button
                     style={{
@@ -585,43 +587,47 @@ const MintContainer = () => {
                       <small style={{ color: "white" }}>Copy NFT ID</small>
                     </Popup>
                   </button>
-                  <button
-                    style={{
-                      border: "none",
-                      color: "light-grey",
-                      backgroundColor: "transparent",
-                      translate: "-4px -5px",
-                    }}
-                    onClick={() => handleAddToMetaMask(token.id)}
-                  >
-                    <Popup
-                      trigger={(open) => (
-                        <span>
-                          <img
-                            src={fox}
-                            width="16"
-                            height="16"
-                            className="d-inline-block"
-                            alt=""
-                          />
-                        </span>
-                      )}
-                      position={"top center"}
-                      on={"hover"}
-                      offsetY={23}
-                      arrow={false}
-                      contentStyle={{
-                        backgroundColor: "#A4A4A4",
-                        borderRadius: "5px",
-                        width: "110px",
-                        padding: "1px",
-                        textAlign: "center",
-                        verticalAlign: "middle",
+                  {isMetaMaskConnected ? (
+                    <button
+                      style={{
+                        border: "none",
+                        color: "light-grey",
+                        backgroundColor: "transparent",
+                        translate: "-4px -5px",
                       }}
+                      onClick={() => handleAddToMetaMask(token.id)}
                     >
-                      <small style={{ color: "white" }}>Add to Metamask</small>
-                    </Popup>
-                  </button>
+                      <Popup
+                        trigger={(open) => (
+                          <span>
+                            <img
+                              src={fox}
+                              width="16"
+                              height="16"
+                              className="d-inline-block"
+                              alt=""
+                            />
+                          </span>
+                        )}
+                        position={"top center"}
+                        on={"hover"}
+                        offsetY={23}
+                        arrow={false}
+                        contentStyle={{
+                          backgroundColor: "#A4A4A4",
+                          borderRadius: "5px",
+                          width: "110px",
+                          padding: "1px",
+                          textAlign: "center",
+                          verticalAlign: "middle",
+                        }}
+                      >
+                        <small style={{ color: "white" }}>
+                          Add to Metamask
+                        </small>
+                      </Popup>
+                    </button>
+                  ) : null}
                 </div>
                 <text>{token.color}</text>
                 <img
@@ -641,7 +647,12 @@ const MintContainer = () => {
   return (
     <>
       {renderMintContainer()}
-      {!isTokenMetaLoading && tokenMeta.length > 0 ? renderTokenTable() : null}
+      {isActive &&
+      isTargetChainMatch &&
+      !isTokenMetaLoading &&
+      tokenMeta.length > 0
+        ? renderTokenTable()
+        : null}
     </>
   );
 };
