@@ -1,14 +1,15 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import MediaQuery from "react-responsive";
 import red from "../../assets/images/red.png";
 import blue from "../../assets/images/blue.png";
 import green from "../../assets/images/green.png";
 import orange from "../../assets/images/orange.png";
+import fox from "../../assets/images/metamask-fox.svg";
 import { Loading } from "../../components/Loading";
 import purple from "../../assets/images/purple.png";
 import { useWeb3React } from "@web3-react/core";
 import Button from "react-bootstrap/esm/Button";
-import { Popup as ReactPopup } from "reactjs-popup";
+import Popup from "reactjs-popup";
 import { BsInfoCircleFill } from "react-icons/bs";
 import { useProvider } from "../../components/state/provider/hooks";
 import { useNetwork } from "../../components/state/network/hooks";
@@ -249,6 +250,29 @@ const MintContainer = () => {
     }
   };
 
+  const handleAddToMetaMask = (tokenId: bigint) => {
+    (window as any).ethereum
+      ?.request({
+        method: "wallet_watchAsset",
+        params: {
+          type: "ERC721",
+          options: {
+            address: Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH_GOERLI,
+            tokenId: tokenId.toLocaleString(),
+          },
+        },
+      })
+      .then(() => {
+        showToast("NFT added successfully", "success");
+      })
+      .catch((e: any) => {
+        showToast(
+          "Something went wrong while adding your NFT to MetaMask.",
+          "failure"
+        );
+      });
+  };
+
   const renderMintContainer = () => {
     return (
       <div
@@ -351,7 +375,7 @@ const MintContainer = () => {
                   <div style={{ marginRight: "auto" }}>
                     <text>Your $PURSE Tokens: </text>
                     {numUserTokens > 0 ? (
-                      <ReactPopup
+                      <Popup
                         trigger={(open) => (
                           <span style={{ position: "relative", top: "-1.5px" }}>
                             <BsInfoCircleFill size={10} />
@@ -371,7 +395,7 @@ const MintContainer = () => {
                       ).toLocaleString()} PURSEBOX + ${FormatBigIntToString({
                           bigInt: userInactiveBalance ?? BigInt(0),
                         })} $PURSE`}</text>
-                      </ReactPopup>
+                      </Popup>
                     ) : null}
                   </div>
                   <text>
@@ -532,14 +556,71 @@ const MintContainer = () => {
                       border: "none",
                       color: "light-grey",
                       backgroundColor: "transparent",
-                      translate: "-3px -5px",
+                      translate: "-4px -5px",
                     }}
                     onClick={() => {
                       navigator.clipboard.writeText(token.id.toLocaleString());
                       showToast("Token ID copied to clipboard", "success");
                     }}
                   >
-                    <CopyIcon />
+                    <Popup
+                      trigger={(open) => (
+                        <span>
+                          <CopyIcon />
+                        </span>
+                      )}
+                      position={"top center"}
+                      on={"hover"}
+                      offsetY={23}
+                      arrow={false}
+                      contentStyle={{
+                        backgroundColor: "#A4A4A4",
+                        borderRadius: "5px",
+                        width: "80px",
+                        padding: "1px",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <small style={{ color: "white" }}>Copy NFT ID</small>
+                    </Popup>
+                  </button>
+                  <button
+                    style={{
+                      border: "none",
+                      color: "light-grey",
+                      backgroundColor: "transparent",
+                      translate: "-4px -5px",
+                    }}
+                    onClick={() => handleAddToMetaMask(token.id)}
+                  >
+                    <Popup
+                      trigger={(open) => (
+                        <span>
+                          <img
+                            src={fox}
+                            width="16"
+                            height="16"
+                            className="d-inline-block"
+                            alt=""
+                          />
+                        </span>
+                      )}
+                      position={"top center"}
+                      on={"hover"}
+                      offsetY={23}
+                      arrow={false}
+                      contentStyle={{
+                        backgroundColor: "#A4A4A4",
+                        borderRadius: "5px",
+                        width: "110px",
+                        padding: "1px",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <small style={{ color: "white" }}>Add to Metamask</small>
+                    </Popup>
                   </button>
                 </div>
                 <text>{token.color}</text>
