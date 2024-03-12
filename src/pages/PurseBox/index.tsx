@@ -5,6 +5,7 @@ import blue from "../../assets/images/blue.png";
 import green from "../../assets/images/green.png";
 import orange from "../../assets/images/orange.png";
 import fox from "../../assets/images/metamask-fox.svg";
+import etherscanLogo from "../../assets/images/etherscan-logo-circle.svg";
 import { Loading } from "../../components/Loading";
 import purple from "../../assets/images/purple.png";
 import { useWeb3React } from "@web3-react/core";
@@ -546,7 +547,7 @@ const MintContainer = () => {
               fontSize: "20px",
             }}
           >
-            <div style={{ paddingLeft: "5%", marginRight: "27%" }}>NFT ID</div>
+            <div style={{ paddingLeft: "5%", marginRight: "30%" }}>NFT ID</div>
             <div>Color Trait</div>
             <div
               style={{
@@ -569,7 +570,7 @@ const MintContainer = () => {
                 }}
               >
                 <div
-                  style={{ marginRight: isMetaMaskConnected ? "18%" : "25%" }}
+                  style={{ marginRight: isMetaMaskConnected ? "14%" : "21%" }}
                 >
                   <text>
                     {formatShortenAddress(token.id.toLocaleString(), 4, 5)}
@@ -608,13 +609,57 @@ const MintContainer = () => {
                       <small style={{ color: "white" }}>Copy NFT ID</small>
                     </Popup>
                   </button>
+                  <button
+                    style={{
+                      border: "none",
+                      color: "light-grey",
+                      backgroundColor: "transparent",
+                      translate: "-4px -3px",
+                    }}
+                    onClick={() =>
+                      window.open(
+                        `${Constants.ETH_MAINNET_BLOCKEXPLORER}nft/${Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH}/0x${token.id}`,
+                        "_blank"
+                      )
+                    }
+                  >
+                    <Popup
+                      trigger={(open) => (
+                        <span>
+                          <img
+                            src={etherscanLogo}
+                            width="16"
+                            height="16"
+                            className="d-inline-block"
+                            alt=""
+                          />
+                        </span>
+                      )}
+                      position={"top center"}
+                      on={"hover"}
+                      offsetY={23}
+                      arrow={false}
+                      contentStyle={{
+                        backgroundColor: "#A4A4A4",
+                        borderRadius: "5px",
+                        width: "110px",
+                        padding: "1px",
+                        textAlign: "center",
+                        verticalAlign: "middle",
+                      }}
+                    >
+                      <small style={{ color: "white" }}>
+                        Open in Etherscan
+                      </small>
+                    </Popup>
+                  </button>
                   {isMetaMaskConnected ? (
                     <button
                       style={{
                         border: "none",
                         color: "light-grey",
                         backgroundColor: "transparent",
-                        translate: "-4px -5px",
+                        translate: "-4px -3px",
                       }}
                       onClick={() => handleAddToMetaMask(token.id)}
                     >
