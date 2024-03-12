@@ -249,10 +249,10 @@ export default function Navb() {
                 <NavLink to="/lpfarm/menu">FARM</NavLink>
               </div>
               <div className="dropdown0">
-                <NavLink to="/stake/bsc">Stake - BSC</NavLink>
+                <NavLink to="/stake/bsc">STAKE - BSC</NavLink>
               </div>
               <div className="dropdown0">
-                <NavLink to="/stake/eth">Stake - Eth</NavLink>
+                <NavLink to="/stake/eth">STAKE - Eth</NavLink>
               </div>
               <div className="dropdown0">
                 <NavLink to={"/purseboxnft"}>PURSE BOX</NavLink>
@@ -323,7 +323,9 @@ export default function Navb() {
                 </Dropdown.Menu>
               </Dropdown>
             </div>
-            <div className={"mr-4"}></div>
+            <div className={"mr-4"}>
+              <NavLink to={"/pursebox"}>PURSE BOX</NavLink>
+            </div>
             <div>
               <span
                 className="hover"
