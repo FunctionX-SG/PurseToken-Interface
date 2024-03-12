@@ -580,7 +580,7 @@ const MintContainer = () => {
                       border: "none",
                       color: "light-grey",
                       backgroundColor: "transparent",
-                      translate: "-4px -5px",
+                      translate: "3px -3px",
                     }}
                     onClick={() => {
                       navigator.clipboard.writeText(token.id.toLocaleString());
@@ -614,11 +614,11 @@ const MintContainer = () => {
                       border: "none",
                       color: "light-grey",
                       backgroundColor: "transparent",
-                      translate: "-4px -3px",
+                      translate: "3px -3px",
                     }}
                     onClick={() =>
                       window.open(
-                        `${Constants.ETH_MAINNET_BLOCKEXPLORER}nft/${Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH}/0x${token.id}`,
+                        `${Constants.ETH_TESTNET_BLOCKEXPLORER_GOERLI}nft/${Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH_GOERLI}/0x${token.id}`,
                         "_blank"
                       )
                     }
@@ -642,7 +642,7 @@ const MintContainer = () => {
                       contentStyle={{
                         backgroundColor: "#A4A4A4",
                         borderRadius: "5px",
-                        width: "110px",
+                        width: "115px",
                         padding: "1px",
                         textAlign: "center",
                         verticalAlign: "middle",
@@ -659,7 +659,7 @@ const MintContainer = () => {
                         border: "none",
                         color: "light-grey",
                         backgroundColor: "transparent",
-                        translate: "-4px -3px",
+                        translate: "3px -3px",
                       }}
                       onClick={() => handleAddToMetaMask(token.id)}
                     >
