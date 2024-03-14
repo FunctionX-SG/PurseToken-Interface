@@ -299,7 +299,7 @@ const MintContainer = () => {
         style={{
           display: "flex",
           justifyContent: "center",
-          margin: "0 auto",
+          margin: "40px auto 0 auto",
           padding: "1%",
           width: "50%",
           minWidth: "535px",
@@ -727,58 +727,56 @@ export default function PurseBox() {
   const renderWeb = () => {
     return (
       <div style={{ margin: "0 auto", maxWidth: "1000px" }}>
-        <div className="my-4">
-          {/*<div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>*/}
+        {/*<div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>*/}
+        <div className="center img">
+          {" "}
+          {/*className="left img" style={{marginRight: '20px'}}*/}
+          <img src={purple} height="180" alt="" />
+        </div>
+        <label
+          className="textWhite center"
+          style={{ fontSize: "40px", textAlign: "center" }}
+        >
+          <big>
+            <text>PURSE BOX</text>
+          </big>
+        </label>
+        {/*</div>*/}
+        <div className="textMedium py-4">
+          <big>
+            <span className="textWhiteMedium">PURSE</span> adopts the
+            experimental <span className="textWhiteMedium">ERC404</span>,
+            merging <span className="textWhiteMedium">ERC20</span> and{" "}
+            <span className="textWhiteMedium">ERC721</span> features. This
+            innovation offers a user "
+            <span className="textWhiteMedium">option</span>" switch for
+            transitioning between token types, mitigating high fees and
+            enhancing exchange integration. This step signifies{" "}
+            <span className="textWhiteMedium">PURSE</span>'s commitment to
+            broadening digital asset utility and innovation.
+          </big>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <div className="center img">
-            {" "}
-            {/*className="left img" style={{marginRight: '20px'}}*/}
-            <img src={purple} height="180" alt="" />
+            <img src={red} height="135" alt="" />
           </div>
-          <label
-            className="textWhite center"
-            style={{ fontSize: "40px", textAlign: "center" }}
-          >
-            <big>
-              <text>PURSE BOX</text>
-            </big>
-          </label>
-          {/*</div>*/}
-          <div className="textMedium py-4">
-            <big>
-              <span className="textWhiteMedium">PURSE</span> adopts the
-              experimental <span className="textWhiteMedium">ERC404</span>,
-              merging <span className="textWhiteMedium">ERC20</span> and{" "}
-              <span className="textWhiteMedium">ERC721</span> features. This
-              innovation offers a user "
-              <span className="textWhiteMedium">option</span>" switch for
-              transitioning between token types, mitigating high fees and
-              enhancing exchange integration. This step signifies{" "}
-              <span className="textWhiteMedium">PURSE</span>'s commitment to
-              broadening digital asset utility and innovation.
-            </big>
+          <div className="center img">
+            <img src={green} height="135" alt="" />
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div className="center img">
-              <img src={red} height="135" alt="" />
-            </div>
-            <div className="center img">
-              <img src={green} height="135" alt="" />
-            </div>
-            <div className="center img">
-              <img src={blue} height="135" alt="" />
-            </div>
-            <div className="center img">
-              <img src={orange} height="135" alt="" />
-            </div>
-            <div className="center img">
-              <img src={purple} height="135" alt="" />
-            </div>
+          <div className="center img">
+            <img src={blue} height="135" alt="" />
+          </div>
+          <div className="center img">
+            <img src={orange} height="135" alt="" />
+          </div>
+          <div className="center img">
+            <img src={purple} height="135" alt="" />
           </div>
         </div>
       </div>
@@ -788,57 +786,55 @@ export default function PurseBox() {
   const renderMobile = () => {
     return (
       <div style={{ margin: "0 auto", maxWidth: "300px" }}>
-        <div id="content" className="mt-4">
-          {/*<div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>*/}
+        {/*<div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>*/}
+        <div className="center img">
+          {" "}
+          {/*className="left img" style={{marginRight: '20px'}}*/}
+          <img src={purple} height="180" alt="" />
+        </div>
+        <label
+          className="textWhite center"
+          style={{ fontSize: "40px", textAlign: "center" }}
+        >
+          <big>
+            <text>PURSE BOX</text>
+          </big>
+        </label>
+        <div className="textMedium py-4">
+          <big>
+            <span className="textWhiteMedium">PURSE</span> adopts the
+            experimental <span className="textWhiteMedium">ERC404</span>,
+            merging <span className="textWhiteMedium">ERC20</span> and{" "}
+            <span className="textWhiteMedium">ERC721</span> features. This
+            innovation offers a user "
+            <span className="textWhiteMedium">option</span>" switch for
+            transitioning between token types, mitigating high fees and
+            enhancing exchange integration. This step signifies{" "}
+            <span className="textWhiteMedium">PURSE</span>'s commitment to
+            broadening digital asset utility and innovation.
+          </big>
+        </div>
+        <div
+          style={{
+            display: "block",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
           <div className="center img">
-            {" "}
-            {/*className="left img" style={{marginRight: '20px'}}*/}
-            <img src={purple} height="180" alt="" />
+            <img src={red} height="135" alt="" />
           </div>
-          <label
-            className="textWhite center"
-            style={{ fontSize: "40px", textAlign: "center" }}
-          >
-            <big>
-              <text>PURSE BOX</text>
-            </big>
-          </label>
-          <div className="textMedium py-4">
-            <big>
-              <span className="textWhiteMedium">PURSE</span> adopts the
-              experimental <span className="textWhiteMedium">ERC404</span>,
-              merging <span className="textWhiteMedium">ERC20</span> and{" "}
-              <span className="textWhiteMedium">ERC721</span> features. This
-              innovation offers a user "
-              <span className="textWhiteMedium">option</span>" switch for
-              transitioning between token types, mitigating high fees and
-              enhancing exchange integration. This step signifies{" "}
-              <span className="textWhiteMedium">PURSE</span>'s commitment to
-              broadening digital asset utility and innovation.
-            </big>
+          <div className="center img">
+            <img src={green} height="135" alt="" />
           </div>
-          <div
-            style={{
-              display: "block",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <div className="center img">
-              <img src={red} height="135" alt="" />
-            </div>
-            <div className="center img">
-              <img src={green} height="135" alt="" />
-            </div>
-            <div className="center img">
-              <img src={blue} height="135" alt="" />
-            </div>
-            <div className="center img">
-              <img src={orange} height="135" alt="" />
-            </div>
-            <div className="center img">
-              <img src={purple} height="135" alt="" />
-            </div>
+          <div className="center img">
+            <img src={blue} height="135" alt="" />
+          </div>
+          <div className="center img">
+            <img src={orange} height="135" alt="" />
+          </div>
+          <div className="center img">
+            <img src={purple} height="135" alt="" />
           </div>
         </div>
       </div>
@@ -846,7 +842,7 @@ export default function PurseBox() {
   };
 
   return (
-    <div>
+    <div id="content">
       <MediaQuery minWidth={601}>{renderWeb()}</MediaQuery>
       <MediaQuery maxWidth={600}>{renderMobile()}</MediaQuery>
       <MintContainer />
