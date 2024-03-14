@@ -49,7 +49,7 @@ export default function App() {
 
                   <Route path="/stake" element={<PurseStakeBinance/>}></Route>
 
-                  <Route path="/pursebox" element={<PurseBox/>}></Route>
+                  <Route path="/purseboxnft" element={<PurseBox/>}></Route>
                 </Routes>
               </div>
             </main>

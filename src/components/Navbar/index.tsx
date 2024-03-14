@@ -293,7 +293,7 @@ export default function Navb() {
               <NavLink to="/stake">STAKE</NavLink>
             </div>
             <div className={"mr-4"}>
-              <NavLink to={"/pursebox"}>PURSE BOX</NavLink>
+              <NavLink to={"/purseboxnft"}>PURSE BOX</NavLink>
             </div>
             <div>
               <span
