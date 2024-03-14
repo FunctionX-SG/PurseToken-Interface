@@ -3,7 +3,7 @@ import { WalletConnect as WalletConnectV2 } from "@web3-react/walletconnect-v2";
 
 import { MAINNET_CHAINS } from "../chains";
 
-const [BSC, ...optionalChains] = Object.keys(MAINNET_CHAINS).map(Number);
+const [ETH, BSC, ...optionalChains] = Object.keys(MAINNET_CHAINS).map(Number);
 
 export const [walletConnectV2, hooks] = initializeConnector<WalletConnectV2>(
   (actions) =>
@@ -11,7 +11,7 @@ export const [walletConnectV2, hooks] = initializeConnector<WalletConnectV2>(
       actions,
       options: {
         projectId: "4a32ff3cb24de882c2a52a8536125cce",
-        chains: [BSC],
+        chains: [BSC, ETH],
         optionalChains,
         showQrModal: true,
       },
