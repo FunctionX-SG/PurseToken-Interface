@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.ddf6d7fb.css",
-    "main.js": "/static/js/main.afd70a77.js",
+    "main.js": "/static/js/main.fda29d76.js",
     "static/js/774.555a8177.chunk.js": "/static/js/774.555a8177.chunk.js",
     "static/js/459.2651939b.chunk.js": "/static/js/459.2651939b.chunk.js",
     "static/media/red.png": "/static/media/red.21aae8108e28b0b4617a.png",
@@ -24,12 +24,12 @@
     "static/media/etherscan-logo-circle.svg": "/static/media/etherscan-logo-circle.9766128bc4ad41ad1bbad073e586da74.svg",
     "index.html": "/index.html",
     "main.ddf6d7fb.css.map": "/static/css/main.ddf6d7fb.css.map",
-    "main.afd70a77.js.map": "/static/js/main.afd70a77.js.map",
+    "main.fda29d76.js.map": "/static/js/main.fda29d76.js.map",
     "774.555a8177.chunk.js.map": "/static/js/774.555a8177.chunk.js.map",
     "459.2651939b.chunk.js.map": "/static/js/459.2651939b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ddf6d7fb.css",
-    "static/js/main.afd70a77.js"
+    "static/js/main.fda29d76.js"
   ]
 }
