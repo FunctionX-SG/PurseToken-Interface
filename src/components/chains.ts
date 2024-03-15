@@ -13,6 +13,18 @@ interface ExtendedChainInformation extends BasicChainInformation {
 
 type ChainConfig = { [chainId: number]: ExtendedChainInformation };
 
+const ETH: AddEthereumChainParameter["nativeCurrency"] = {
+  name: "Ethereum",
+  symbol: "ETH",
+  decimals: 18,
+};
+
+const SepoliaETH: AddEthereumChainParameter["nativeCurrency"] = {
+  name: "SepoliaETH",
+  symbol: "SepoliaETH",
+  decimals: 18,
+};
+
 const MATIC: AddEthereumChainParameter["nativeCurrency"] = {
   name: "Matic",
   symbol: "MATIC",
@@ -38,13 +50,25 @@ const TBNB: AddEthereumChainParameter["nativeCurrency"] = {
 };
 
 export const MAINNET_CHAINS: ChainConfig = {
+  1: {
+    urls: [Constants.ETH_MAINNET_RPCURL].filter(Boolean),
+    name: "ETH",
+    blockExplorerUrls: [Constants.ETH_MAINNET_BLOCKEXPLORER],
+    nativeCurrency: ETH,
+  },
   56: {
     urls: [Constants.BSC_MAINNET_RPCURL, Constants.BSC_MAINNET_RPCURL_1].filter(
       Boolean
     ),
     name: "BSC",
-    blockExplorerUrls: ["https://bscscan.com/"],
+    blockExplorerUrls: [Constants.BSC_MAINNET_BLOCKEXPLORER],
     nativeCurrency: BNB,
+  },
+  11155111: {
+    urls: [Constants.ETH_TESTNET_RPCURL_SEPOLIA].filter(Boolean),
+    name: "ETH Testnet Sepolia",
+    blockExplorerUrls: [Constants.ETH_TESTNET_BLOCKEXPLORER_SEPOLIA],
+    nativeCurrency: SepoliaETH,
   },
   97: {
     urls: [
@@ -52,7 +76,7 @@ export const MAINNET_CHAINS: ChainConfig = {
       Constants.BSC_TESTNET_RPC_URL_S3,
     ].filter(Boolean),
     name: "BSC Testnet",
-    blockExplorerUrls: ["https://testnet.bscscan.com/"],
+    blockExplorerUrls: [Constants.BSC_TESTNET_BLOCKEXPLORER],
     nativeCurrency: TBNB,
   },
   137: {

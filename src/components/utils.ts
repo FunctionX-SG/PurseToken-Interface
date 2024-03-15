@@ -145,7 +145,7 @@ export function formatBigNumber(bignumber: any, units: string) {
 }
 
 export function isSupportedChain(chainId: number | undefined) {
-  const supportedChains = [56];
+  const supportedChains = [1, 56];
   return chainId && supportedChains.includes(chainId);
 }
 
@@ -206,7 +206,7 @@ export const FormatNumberToString = ({
   suffix?: string;
 }) => {
   if (!bigNum) {
-    return bigNum;
+    return;
   }
   if (BigNumber.from(0).eq(bigNum)) {
     return prefix + "0" + suffix;
@@ -222,16 +222,48 @@ export const FormatNumberToString = ({
   return prefix + resString + suffix;
 };
 
+export const FormatBigIntToString = ({
+  bigInt,
+  units = "ether",
+  locale = "en-US",
+  multiplier = 1,
+  decimalPlaces = 0,
+  prefix = "",
+  suffix = "",
+}: {
+  bigInt: bigint;
+  decimalPlaces?: number;
+  units?: string;
+  locale?: string;
+  multiplier?: number;
+  prefix?: string;
+  suffix?: string;
+}) => {
+  let resString = (
+    Number(ethers.utils.formatUnits(bigInt, units)) * multiplier
+  ).toLocaleString(locale, {
+    maximumFractionDigits: decimalPlaces,
+  });
+  return prefix + resString + suffix;
+};
+
 // turns 0x123456789abcd => 0x1234 ... abcd
-export const formatShortenAddress = (fullAddr: string | undefined) => {
-  if (!fullAddr || fullAddr.length < 10) {
+export const formatShortenAddress = (
+  fullAddr: string | undefined,
+  head = 7,
+  tail = 4
+) => {
+  if (!fullAddr || fullAddr.length < 10 || head < 0 || tail < 0) {
     return fullAddr;
   }
   const strLen = fullAddr.length;
-  return `${fullAddr.slice(0, 5)} ... ${fullAddr.slice(
-    strLen - 5,
-    strLen - 1
-  )}`;
+  return `${fullAddr.slice(0, head)} ... ${fullAddr.slice(strLen - tail)}`;
+};
+
+export const capitalizeString = (str: string | undefined) => {
+  if (!str) return undefined;
+  if (str.length === 0) return str;
+  return str.charAt(0).toLocaleUpperCase() + str.slice(1);
 };
 
 export const getMerkleProof = async (account: string) => {

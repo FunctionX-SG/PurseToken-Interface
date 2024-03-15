@@ -1,9 +1,14 @@
 {
   "files": {
-    "main.css": "/static/css/main.6c542784.css",
-    "main.js": "/static/js/main.648ddf97.js",
+    "main.css": "/static/css/main.ddf6d7fb.css",
+    "main.js": "/static/js/main.afd70a77.js",
     "static/js/774.555a8177.chunk.js": "/static/js/774.555a8177.chunk.js",
     "static/js/459.2651939b.chunk.js": "/static/js/459.2651939b.chunk.js",
+    "static/media/red.png": "/static/media/red.21aae8108e28b0b4617a.png",
+    "static/media/blue.png": "/static/media/blue.d0574643659b53879aad.png",
+    "static/media/purple.png": "/static/media/purple.16abae443c24a4765c63.png",
+    "static/media/orange.png": "/static/media/orange.89ecaf8feef2746d3289.png",
+    "static/media/green.png": "/static/media/green.0813c11e9eaa4f4936bf.png",
     "static/media/pancakeswap.png": "/static/media/pancakeswap.e1d4dec34dc4d1c73553.png",
     "static/media/purse2.png": "/static/media/purse2.9c40f1904cd669ea89e0.png",
     "static/media/IBMPlexSans-LightItalic.woff2": "/static/media/IBMPlexSans-LightItalic.1d79b94a777e9546100d.woff2",
@@ -16,14 +21,15 @@
     "static/media/asterisk.png": "/static/media/asterisk.42450bac1da29d88321b.png",
     "static/media/metamask-fox.svg": "/static/media/metamask-fox.7db94670ec6dc4d4c6c9e18af96281d8.svg",
     "static/media/walletconnect-logo.svg": "/static/media/walletconnect-logo.dfa25e470b69d81428be54242b6c9bd1.svg",
+    "static/media/etherscan-logo-circle.svg": "/static/media/etherscan-logo-circle.9766128bc4ad41ad1bbad073e586da74.svg",
     "index.html": "/index.html",
-    "main.6c542784.css.map": "/static/css/main.6c542784.css.map",
-    "main.648ddf97.js.map": "/static/js/main.648ddf97.js.map",
+    "main.ddf6d7fb.css.map": "/static/css/main.ddf6d7fb.css.map",
+    "main.afd70a77.js.map": "/static/js/main.afd70a77.js.map",
     "774.555a8177.chunk.js.map": "/static/js/774.555a8177.chunk.js.map",
     "459.2651939b.chunk.js.map": "/static/js/459.2651939b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.6c542784.css",
-    "static/js/main.648ddf97.js"
+    "static/css/main.ddf6d7fb.css",
+    "static/js/main.afd70a77.js"
   ]
 }

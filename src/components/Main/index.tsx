@@ -1,25 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import Popup from "reactjs-popup";
-import { BsFillQuestionCircleFill } from "react-icons/bs";
+import {BsFillQuestionCircleFill} from "react-icons/bs";
 import MediaQuery from "react-responsive";
-import {
-  AreaChart,
-  Area,
-  YAxis,
-  XAxis,
-  CartesianGrid,
-  Tooltip,
-} from "recharts";
+import {Area, AreaChart, CartesianGrid, Tooltip, XAxis, YAxis,} from "recharts";
 
-import { IoStar } from "react-icons/io5";
-import { formatUnits } from "ethers/lib/utils";
-import { BigNumber } from "ethers";
+import {IoStar} from "react-icons/io5";
+import {formatUnits} from "ethers/lib/utils";
+import {BigNumber} from "ethers";
 import * as Constants from "../../constants";
-import { Loading } from "../Loading";
-import { usePursePrice } from "../state/PursePrice/hooks";
-import { useContract } from "../state/contract/hooks";
-import { DataFormater, NumberFormatter, formatBigNumber } from "../utils";
+import {Loading} from "../Loading";
+import {usePursePrice} from "../state/PursePrice/hooks";
+import {useContract} from "../state/contract/hooks";
+import {DataFormater, formatBigNumber, NumberFormatter} from "../utils";
 import {Bounce} from "react-awesome-reveal";
+
 interface CustomTooltipProps {
   payload?: any[];
   label?: string;
@@ -28,7 +22,7 @@ interface CustomTooltipProps {
 export default function Main() {
   const [selectedTab, setSelectedTab] = useState("main");
   const [PURSEPrice] = usePursePrice();
-  const { restakingFarm, purseTokenUpgradable } = useContract();
+  const {restakingFarm, purseTokenUpgradable} = useContract();
 
   const [purseTokenTotalSupply, setPurseTokenTotalSupply] = useState<BigNumber>(
     BigNumber.from("0")
@@ -57,10 +51,10 @@ export default function Main() {
   const [isFetchFarmDataLoading, setIsFetchFarmDataLoading] = useState(true);
 
   const CustomTick = (propsCustomTick: any) => {
-    const { x, y, payload } = propsCustomTick;
+    const {x, y, payload} = propsCustomTick;
     const date = new Date(payload.value);
     const year = date.getFullYear();
-    const month = date.toLocaleString("en-US", { month: "short" });
+    const month = date.toLocaleString("en-US", {month: "short"});
 
     return (
       <g transform={`translate(${x},${y})`}>
@@ -74,12 +68,12 @@ export default function Main() {
     );
   };
 
-  const CustomTooltip: React.FC<CustomTooltipProps> = ({ payload, label }) => {
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({payload, label}) => {
     if (payload && payload.length) {
       const value = parseFloat(payload[0].value);
       const date = new Date(label as any);
       const year = date.getFullYear();
-      const month = date.toLocaleString("en-US", { month: "long" });
+      const month = date.toLocaleString("en-US", {month: "long"});
       const day = date.getDate();
       const formattedValue = value.toLocaleString("en-US", {
         maximumFractionDigits: 2,
@@ -158,18 +152,19 @@ export default function Main() {
         (resp) => resp.json()
       );
       cumulateTransferJson.forEach((item: { Sum: string; Date: string }) =>
-        _cumulateTransfer.push({ Sum: parseFloat(item.Sum), Date: item.Date })
+        _cumulateTransfer.push({Sum: parseFloat(item.Sum), Date: item.Date})
       );
       const cumulateBurnJson: any = await cumulateBurnResponse.then((resp) =>
         resp.json()
       );
       cumulateBurnJson.forEach((item: { Sum: string; Date: string }) =>
-        _cumulateBurn.push({ Sum: parseFloat(item.Sum), Date: item.Date })
+        _cumulateBurn.push({Sum: parseFloat(item.Sum), Date: item.Date})
       );
       setCumulateTransfer(_cumulateTransfer);
       setCumulateBurn(_cumulateBurn);
       setIsFetchMainDataLoading(false);
     }
+
     loadData();
   }, [purseTokenUpgradable]);
 
@@ -202,6 +197,7 @@ export default function Main() {
       setTotalRewardPerBlock(_totalRewardPerBlock);
       setIsFetchFarmDataLoading(false);
     }
+
     loadData();
   }, [purseTokenUpgradable, restakingFarm]);
 
@@ -209,24 +205,24 @@ export default function Main() {
     return (
       <div className="card mb-4 cardbody">
         <div className="card-body center">
-          <table className="textWhiteSmall" style={{ width: "100%" }}>
+          <table className="textWhiteSmall" style={{width: "100%"}}>
             <thead>
-              <tr>
-                <th scope="col">Market Cap</th>
-                <th scope="col">
-                  Circulating Supply{" "}
-                  <span className="">
+            <tr>
+              <th scope="col">Market Cap</th>
+              <th scope="col">
+                Circulating Supply{" "}
+                <span className="">
                     <Popup
                       trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
+                        <span style={{position: "relative", top: "-1px"}}>
+                          <BsFillQuestionCircleFill size={10}/>
                         </span>
                       )}
                       on="hover"
                       position="bottom center"
                       offsetY={-23}
                       offsetX={0}
-                      contentStyle={{ padding: "3px" }}
+                      contentStyle={{padding: "3px"}}
                     >
                       <span className="textInfo">
                         {" "}
@@ -234,67 +230,67 @@ export default function Main() {
                       </span>
                     </Popup>
                   </span>
-                </th>
-                <th scope="col">PURSE Token Price</th>
-              </tr>
+              </th>
+              <th scope="col">PURSE Token Price</th>
+            </tr>
             </thead>
             <tbody>
-              {isFetchMainDataLoading ? (
-                <tr>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                </tr>
-              ) : (
-                <tr>
-                  <td>
-                    $
-                    {(
-                      parseFloat(formatUnits(purseTokenTotalSupply, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatUnits(purseTokenTotalSupply, "ether")
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    $
-                    {parseFloat(PURSEPrice.toString()).toLocaleString("en-US", {
-                      maximumFractionDigits: 6,
-                    })}
-                  </td>
-                </tr>
-              )}
+            {isFetchMainDataLoading ? (
+              <tr>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td>
+                  $
+                  {(
+                    parseFloat(formatUnits(purseTokenTotalSupply, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+                </td>
+                <td>
+                  {parseFloat(
+                    formatUnits(purseTokenTotalSupply, "ether")
+                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+                </td>
+                <td>
+                  $
+                  {parseFloat(PURSEPrice.toString()).toLocaleString("en-US", {
+                    maximumFractionDigits: 6,
+                  })}
+                </td>
+              </tr>
+            )}
             </tbody>
             <thead>
-              <tr>
-                <td></td>
-              </tr>
+            <tr>
+              <td></td>
+            </tr>
             </thead>
             <thead>
-              <tr>
-                <th scope="col">
-                  Burn{" "}
-                  <span className="">
+            <tr>
+              <th scope="col">
+                Burn{" "}
+                <span className="">
                     <Popup
                       trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
+                        <span style={{position: "relative", top: "-1px"}}>
+                          <BsFillQuestionCircleFill size={10}/>
                         </span>
                       )}
                       on="hover"
                       position="right center"
                       offsetY={-23}
                       offsetX={0}
-                      contentStyle={{ padding: "1px" }}
+                      contentStyle={{padding: "1px"}}
                     >
                       <span className="textInfo">
                         {" "}
@@ -302,22 +298,22 @@ export default function Main() {
                       </span>
                     </Popup>
                   </span>
-                </th>
+              </th>
 
-                <th scope="col">
-                  Distribution{" "}
-                  <span className="">
+              <th scope="col">
+                Distribution{" "}
+                <span className="">
                     <Popup
                       trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
+                        <span style={{position: "relative", top: "-1px"}}>
+                          <BsFillQuestionCircleFill size={10}/>
                         </span>
                       )}
                       on="hover"
                       position="bottom center"
                       offsetY={-23}
                       offsetX={0}
-                      contentStyle={{ padding: "1px" }}
+                      contentStyle={{padding: "1px"}}
                     >
                       <span className="textInfo">
                         {" "}
@@ -325,22 +321,22 @@ export default function Main() {
                       </span>
                     </Popup>
                   </span>
-                </th>
+              </th>
 
-                <th scope="col">
-                  Liquidity{" "}
-                  <span className="">
+              <th scope="col">
+                Liquidity{" "}
+                <span className="">
                     <Popup
                       trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
+                        <span style={{position: "relative", top: "-1px"}}>
+                          <BsFillQuestionCircleFill size={10}/>
                         </span>
                       )}
                       on="hover"
                       position="left center"
                       offsetY={-23}
                       offsetX={0}
-                      contentStyle={{ padding: "1px" }}
+                      contentStyle={{padding: "1px"}}
                     >
                       <span className="textInfo">
                         {" "}
@@ -348,130 +344,130 @@ export default function Main() {
                       </span>
                     </Popup>
                   </span>
-                </th>
-              </tr>
+              </th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <th scope="col">(Total)</th>
-                <th scope="col">(Total)</th>
-                <th scope="col">(Total)</th>
-              </tr>
+            <tr>
+              <th scope="col">(Total)</th>
+              <th scope="col">(Total)</th>
+              <th scope="col">(Total)</th>
+            </tr>
             </tbody>
             <tbody>
-              {isFetchMainDataLoading ? (
-                <tr>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                </tr>
-              ) : (
-                <tr>
-                  <td>
-                    {parseFloat(
-                      formatUnits(totalBurnAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(totalBurnAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatUnits(totalTransferAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatUnits(totalTransferAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                </tr>
-              )}
+            {isFetchMainDataLoading ? (
+              <tr>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td>
+                  {parseFloat(
+                    formatUnits(totalBurnAmount, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  / ${" "}
+                  {(
+                    parseFloat(formatUnits(totalBurnAmount, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+                </td>
+                <td>
+                  {parseFloat(
+                    formatUnits(totalTransferAmount, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  / ${" "}
+                  {(
+                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+                </td>
+                <td>
+                  {parseFloat(
+                    formatUnits(totalTransferAmount, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  / ${" "}
+                  {(
+                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+                </td>
+              </tr>
+            )}
             </tbody>
             <thead>
-              <tr>
-                <th scope="col">(Past 30 days Sum)</th>
-                <th scope="col">(Past 30 days Sum)</th>
-                <th scope="col">(Past 30 days Sum)</th>
-              </tr>
+            <tr>
+              <th scope="col">(Past 30 days Sum)</th>
+              <th scope="col">(Past 30 days Sum)</th>
+              <th scope="col">(Past 30 days Sum)</th>
+            </tr>
             </thead>
             <tbody>
-              {isFetchMainDataLoading ? (
-                <tr>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                </tr>
-              ) : (
-                <tr>
-                  <td>
-                    {parseFloat(
-                      formatUnits(sum30BurnAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(sum30BurnAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatUnits(sum30TransferAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatUnits(sum30TransferAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                </tr>
-              )}
+            {isFetchMainDataLoading ? (
+              <tr>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td>
+                  {parseFloat(
+                    formatUnits(sum30BurnAmount, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  / ${" "}
+                  {(
+                    parseFloat(formatUnits(sum30BurnAmount, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+                </td>
+                <td>
+                  {parseFloat(
+                    formatUnits(sum30TransferAmount, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  / ${" "}
+                  {(
+                    parseFloat(formatUnits(sum30TransferAmount, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+                </td>
+                <td>
+                  {parseFloat(
+                    formatUnits(sum30TransferAmount, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  / ${" "}
+                  {(
+                    parseFloat(formatUnits(sum30TransferAmount, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+                </td>
+              </tr>
+            )}
             </tbody>
           </table>
         </div>
@@ -485,103 +481,103 @@ export default function Main() {
         <div className="card-body center">
           <table
             className="textWhiteSmall text-center"
-            style={{ width: "100%" }}
+            style={{width: "100%"}}
           >
             <thead>
-              <tr>
-                <th scope="col">Total Pool</th>
-                <th scope="col">PURSE Token Total Supply</th>
-                <th scope="col">Farm's PURSE Reward</th>
-              </tr>
+            <tr>
+              <th scope="col">Total Pool</th>
+              <th scope="col">PURSE Token Total Supply</th>
+              <th scope="col">Farm's PURSE Reward</th>
+            </tr>
             </thead>
             <tbody>
-              {isFetchFarmDataLoading ? (
-                <tr>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                </tr>
-              ) : (
-                <tr>
-                  <td>{poolLength.toString()}</td>
-                  <td>
-                    {parseFloat(
-                      formatBigNumber(purseTokenTotalSupply, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    Purse
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatBigNumber(totalRewardPerBlock, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 3,
-                    })}{" "}
-                    Purse per block
-                  </td>
-                </tr>
-              )}
+            {isFetchFarmDataLoading ? (
+              <tr>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td>{poolLength.toString()}</td>
+                <td>
+                  {parseFloat(
+                    formatBigNumber(purseTokenTotalSupply, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  Purse
+                </td>
+                <td>
+                  {parseFloat(
+                    formatBigNumber(totalRewardPerBlock, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 3,
+                  })}{" "}
+                  Purse per block
+                </td>
+              </tr>
+            )}
             </tbody>
             <thead>
-              <tr>
-                <td></td>
-              </tr>
+            <tr>
+              <td></td>
+            </tr>
             </thead>
             <thead>
-              <tr>
-                <th scope="col">Farm's Cap Reward Token</th>
-                <th scope="col">Farm's Minted Reward Token</th>
-                <th scope="col">Farm's PURSE Balance</th>
-              </tr>
+            <tr>
+              <th scope="col">Farm's Cap Reward Token</th>
+              <th scope="col">Farm's Minted Reward Token</th>
+              <th scope="col">Farm's PURSE Balance</th>
+            </tr>
             </thead>
             <tbody>
-              {isFetchFarmDataLoading ? (
-                <tr>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                </tr>
-              ) : (
-                <tr>
-                  <td>
-                    {parseFloat(
-                      formatBigNumber(poolCapRewardToken, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    Purse
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatBigNumber(poolMintedRewardToken, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    Purse
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatBigNumber(poolRewardToken, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    Purse
-                  </td>
-                </tr>
-              )}
+            {isFetchFarmDataLoading ? (
+              <tr>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+                <td>
+                  <Loading/>
+                </td>
+              </tr>
+            ) : (
+              <tr>
+                <td>
+                  {parseFloat(
+                    formatBigNumber(poolCapRewardToken, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  Purse
+                </td>
+                <td>
+                  {parseFloat(
+                    formatBigNumber(poolMintedRewardToken, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  Purse
+                </td>
+                <td>
+                  {parseFloat(
+                    formatBigNumber(poolRewardToken, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  Purse
+                </td>
+              </tr>
+            )}
             </tbody>
           </table>
         </div>
@@ -592,10 +588,10 @@ export default function Main() {
   const renderFullTable = () => {
     return (
       <>
-        <div style={{ display: selectedTab === "main" ? "block" : "none" }}>
+        <div style={{display: selectedTab === "main" ? "block" : "none"}}>
           {renderFullMainTable()}
         </div>
-        <div style={{ display: selectedTab === "farm" ? "block" : "none" }}>
+        <div style={{display: selectedTab === "farm" ? "block" : "none"}}>
           {renderFullFarmTable()}
         </div>
         {/* <div style={{display: selectedTab === "vault" ? "block" : "none"}}>
@@ -615,14 +611,14 @@ export default function Main() {
         }}
       >
         <label
-            className="textWhite center mb-2 pt-4"
-            style={{ fontSize: "40px", textAlign: "center" }}
+          className="textWhite center mb-2 pt-4"
+          style={{fontSize: "40px", textAlign: "center"}}
         >
           <big>
             <b>CHARTS</b>
           </big>
         </label>
-        <div className="row center" style={{ gap: "20px" }}>
+        <div className="row center" style={{gap: "20px"}}>
           <div>
             {/* <AreaChart width={460} height={300} data={cumulateBurn}>
         <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>
@@ -634,7 +630,7 @@ export default function Main() {
       </AreaChart><li style={{color:'transparent'}}/> */}
             <div
               className={`common-title`}
-              style={{ marginBottom: "40px", textAlign: "center" }}
+              style={{marginBottom: "40px", textAlign: "center"}}
             >
               Burn
             </div>
@@ -650,9 +646,9 @@ export default function Main() {
             >
               <defs>
                 <linearGradient id="Burn" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="10%" stopColor="#fcdb5b" stopOpacity={0.8} />
-                  <stop offset="50%" stopColor="#f7e01e" stopOpacity={0.1} />
-                  <stop offset="100%" stopColor="#ffe95b" stopOpacity={0.1} />
+                  <stop offset="10%" stopColor="#fcdb5b" stopOpacity={0.8}/>
+                  <stop offset="50%" stopColor="#f7e01e" stopOpacity={0.1}/>
+                  <stop offset="100%" stopColor="#ffe95b" stopOpacity={0.1}/>
                 </linearGradient>
               </defs>
               <XAxis
@@ -665,7 +661,7 @@ export default function Main() {
               <YAxis
                 axisLine={false}
                 tickFormatter={DataFormater}
-                tick={{ fontSize: 16 }}
+                tick={{fontSize: 16}}
                 stroke="#000"
               />
               <CartesianGrid
@@ -687,13 +683,13 @@ export default function Main() {
                 }}
               />
               <Tooltip
-                content={<CustomTooltip />}
+                content={<CustomTooltip/>}
                 cursor={{
                   stroke: "#000",
                   strokeWidth: 1,
                   strokeDasharray: "2 2",
                 }}
-                itemStyle={{ color: "#8884d8" }}
+                itemStyle={{color: "#8884d8"}}
                 formatter={NumberFormatter}
               />
             </AreaChart>
@@ -709,7 +705,7 @@ export default function Main() {
       </AreaChart><li style={{color:'transparent'}}/> */}
             <div
               className={`common-title`}
-              style={{ marginBottom: "40px", textAlign: "center" }}
+              style={{marginBottom: "40px", textAlign: "center"}}
             >
               Distribution / Liquidity
             </div>
@@ -731,9 +727,9 @@ export default function Main() {
                   x2="1"
                   y2="1"
                 >
-                  <stop offset="10%" stopColor="#ba00ff" stopOpacity={0.8} />
-                  <stop offset="50%" stopColor="#d974ff" stopOpacity={0.1} />
-                  <stop offset="100%" stopColor="#dc7fff" stopOpacity={0.1} />
+                  <stop offset="10%" stopColor="#ba00ff" stopOpacity={0.8}/>
+                  <stop offset="50%" stopColor="#d974ff" stopOpacity={0.1}/>
+                  <stop offset="100%" stopColor="#dc7fff" stopOpacity={0.1}/>
                 </linearGradient>
               </defs>
               <XAxis
@@ -746,7 +742,7 @@ export default function Main() {
               <YAxis
                 axisLine={false}
                 tickFormatter={DataFormater}
-                tick={{ fontSize: 16 }}
+                tick={{fontSize: 16}}
                 stroke="#000"
               />
               <CartesianGrid
@@ -768,13 +764,13 @@ export default function Main() {
                 }}
               />
               <Tooltip
-                content={<CustomTooltip />}
+                content={<CustomTooltip/>}
                 cursor={{
                   stroke: "#000",
                   strokeWidth: 1,
                   strokeDasharray: "2 2",
                 }}
-                itemStyle={{ color: "#8884d8" }}
+                itemStyle={{color: "#8884d8"}}
                 formatter={NumberFormatter}
               />
             </AreaChart>
@@ -786,26 +782,26 @@ export default function Main() {
 
   const renderNarrowMainTable = () => {
     return (
-      <div className="card mb-4 cardbody" style={{ minWidth: "300px" }}>
+      <div className="card mb-4 cardbody" style={{minWidth: "300px"}}>
         <div className="card-body center">
           <table className="textWhiteSmaller">
             <thead>
-              <tr>
-                <th scope="col">Market Cap</th>
-                <th scope="col">
-                  Circulating Supply{" "}
-                  <span className="">
+            <tr>
+              <th scope="col">Market Cap</th>
+              <th scope="col">
+                Circulating Supply{" "}
+                <span className="">
                     <Popup
                       trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
+                        <span style={{position: "relative", top: "-1px"}}>
+                          <BsFillQuestionCircleFill size={10}/>
                         </span>
                       )}
                       on="hover"
                       position="left center"
                       offsetY={-23}
                       offsetX={0}
-                      contentStyle={{ padding: "3px" }}
+                      contentStyle={{padding: "3px"}}
                     >
                       <span className="textInfo">
                         {" "}
@@ -813,227 +809,227 @@ export default function Main() {
                       </span>
                     </Popup>
                   </span>
-                </th>
-              </tr>
+              </th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  $
-                  {(
-                    parseFloat(formatUnits(purseTokenTotalSupply, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(purseTokenTotalSupply, "ether")
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-              </tr>
+            <tr>
+              <td>
+                $
+                {(
+                  parseFloat(formatUnits(purseTokenTotalSupply, "ether")) *
+                  PURSEPrice
+                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+              </td>
+              <td>
+                {parseFloat(
+                  formatUnits(purseTokenTotalSupply, "ether")
+                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+              </td>
+            </tr>
             </tbody>
             <thead>
-              <tr>
-                <td></td>
-              </tr>
+            <tr>
+              <td></td>
+            </tr>
             </thead>
             <thead>
-              <tr>
-                <th scope="col">
-                  Burn (Total)
-                  <span className="">
+            <tr>
+              <th scope="col">
+                Burn (Total)
+                <span className="">
                     &nbsp;
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
+                  <Popup
+                    trigger={(open) => (
+                      <span style={{position: "relative", top: "-1px"}}>
+                          <BsFillQuestionCircleFill size={10}/>
                         </span>
-                      )}
-                      on="hover"
-                      position="bottom center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
+                    )}
+                    on="hover"
+                    position="bottom center"
+                    offsetY={-23}
+                    offsetX={0}
+                    contentStyle={{padding: "1px"}}
+                  >
                       <span className="textInfo">
                         {" "}
                         (Unit in Token / unit in USD)
                       </span>
                     </Popup>
                   </span>
-                </th>
-                <th scope="col">(Past 30 days&nbsp;Sum)</th>
-              </tr>
+              </th>
+              <th scope="col">(Past 30 days&nbsp;Sum)</th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalBurnAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalBurnAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(sum30BurnAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(sum30BurnAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-              </tr>
+            <tr>
+              <td>
+                {parseFloat(
+                  formatUnits(totalBurnAmount, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                / ${" "}
+                {(
+                  parseFloat(formatUnits(totalBurnAmount, "ether")) *
+                  PURSEPrice
+                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+              </td>
+              <td>
+                {parseFloat(
+                  formatUnits(sum30BurnAmount, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                / ${" "}
+                {(
+                  parseFloat(formatUnits(sum30BurnAmount, "ether")) *
+                  PURSEPrice
+                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+              </td>
+            </tr>
             </tbody>
             <thead>
-              <tr>
-                <td></td>
-              </tr>
+            <tr>
+              <td></td>
+            </tr>
             </thead>
             <thead>
-              <tr>
-                <th scope="col">
-                  Distribution (Total)
-                  <span className="">
+            <tr>
+              <th scope="col">
+                Distribution (Total)
+                <span className="">
                     &nbsp;
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
+                  <Popup
+                    trigger={(open) => (
+                      <span style={{position: "relative", top: "-1px"}}>
+                          <BsFillQuestionCircleFill size={10}/>
                         </span>
-                      )}
-                      on="hover"
-                      position="bottom center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
+                    )}
+                    on="hover"
+                    position="bottom center"
+                    offsetY={-23}
+                    offsetX={0}
+                    contentStyle={{padding: "1px"}}
+                  >
                       <span className="textInfo">
                         {" "}
                         (Unit in Token / unit in USD)
                       </span>
                     </Popup>
                   </span>
-                </th>
-                <th scope="col">(Past 30 days&nbsp;Sum)</th>
-              </tr>
+              </th>
+              <th scope="col">(Past 30 days&nbsp;Sum)</th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(sum30TransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-              </tr>
+            <tr>
+              <td>
+                {parseFloat(
+                  formatUnits(totalTransferAmount, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                / ${" "}
+                {(
+                  parseFloat(formatUnits(totalTransferAmount, "ether")) *
+                  PURSEPrice
+                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+              </td>
+              <td>
+                {parseFloat(
+                  formatUnits(sum30TransferAmount, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                / ${" "}
+                {(
+                  parseFloat(formatUnits(sum30TransferAmount, "ether")) *
+                  PURSEPrice
+                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+              </td>
+            </tr>
             </tbody>
             <thead>
-              <tr>
-                <td></td>
-              </tr>
+            <tr>
+              <td></td>
+            </tr>
             </thead>
             <thead>
-              <tr>
-                <th scope="col">
-                  Liquidity (Total)
-                  <span className="">
+            <tr>
+              <th scope="col">
+                Liquidity (Total)
+                <span className="">
                     &nbsp;
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
+                  <Popup
+                    trigger={(open) => (
+                      <span style={{position: "relative", top: "-1px"}}>
+                          <BsFillQuestionCircleFill size={10}/>
                         </span>
-                      )}
-                      on="hover"
-                      position="bottom center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
+                    )}
+                    on="hover"
+                    position="bottom center"
+                    offsetY={-23}
+                    offsetX={0}
+                    contentStyle={{padding: "1px"}}
+                  >
                       <span className="textInfo">
                         {" "}
                         (Unit in Token / unit in USD){" "}
                       </span>
                     </Popup>
                   </span>
-                </th>
-                <th scope="col">(Past 30 days&nbsp;Sum)</th>
-              </tr>
+              </th>
+              <th scope="col">(Past 30 days&nbsp;Sum)</th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(sum30TransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-              </tr>
+            <tr>
+              <td>
+                {parseFloat(
+                  formatUnits(totalTransferAmount, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                / ${" "}
+                {(
+                  parseFloat(formatUnits(totalTransferAmount, "ether")) *
+                  PURSEPrice
+                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+              </td>
+              <td>
+                {parseFloat(
+                  formatUnits(sum30TransferAmount, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                / ${" "}
+                {(
+                  parseFloat(formatUnits(sum30TransferAmount, "ether")) *
+                  PURSEPrice
+                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
+              </td>
+            </tr>
             </tbody>
             <thead>
-              <tr>
-                <td></td>
-              </tr>
+            <tr>
+              <td></td>
+            </tr>
             </thead>
             <thead>
-              <tr>
-                <th scope="col">PURSE Token Price</th>
-              </tr>
+            <tr>
+              <th scope="col">PURSE Token Price</th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  $
-                  {parseFloat(PURSEPrice.toString()).toLocaleString("en-US", {
-                    maximumFractionDigits: 6,
-                  })}
-                </td>
-              </tr>
+            <tr>
+              <td>
+                $
+                {parseFloat(PURSEPrice.toString()).toLocaleString("en-US", {
+                  maximumFractionDigits: 6,
+                })}
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -1043,89 +1039,89 @@ export default function Main() {
 
   const renderNarrowFarmTable = () => {
     return (
-      <div className="card mb-2 cardbody" style={{ minWidth: "300px" }}>
+      <div className="card mb-2 cardbody" style={{minWidth: "300px"}}>
         <div className="card-body center">
           <table className="textWhiteSmaller text-center">
             <thead>
-              <tr>
-                <th scope="col">Total Pool</th>
-                <th scope="col">Farm's PURSE Reward</th>
-              </tr>
+            <tr>
+              <th scope="col">Total Pool</th>
+              <th scope="col">Farm's PURSE Reward</th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>{poolLength}</td>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(totalRewardPerBlock, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse per block
-                </td>
-              </tr>
+            <tr>
+              <td>{poolLength}</td>
+              <td>
+                {parseFloat(
+                  formatBigNumber(totalRewardPerBlock, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                Purse per block
+              </td>
+            </tr>
             </tbody>
             <thead>
-              <tr>
-                <td></td>
-              </tr>
+            <tr>
+              <td></td>
+            </tr>
             </thead>
             <thead>
-              <tr>
-                <th scope="col">PURSE Token Total Supply</th>
-                <th scope="col">Farm's Cap Reward Token</th>
-              </tr>
+            <tr>
+              <th scope="col">PURSE Token Total Supply</th>
+              <th scope="col">Farm's Cap Reward Token</th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(purseTokenTotalSupply, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse
-                </td>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(poolCapRewardToken, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse
-                </td>
-              </tr>
+            <tr>
+              <td>
+                {parseFloat(
+                  formatBigNumber(purseTokenTotalSupply, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                Purse
+              </td>
+              <td>
+                {parseFloat(
+                  formatBigNumber(poolCapRewardToken, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                Purse
+              </td>
+            </tr>
             </tbody>
             <thead>
-              <tr>
-                <td></td>
-              </tr>
+            <tr>
+              <td></td>
+            </tr>
             </thead>
             <thead>
-              <tr>
-                <th scope="col">Farm's Minted Reward Token</th>
-                <th scope="col">Farm's PURSE Balance</th>
-              </tr>
+            <tr>
+              <th scope="col">Farm's Minted Reward Token</th>
+              <th scope="col">Farm's PURSE Balance</th>
+            </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(poolMintedRewardToken, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse
-                </td>
-                <td>
-                  {parseFloat(
-                    formatBigNumber(poolRewardToken, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  Purse
-                </td>
-              </tr>
+            <tr>
+              <td>
+                {parseFloat(
+                  formatBigNumber(poolMintedRewardToken, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                Purse
+              </td>
+              <td>
+                {parseFloat(
+                  formatBigNumber(poolRewardToken, "ether")
+                ).toLocaleString("en-US", {
+                  maximumFractionDigits: 0,
+                })}{" "}
+                Purse
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -1136,10 +1132,10 @@ export default function Main() {
   const renderNarrowTable = () => {
     return (
       <>
-        <div style={{ display: selectedTab === "main" ? "block" : "none" }}>
+        <div style={{display: selectedTab === "main" ? "block" : "none"}}>
           {renderNarrowMainTable()}
         </div>
-        <div style={{ display: selectedTab === "farm" ? "block" : "none" }}>
+        <div style={{display: selectedTab === "farm" ? "block" : "none"}}>
           {renderNarrowFarmTable()}
         </div>
         {/* <div style={{display: selectedTab === "vault" ? "block" : "none"}}>
@@ -1159,8 +1155,8 @@ export default function Main() {
         }}
       >
         <label
-            className="textWhite center mb-2 pt-4"
-            style={{ fontSize: "40px", textAlign: "center" }}
+          className="textWhite center mb-2 pt-4"
+          style={{fontSize: "40px", textAlign: "center"}}
         >
           <big>
             <b>CHARTS</b>
@@ -1181,7 +1177,7 @@ export default function Main() {
             <div>
               <div
                 className={`common-title`}
-                style={{ marginBottom: "40px", textAlign: "center" }}
+                style={{marginBottom: "40px", textAlign: "center"}}
               >
                 Burn
               </div>
@@ -1197,9 +1193,9 @@ export default function Main() {
               >
                 <defs>
                   <linearGradient id="Burn" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="10%" stopColor="#fcdb5b" stopOpacity={0.8} />
-                    <stop offset="50%" stopColor="#f7e01e" stopOpacity={0.1} />
-                    <stop offset="100%" stopColor="#ffe95b" stopOpacity={0.1} />
+                    <stop offset="10%" stopColor="#fcdb5b" stopOpacity={0.8}/>
+                    <stop offset="50%" stopColor="#f7e01e" stopOpacity={0.1}/>
+                    <stop offset="100%" stopColor="#ffe95b" stopOpacity={0.1}/>
                   </linearGradient>
                 </defs>
                 <XAxis
@@ -1212,7 +1208,7 @@ export default function Main() {
                 <YAxis
                   axisLine={false}
                   tickFormatter={DataFormater}
-                  tick={{ fontSize: 16 }}
+                  tick={{fontSize: 16}}
                   stroke="#000"
                 />
                 <CartesianGrid
@@ -1234,13 +1230,13 @@ export default function Main() {
                   }}
                 />
                 <Tooltip
-                  content={<CustomTooltip />}
+                  content={<CustomTooltip/>}
                   cursor={{
                     stroke: "#000",
                     strokeWidth: 1,
                     strokeDasharray: "2 2",
                   }}
-                  itemStyle={{ color: "#8884d8" }}
+                  itemStyle={{color: "#8884d8"}}
                   formatter={NumberFormatter}
                 />
               </AreaChart>
@@ -1261,7 +1257,7 @@ export default function Main() {
           <div>
             <div
               className={`common-title`}
-              style={{ marginBottom: "40px", textAlign: "center" }}
+              style={{marginBottom: "40px", textAlign: "center"}}
             >
               Distribution / Liquidity
             </div>
@@ -1283,9 +1279,9 @@ export default function Main() {
                   x2="1"
                   y2="1"
                 >
-                  <stop offset="10%" stopColor="#ba00ff" stopOpacity={0.8} />
-                  <stop offset="50%" stopColor="#d974ff" stopOpacity={0.1} />
-                  <stop offset="100%" stopColor="#dc7fff" stopOpacity={0.1} />
+                  <stop offset="10%" stopColor="#ba00ff" stopOpacity={0.8}/>
+                  <stop offset="50%" stopColor="#d974ff" stopOpacity={0.1}/>
+                  <stop offset="100%" stopColor="#dc7fff" stopOpacity={0.1}/>
                 </linearGradient>
               </defs>
               <XAxis
@@ -1298,7 +1294,7 @@ export default function Main() {
               <YAxis
                 axisLine={false}
                 tickFormatter={DataFormater}
-                tick={{ fontSize: 16 }}
+                tick={{fontSize: 16}}
                 stroke="#000"
               />
               <CartesianGrid
@@ -1320,13 +1316,13 @@ export default function Main() {
                 }}
               />
               <Tooltip
-                content={<CustomTooltip />}
+                content={<CustomTooltip/>}
                 cursor={{
                   stroke: "#000",
                   strokeWidth: 1,
                   strokeDasharray: "2 2",
                 }}
-                itemStyle={{ color: "#8884d8" }}
+                itemStyle={{color: "#8884d8"}}
                 formatter={NumberFormatter}
               />
             </AreaChart>
@@ -1346,18 +1342,18 @@ export default function Main() {
       >
         <div
           className="text mt-2 common-title"
-          style={{ color: "#000", fontSize: "14px" }}
+          style={{color: "#000", fontSize: "14px"}}
         >
           &nbsp;Remarks :
         </div>
-        <br />
+        <br/>
         <div
           className="rowC ml-2 mt-2"
-          style={{ color: "#000", fontSize: "12px" }}
+          style={{color: "#000", fontSize: "12px"}}
         >
           &nbsp;
           <div>
-            <IoStar className="mb-1" />
+            <IoStar className="mb-1"/>
             &nbsp;&nbsp;
           </div>
           <div>
@@ -1367,11 +1363,11 @@ export default function Main() {
         </div>
         <div
           className="rowC ml-2 mt-1"
-          style={{ color: "#000", fontSize: "12px" }}
+          style={{color: "#000", fontSize: "12px"}}
         >
           &nbsp;
           <div>
-            <IoStar className="mb-1" />
+            <IoStar className="mb-1"/>
             &nbsp;&nbsp;
           </div>
           <div>
@@ -1381,11 +1377,11 @@ export default function Main() {
         </div>
         <div
           className="rowC ml-2 mt-1"
-          style={{ color: "#000", fontSize: "12px" }}
+          style={{color: "#000", fontSize: "12px"}}
         >
           &nbsp;
           <div>
-            <IoStar className="mb-1" />
+            <IoStar className="mb-1"/>
             &nbsp;&nbsp;
           </div>
           <div>
@@ -1399,54 +1395,54 @@ export default function Main() {
 
   const renderProtocolRemarks = () => {
     return (
-        <>
-          <label
-              className="textWhite center mb-2 pt-4"
-              style={{ fontSize: "40px", textAlign: "center" }}
+      <>
+        <label
+          className="textWhite center mb-2 pt-4"
+          style={{fontSize: "40px", textAlign: "center"}}
+        >
+          <big>
+            <b>PROTOCOLS</b>
+          </big>
+        </label>
+        <Bounce direction="left" triggerOnce>
+          <div
+            className="mt-2"
+            style={{
+              minWidth: "300px",
+              padding: "15px",
+              backgroundColor: "var(--basic-ash)",
+            }}
           >
-            <big>
-              <b>PROTOCOLS</b>
-            </big>
-          </label>
-          <Bounce direction="left" triggerOnce>
-            <div
-                className="mt-2"
-                style={{
-                  minWidth: "300px",
-                  padding: "15px",
-                  backgroundColor: "var(--basic-ash)",
-                }}
-            >
-              <div className="textWhiteSmall">
-                <b>LP Restaking Farm</b>
-              </div>
-              <div className="textWhite mt-2" style={{ fontSize: "13px" }}>
-                <b>
-                  Providing liquidity on respective platform to receive LP Tokens
-                  and earn PURSE by staking the LP Tokens in the LP Restaking
-                  Farm.
-                </b>
-              </div>
+            <div className="textWhiteSmall">
+              <b>LP Restaking Farm</b>
             </div>
-          </Bounce>
-          <Bounce direction="left" triggerOnce>
-            <div
-                className="mt-2"
-                style={{
-                  minWidth: "300px",
-                  padding: "15px",
-                  backgroundColor: "var(--basic-ash)",
-                }}
-            >
-              <div className="textWhiteSmall">
-                <b>PURSE Staking</b>
-              </div>
-              <div className="textWhite mt-2" style={{ fontSize: "13px" }}>
-                <b>Stake PURSE and amplify your earnings with PURSE Staking.</b>
-              </div>
+            <div className="textWhite mt-2" style={{fontSize: "13px"}}>
+              <b>
+                Providing liquidity on respective platform to receive LP Tokens
+                and earn PURSE by staking the LP Tokens in the LP Restaking
+                Farm.
+              </b>
             </div>
-          </Bounce>
-        </>
+          </div>
+        </Bounce>
+        <Bounce direction="left" triggerOnce>
+          <div
+            className="mt-2"
+            style={{
+              minWidth: "300px",
+              padding: "15px",
+              backgroundColor: "var(--basic-ash)",
+            }}
+          >
+            <div className="textWhiteSmall">
+              <b>PURSE Staking</b>
+            </div>
+            <div className="textWhite mt-2" style={{fontSize: "13px"}}>
+              <b>Stake PURSE and amplify your earnings with PURSE Staking.</b>
+            </div>
+          </div>
+        </Bounce>
+      </>
     )
   }
 
@@ -1454,11 +1450,11 @@ export default function Main() {
     <div
       id="content"
       className="mt-4"
-      style={{ margin: "0 auto", maxWidth: "1000px" }}
+      style={{margin: "0 auto", maxWidth: "1000px"}}
     >
       <label
         className="textWhite center mb-2"
-        style={{ fontSize: "40px", textAlign: "center" }}
+        style={{fontSize: "40px", textAlign: "center"}}
       >
         <big>
           <b>DASHBOARD</b>
