@@ -276,7 +276,7 @@ const MintContainer = () => {
         params: {
           type: "ERC721",
           options: {
-            address: Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH_GOERLI,
+            address: Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH,
             tokenId: tokenId.toLocaleString(),
           },
         },
@@ -618,7 +618,7 @@ const MintContainer = () => {
                     }}
                     onClick={() =>
                       window.open(
-                        `${Constants.ETH_TESTNET_BLOCKEXPLORER_GOERLI}nft/${Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH_GOERLI}/0x${token.id}`,
+                        `${Constants.ETH_MAINNET_BLOCKEXPLORER}nft/${Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH}/0x${token.id}`,
                         "_blank"
                       )
                     }
