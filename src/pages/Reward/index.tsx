@@ -9,6 +9,7 @@ import {
   callContract,
   getShortTxHash,
   getMerkleProofUserAmount,
+  FormatNumberToString,
 } from "../../components/utils";
 import { useWeb3React } from "@web3-react/core";
 import { Loading } from "../../components/Loading";
@@ -74,8 +75,8 @@ export default function Rewards() {
           }
         ),
     ]).then(() => {
-      const _retroactiveRewardsAmount = checkRewardsAmount(account);
-      setRewardsAmount(_retroactiveRewardsAmount);
+      const rewardsAmount = checkRewardsAmount(account);
+      setRewardsAmount(rewardsAmount);
       setIsDetailsLoading(false);
     });
   }, [isActive, account, pandoraRewards]);
@@ -200,16 +201,18 @@ export default function Rewards() {
       showToast("Invalid input! Please check your input again", "failure");
       return;
     }
-    const claimMessage = checkRewardsAmount(otherAddress);
-    const otherAddressAmount =
-      parseFloat(formatUnits(claimMessage, "ether")).toLocaleString("en-US", {
-        maximumFractionDigits: 6,
-      }) +
-      " PURSE (" +
-      (
-        parseFloat(formatUnits(claimMessage, "ether")) * PURSEPrice
-      ).toLocaleString("en-US", { maximumFractionDigits: 5 }) +
-      " USD)";
+    const claimMessage =
+      checkRewardsAmount(otherAddress) ?? BigNumber.from("0");
+    const otherAddressAmount = `${FormatNumberToString({
+      bigNum: claimMessage,
+      decimalPlaces: 6,
+      suffix: "PURSE (",
+    })}${FormatNumberToString({
+      bigNum: claimMessage,
+      multiplier: PURSEPrice,
+      decimalPlaces: 5,
+      suffix: " USD)",
+    })}`;
     setOtherAddressAmount(otherAddressAmount);
   };
 
@@ -242,19 +245,18 @@ export default function Rewards() {
                   <Loading />
                 ) : (
                   <b>
-                    {parseFloat(
-                      formatUnits(rewardsAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 6,
-                    }) +
-                      " PURSE (" +
-                      (
-                        parseFloat(formatUnits(rewardsAmount, "ether")) *
-                        PURSEPrice
-                      ).toLocaleString("en-US", {
-                        maximumFractionDigits: 5,
-                      }) +
-                      " USD)"}
+                    {rewardsAmount
+                      ? `${FormatNumberToString({
+                          bigNum: rewardsAmount,
+                          decimalPlaces: 6,
+                          suffix: " PURSE (",
+                        })}${FormatNumberToString({
+                          bigNum: rewardsAmount,
+                          multiplier: PURSEPrice,
+                          decimalPlaces: 5,
+                          suffix: " USD)",
+                        })}`
+                      : "0 PURSE (0 USD)"}
                   </b>
                 )}
               </div>
