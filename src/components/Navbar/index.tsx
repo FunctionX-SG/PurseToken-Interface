@@ -1,33 +1,37 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import purse from "../../assets/images/purse.png";
 import fox from "../../assets/images/metamask-fox.svg";
 import walletconnectLogo from "../../assets/images/walletconnect-logo.svg";
 import Buttons from "react-bootstrap/Button";
 import "reactjs-popup/dist/index.css";
-import MediaQuery, {useMediaQuery} from "react-responsive";
-import {FaWallet} from "react-icons/fa";
-import {slide as Menu} from "react-burger-menu";
+import MediaQuery, { useMediaQuery } from "react-responsive";
+import { FaWallet } from "react-icons/fa";
+import { slide as Menu } from "react-burger-menu";
 import Dropdown from "react-bootstrap/Dropdown";
 import "../App.css";
-import {useWeb3React} from "@web3-react/core";
-import {metaMask} from "../connectors/metamask";
-import {walletConnectV2} from "../connectors/walletConnect";
-import {chainId2NetworkName, getShortAccount, isSupportedChain,} from "../utils";
-import {useToast} from "../state/toast/hooks";
+import { useWeb3React } from "@web3-react/core";
+import { metaMask } from "../connectors/metamask";
+import { walletConnectV2 } from "../connectors/walletConnect";
+import {
+  chainId2NetworkName,
+  getShortAccount,
+  isSupportedChain,
+} from "../utils";
+import { useToast } from "../state/toast/hooks";
 import CloseButton from "react-bootstrap/CloseButton";
 
-import {NavLink, NavLinkHome} from "./NavMenu";
-import {usePursePrice} from "../state/PursePrice/hooks";
-import {useNetwork} from "../state/network/hooks";
+import { NavLink, NavLinkHome } from "./NavMenu";
+import { usePursePrice } from "../state/PursePrice/hooks";
+import { useNetwork } from "../state/network/hooks";
 
 export default function Navb() {
   const FULL_VIEWABLE_NAV_MIN_WIDTH = 961;
   const FULL_VIEWABLE_WALLET_MIN_WIDTH = 601;
 
-  const {chainId, account, connector, hooks} = useWeb3React();
+  const { chainId, account, connector, hooks } = useWeb3React();
   const [PURSEPrice] = usePursePrice();
   const [, showToast] = useToast();
-  const {useSelectedIsActive, useSelectedIsActivating} = hooks;
+  const { useSelectedIsActive, useSelectedIsActivating } = hooks;
   const isActive = useSelectedIsActive(connector);
   const isActivating = useSelectedIsActivating(connector);
   const [networkName, setNetworkName] = useState<string>();
@@ -151,13 +155,13 @@ export default function Navb() {
                 fontSize: "15px",
               }}
             >
-              <span className="center" style={{width: "100%", color: "#fff"}}>
+              <span className="center" style={{ width: "100%", color: "#fff" }}>
                 Check out the new roadmap of Purse at &nbsp;
                 <a
                   href="https://purse.land/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{color: "white"}}
+                  style={{ color: "white" }}
                 >
                   <u>purse.land</u>
                 </a>
@@ -192,13 +196,13 @@ export default function Navb() {
                 fontSize: "15px",
               }}
             >
-              <span className="center" style={{width: "100%", color: "#fff"}}>
+              <span className="center" style={{ width: "100%", color: "#fff" }}>
                 Check out the new roadmap of Purse at &nbsp;
                 <a
                   href="https://purse.land/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{color: "white"}}
+                  style={{ color: "white" }}
                 >
                   <u>purse.land</u>
                 </a>
@@ -249,10 +253,13 @@ export default function Navb() {
               <div className="dropdown0">
                 <NavLink to={"/purseboxnft"}>PURSE BOX</NavLink>
               </div>
+              <div className="dropdown0">
+                <NavLink to={"/pandora"}>PANDORA</NavLink>
+              </div>
               <div className="dropdown">
                 <span
                   className="hover"
-                  style={{fontSize: "16px"}}
+                  style={{ fontSize: "16px" }}
                   onClick={() => {
                     window.open(
                       `https://pundix-purse.gitbook.io/untitled/`,
@@ -268,7 +275,7 @@ export default function Navb() {
           </MediaQuery>
           <NavLinkHome
             className="mr-5 ml-4 rowC"
-            style={{cursor: "pointer"}}
+            style={{ cursor: "pointer" }}
             to="/"
           >
             <img
@@ -295,10 +302,13 @@ export default function Navb() {
             <div className={"mr-4"}>
               <NavLink to={"/purseboxnft"}>PURSE BOX</NavLink>
             </div>
+            <div className={"mr-4"}>
+              <NavLink to={"/pandora"}>PANDORA</NavLink>
+            </div>
             <div>
               <span
                 className="hover"
-                style={{fontSize: "16px"}}
+                style={{ fontSize: "16px" }}
                 onClick={() => {
                   window.open(
                     `https://pundix-purse.gitbook.io/untitled/`,
@@ -372,7 +382,7 @@ export default function Navb() {
                           <Dropdown.Item>
                             <div
                               className="dropdown0"
-                              style={{paddingBottom: "12px"}}
+                              style={{ paddingBottom: "12px" }}
                               onClick={() => {
                                 window.open(
                                   `https://bscscan.com/address/${account}`,
@@ -415,7 +425,7 @@ export default function Navb() {
                           <Dropdown.Item>
                             <div
                               className="dropdown0"
-                              style={{paddingBottom: "12px"}}
+                              style={{ paddingBottom: "12px" }}
                               onClick={async () => {
                                 await metamaskConnect();
                               }}
@@ -455,13 +465,13 @@ export default function Navb() {
               </MediaQuery>
               <MediaQuery maxWidth={FULL_VIEWABLE_WALLET_MIN_WIDTH - 1}>
                 <Dropdown
-                  style={{position: "absolute", top: "0px", right: "-2px"}}
+                  style={{ position: "absolute", top: "0px", right: "-2px" }}
                 >
                   <Dropdown.Toggle variant="transparent">
-                    <FaWallet size={20} style={{color: "white"}}/>
+                    <FaWallet size={20} style={{ color: "white" }} />
                   </Dropdown.Toggle>
                   <Dropdown.Menu
-                    style={{backgroundColor: "#181818", marginTop: "5px"}}
+                    style={{ backgroundColor: "#181818", marginTop: "5px" }}
                   >
                     <Dropdown.Item>
                       <Buttons
@@ -496,7 +506,7 @@ export default function Navb() {
                         <Buttons
                           variant="info"
                           size="sm"
-                          style={{width: "100%"}}
+                          style={{ width: "100%" }}
                           onClick={async () => {
                             if (!isSupportedChain(chainId)) {
                               switchNetwork();
@@ -513,7 +523,7 @@ export default function Navb() {
                           <Buttons
                             variant="secondary"
                             size="sm"
-                            style={{width: "100%"}}
+                            style={{ width: "100%" }}
                           >
                             {" "}
                             {getShortAccount(account)}
@@ -523,7 +533,7 @@ export default function Navb() {
                           <Buttons
                             variant="secondary"
                             size="sm"
-                            style={{width: "100%"}}
+                            style={{ width: "100%" }}
                             onClick={() => {
                               window.open(
                                 `https://bscscan.com/address/${account}`,
@@ -538,7 +548,7 @@ export default function Navb() {
                           <Buttons
                             variant="secondary"
                             size="sm"
-                            style={{width: "100%", marginBottom: "10px"}}
+                            style={{ width: "100%", marginBottom: "10px" }}
                             onClick={async () => {
                               await disconnect();
                             }}
@@ -553,7 +563,7 @@ export default function Navb() {
                           <Buttons
                             variant="secondary"
                             size="sm"
-                            style={{width: "100%"}}
+                            style={{ width: "100%" }}
                             onClick={async () => {
                               await metamaskConnect();
                             }}
@@ -572,7 +582,7 @@ export default function Navb() {
                           <Buttons
                             variant="secondary"
                             size="sm"
-                            style={{width: "100%", marginBottom: "10px"}}
+                            style={{ width: "100%", marginBottom: "10px" }}
                             onClick={async () => {
                               await WalletConnectV2();
                             }}
