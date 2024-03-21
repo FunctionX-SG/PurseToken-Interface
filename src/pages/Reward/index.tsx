@@ -36,7 +36,7 @@ export default function Rewards() {
   const [, showToast] = useToast();
 
   const [, setTrigger] = useWalletTrigger();
-  const { pandoraRewards } = useContract();
+  const { ethRewardsContract } = useContract();
 
   const [message, setMessage] = useState("");
   const [addrValid, setAddrValid] = useState(false);
@@ -63,13 +63,13 @@ export default function Rewards() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    if (!(account && isActive && pandoraRewards)) return;
+    if (!(account && isActive && ethRewardsContract)) return;
     setIsDetailsLoading(true);
     Promise.all([
-      pandoraRewards
+      ethRewardsContract
         .isClaim(account, 0)
         .then((isClaimed: boolean) => setRewardsAlreadyClaimed(isClaimed)),
-      pandoraRewards
+      ethRewardsContract
         .rewardPeriods(0)
         .then(
           ({ startTime, endTime }: { startTime: BigInt; endTime: BigInt }) => {
@@ -84,7 +84,7 @@ export default function Rewards() {
       setRewardsAmount(rewardsAmount);
       setIsDetailsLoading(false);
     });
-  }, [isActive, account, pandoraRewards]);
+  }, [isActive, account, ethRewardsContract]);
 
   const handleTxResponse = async (
     promise: Promise<any>,
@@ -169,7 +169,7 @@ export default function Rewards() {
     setIsLoading(true);
     let gasLimit;
     try {
-      gasLimit = await pandoraRewards
+      gasLimit = await ethRewardsContract
         .connect(signer)
         .estimateGas.claimRewards(rewardsAmount, merkleProof);
     } catch (e) {
@@ -180,7 +180,7 @@ export default function Rewards() {
     await handleTxResponse(
       callContract(
         signer,
-        pandoraRewards,
+        ethRewardsContract,
         "claimRewards",
         rewardsAmount,
         merkleProof,

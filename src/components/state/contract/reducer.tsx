@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import * as Constants from "../../../constants";
 import PurseTokenUpgradable from "../../../abis/PurseTokenUpgradable.json";
 import PurseToken404UpgradableEth from "../../../abis/PurseToken404UpgradableEth.json";
-import PandoraRewards from "../../../abis/PandoraRewards.json";
+import EthRewardsContract from "../../../abis/EthRewardsContract.json";
 import IPancakePair from "../../../abis/IPancakePair.json";
 import MasterChefV2 from "../../../abis/MasterChefV2.json";
 import PurseStaking from "../../../abis/PurseStaking.json";
@@ -80,9 +80,9 @@ export const contractSlice = createSlice({
       PurseToken404UpgradableEth.abi,
       ethProvider
     );
-    const pandoraRewards = new ethers.Contract(
-      Constants.PANDORA_REWARDS_ADDRESS_ETH,
-      PandoraRewards.abi,
+    const ethRewardsContract = new ethers.Contract(
+      Constants.REWARDS_CONTRACT_ADDRESS_ETH,
+      EthRewardsContract.abi,
       ethProvider
     );
 
@@ -91,7 +91,7 @@ export const contractSlice = createSlice({
         purseTokenUpgradable,
         retroactiveRewards,
         restakingFarm,
-        pandoraRewards,
+        ethRewardsContract,
         purseStaking,
         purseStakingVesting,
         tokenOnFXCore,
