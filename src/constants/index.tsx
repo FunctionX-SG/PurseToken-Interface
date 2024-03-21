@@ -71,3 +71,8 @@ export const ETH_TESTNET_BLOCKEXPLORER_GOERLI = "https://goerli.etherscan.io/";
 export const RETROACTIVE_INITIAL_REWARDS = 162164878;
 export const RETROACTIVE_AUG23_REWARDS = 837835122;
 export const RETROACTIVE_PERIOD_DAYS = 365;
+
+// links
+export const PURSE_LAND_LINK = "https://purse.land/";
+export const PURSE_TOKEN_ETHERSCAN_LINK =
+  "https://etherscan.io/token/0x95987b0cdc7f65d989a30b3b7132a38388c548eb";

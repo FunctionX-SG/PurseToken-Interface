@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import "../../components/App.css";
-import { isAddress, formatUnits, getAddress } from "ethers/lib/utils";
+import { isAddress, getAddress } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import * as Constants from "../../constants";
 import {
@@ -20,6 +20,11 @@ import { useContract } from "../../components/state/contract/hooks";
 import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import { useNetwork } from "../../components/state/network/hooks";
 import UserRewardAmount from "../../constants/pandoraValidAddressesAmounts.json";
+
+const PANDORA_ETHERSCAN_LINK: string =
+  "https://etherscan.io/token/0x9e9fbde7c7a83c43913bddc8779158f1368f0413";
+
+const PANDORA_PAGE_LINK: string = "https://www.pandora.build/";
 
 export default function Rewards() {
   const targetChain = 1;
@@ -167,13 +172,11 @@ export default function Rewards() {
       gasLimit = await pandoraRewards
         .connect(signer)
         .estimateGas.claimRewards(rewardsAmount, merkleProof);
-      console.log(gasLimit);
     } catch (e) {
       console.error(e);
       setIsLoading(false);
       return;
     }
-    console.log(gasLimit.mul(5));
     await handleTxResponse(
       callContract(
         signer,
@@ -181,7 +184,7 @@ export default function Rewards() {
         "claimRewards",
         rewardsAmount,
         merkleProof,
-        { gasLimit: gasLimit.mul(5) }
+        { gasLimit: gasLimit.mul(2) }
       ),
       () => setIsLoading(false)
     );
@@ -214,6 +217,27 @@ export default function Rewards() {
       suffix: " USD)",
     })}`;
     setOtherAddressAmount(otherAddressAmount);
+  };
+
+  const getNewTabLink = ({
+    to,
+    text,
+    linkStyle,
+  }: {
+    to: string;
+    text: string;
+    linkStyle?: React.CSSProperties;
+  }) => {
+    return (
+      <a
+        href={to}
+        target="_blank"
+        style={{ ...linkStyle, textDecoration: "none" }}
+        rel="noopener noreferrer"
+      >
+        {text}
+      </a>
+    );
   };
 
   const renderClaimContainer = () => {
@@ -464,7 +488,14 @@ export default function Rewards() {
         style={{ fontSize: "36px", textAlign: "center" }}
       >
         <big>
-          <b>PURSE x PANDORA</b>
+          <b>
+            {getNewTabLink({
+              to: Constants.PURSE_LAND_LINK,
+              text: "PURSE",
+              linkStyle: { color: "purple" },
+            })}{" "}
+            x {getNewTabLink({ to: PANDORA_PAGE_LINK, text: "PANDORA" })}
+          </b>
         </big>
       </label>
       <div className="row center">
@@ -475,7 +506,7 @@ export default function Rewards() {
           <div className="card-body">
             <span>
               <table
-                className=" textWhiteSmall text-center mb-5"
+                className=" textWhiteSmall text-center mb-4"
                 style={{ width: "100%" }}
               >
                 <thead>
@@ -509,15 +540,40 @@ export default function Rewards() {
                 </tbody>
               </table>
               <ul>
-                <li className="textWhiteSmaller">
-                  PANDORA holders are eligible to claim PURSE within the start
-                  and end times
+                <li
+                  className="textWhiteSmaller"
+                  style={{ marginBottom: "3px" }}
+                >
+                  {getNewTabLink({
+                    to: PANDORA_ETHERSCAN_LINK,
+                    text: "PANDORA",
+                  })}{" "}
+                  is the first token to leverage the ERC404 standard, launched
+                  on Feb. 5 by the Pandora team
                 </li>
-                <li className="textWhiteSmaller">
+                <li
+                  className="textWhiteSmaller"
+                  style={{ marginBottom: "3px" }}
+                >
+                  Existing PANDORA holders as of 14 March 2024, are eligible to
+                  claim{" "}
+                  {getNewTabLink({
+                    to: Constants.PURSE_TOKEN_ETHERSCAN_LINK,
+                    text: "PURSE",
+                  })}{" "}
+                  within the start and end times
+                </li>
+                <li
+                  className="textWhiteSmaller"
+                  style={{ marginBottom: "3px" }}
+                >
                   The amount of PURSE claimable by your wallet will be displayed
                   after connecting your wallet
                 </li>
-                <li className="textWhiteSmaller">
+                <li
+                  className="textWhiteSmaller"
+                  style={{ marginBottom: "3px" }}
+                >
                   Check that you have sufficient ETH to pay for the transaction
                   fees
                 </li>
