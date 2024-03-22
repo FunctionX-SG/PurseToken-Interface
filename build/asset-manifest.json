@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/static/css/main.ddf6d7fb.css",
-    "main.js": "/static/js/main.82cafabb.js",
+    "main.js": "/static/js/main.14592959.js",
     "static/js/774.555a8177.chunk.js": "/static/js/774.555a8177.chunk.js",
     "static/js/459.2651939b.chunk.js": "/static/js/459.2651939b.chunk.js",
-    "static/media/red.png": "/static/media/red.21aae8108e28b0b4617a.png",
-    "static/media/blue.png": "/static/media/blue.d0574643659b53879aad.png",
-    "static/media/purple.png": "/static/media/purple.16abae443c24a4765c63.png",
-    "static/media/orange.png": "/static/media/orange.89ecaf8feef2746d3289.png",
-    "static/media/green.png": "/static/media/green.0813c11e9eaa4f4936bf.png",
+    "static/media/orange.png": "/static/media/orange.66b21d3ec36a7ccadcb7.png",
+    "static/media/green.png": "/static/media/green.19aab357f0591375d9a1.png",
+    "static/media/red.png": "/static/media/red.2b63359684a956126a8a.png",
+    "static/media/blue.png": "/static/media/blue.aee0811fb9b25029c1f0.png",
+    "static/media/purple.png": "/static/media/purple.0cefc6318a51138edc17.png",
     "static/media/pancakeswap.png": "/static/media/pancakeswap.e1d4dec34dc4d1c73553.png",
     "static/media/purse2.png": "/static/media/purse2.9c40f1904cd669ea89e0.png",
     "static/media/IBMPlexSans-LightItalic.woff2": "/static/media/IBMPlexSans-LightItalic.1d79b94a777e9546100d.woff2",
@@ -24,12 +24,12 @@
     "static/media/etherscan-logo-circle.svg": "/static/media/etherscan-logo-circle.9766128bc4ad41ad1bbad073e586da74.svg",
     "index.html": "/index.html",
     "main.ddf6d7fb.css.map": "/static/css/main.ddf6d7fb.css.map",
-    "main.82cafabb.js.map": "/static/js/main.82cafabb.js.map",
+    "main.14592959.js.map": "/static/js/main.14592959.js.map",
     "774.555a8177.chunk.js.map": "/static/js/774.555a8177.chunk.js.map",
     "459.2651939b.chunk.js.map": "/static/js/459.2651939b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.ddf6d7fb.css",
-    "static/js/main.82cafabb.js"
+    "static/js/main.14592959.js"
   ]
 }
