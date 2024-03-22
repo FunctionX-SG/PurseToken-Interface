@@ -1442,6 +1442,23 @@ export default function Main() {
             </div>
           </div>
         </Bounce>
+        <Bounce direction="left" triggerOnce>
+          <div
+            className="mt-2"
+            style={{
+              minWidth: "300px",
+              padding: "15px",
+              backgroundColor: "var(--basic-ash)",
+            }}
+          >
+            <div className="textWhiteSmall">
+              <b>PURSE BOX</b>
+            </div>
+            <div className="textWhite mt-2" style={{fontSize: "13px"}}>
+              <b>PURSE adopts the experimental ERC404 dual-natured token.</b>
+            </div>
+          </div>
+        </Bounce>
       </>
     )
   }
