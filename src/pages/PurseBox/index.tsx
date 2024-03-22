@@ -176,7 +176,10 @@ const MintContainer = () => {
         )}`;
         showToast(message, "success", link);
         return true;
-      } else if (tx?.message.includes("user rejected transaction")) {
+      } else {
+        setIsLoading(false);
+      }
+      if (tx?.message.includes("user rejected transaction")) {
         showToast(`User rejected transaction.`, "failure");
       } else if (tx?.message.includes("insufficient funds for gas")) {
         showToast(`Insufficient funds for gas.`, "failure");
