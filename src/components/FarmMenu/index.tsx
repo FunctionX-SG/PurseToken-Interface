@@ -220,7 +220,7 @@ export default function FarmMenu() {
                 size="lg"
               >
                 {" "}
-                FXSWAP
+                MarginX
               </Buttons>
             </Link>
           </ButtonGroup>
