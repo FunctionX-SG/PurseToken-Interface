@@ -29,7 +29,7 @@ import StakeShell from "../../components/Stake/StakeShell";
 
 export default function PurseStakeBinance() {
   const { isActive, chainId, account } = useWeb3React();
-  const targetChain = 56;
+  const targetChain = 56; //change to 56 for bsc mainnet, 97 for bsc testnet
   const isTargetChainMatch = chainId === targetChain;
   const [, switchNetwork] = useNetwork();
   const [PURSEPrice] = usePursePrice();
