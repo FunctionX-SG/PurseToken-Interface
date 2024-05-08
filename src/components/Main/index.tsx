@@ -408,67 +408,67 @@ export default function Main() {
               </tr>
             )}
             </tbody>
-            <thead>
-            <tr>
-              <th scope="col">(Past 30 days Sum)</th>
-              <th scope="col">(Past 30 days Sum)</th>
-              <th scope="col">(Past 30 days Sum)</th>
-            </tr>
-            </thead>
-            <tbody>
-            {isFetchMainDataLoading ? (
-              <tr>
-                <td>
-                  <Loading/>
-                </td>
-                <td>
-                  <Loading/>
-                </td>
-                <td>
-                  <Loading/>
-                </td>
-              </tr>
-            ) : (
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(sum30BurnAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(sum30BurnAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(sum30TransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
-                </td>
-                <td>
-                  {parseFloat(
-                    formatUnits(sum30TransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", {maximumFractionDigits: 0})}
-                </td>
-              </tr>
-            )}
-            </tbody>
+            {/*<thead>*/}
+            {/*<tr>*/}
+            {/*  <th scope="col">(Past 30 days Sum)</th>*/}
+            {/*  <th scope="col">(Past 30 days Sum)</th>*/}
+            {/*  <th scope="col">(Past 30 days Sum)</th>*/}
+            {/*</tr>*/}
+            {/*</thead>*/}
+            {/*<tbody>*/}
+            {/*{isFetchMainDataLoading ? (*/}
+            {/*  <tr>*/}
+            {/*    <td>*/}
+            {/*      <Loading/>*/}
+            {/*    </td>*/}
+            {/*    <td>*/}
+            {/*      <Loading/>*/}
+            {/*    </td>*/}
+            {/*    <td>*/}
+            {/*      <Loading/>*/}
+            {/*    </td>*/}
+            {/*  </tr>*/}
+            {/*) : (*/}
+            {/*  <tr>*/}
+            {/*    <td>*/}
+            {/*      {parseFloat(*/}
+            {/*        formatUnits(sum30BurnAmount, "ether")*/}
+            {/*      ).toLocaleString("en-US", {*/}
+            {/*        maximumFractionDigits: 0,*/}
+            {/*      })}{" "}*/}
+            {/*      / ${" "}*/}
+            {/*      {(*/}
+            {/*        parseFloat(formatUnits(sum30BurnAmount, "ether")) **/}
+            {/*        PURSEPrice*/}
+            {/*      ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
+            {/*    </td>*/}
+            {/*    <td>*/}
+            {/*      {parseFloat(*/}
+            {/*        formatUnits(sum30TransferAmount, "ether")*/}
+            {/*      ).toLocaleString("en-US", {*/}
+            {/*        maximumFractionDigits: 0,*/}
+            {/*      })}{" "}*/}
+            {/*      / ${" "}*/}
+            {/*      {(*/}
+            {/*        parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
+            {/*        PURSEPrice*/}
+            {/*      ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
+            {/*    </td>*/}
+            {/*    <td>*/}
+            {/*      {parseFloat(*/}
+            {/*        formatUnits(sum30TransferAmount, "ether")*/}
+            {/*      ).toLocaleString("en-US", {*/}
+            {/*        maximumFractionDigits: 0,*/}
+            {/*      })}{" "}*/}
+            {/*      / ${" "}*/}
+            {/*      {(*/}
+            {/*        parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
+            {/*        PURSEPrice*/}
+            {/*      ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
+            {/*    </td>*/}
+            {/*  </tr>*/}
+            {/*)}*/}
+            {/*</tbody>*/}
           </table>
         </div>
       </div>
@@ -858,7 +858,7 @@ export default function Main() {
                     </Popup>
                   </span>
               </th>
-              <th scope="col">(Past 30 days&nbsp;Sum)</th>
+              {/*<th scope="col">(Past 30 days&nbsp;Sum)</th>*/}
             </tr>
             </thead>
             <tbody>
@@ -875,18 +875,18 @@ export default function Main() {
                   PURSEPrice
                 ).toLocaleString("en-US", {maximumFractionDigits: 0})}
               </td>
-              <td>
-                {parseFloat(
-                  formatUnits(sum30BurnAmount, "ether")
-                ).toLocaleString("en-US", {
-                  maximumFractionDigits: 0,
-                })}{" "}
-                / ${" "}
-                {(
-                  parseFloat(formatUnits(sum30BurnAmount, "ether")) *
-                  PURSEPrice
-                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
-              </td>
+              {/*<td>*/}
+              {/*  {parseFloat(*/}
+              {/*    formatUnits(sum30BurnAmount, "ether")*/}
+              {/*  ).toLocaleString("en-US", {*/}
+              {/*    maximumFractionDigits: 0,*/}
+              {/*  })}{" "}*/}
+              {/*  / ${" "}*/}
+              {/*  {(*/}
+              {/*    parseFloat(formatUnits(sum30BurnAmount, "ether")) **/}
+              {/*    PURSEPrice*/}
+              {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
+              {/*</td>*/}
             </tr>
             </tbody>
             <thead>
@@ -919,7 +919,7 @@ export default function Main() {
                     </Popup>
                   </span>
               </th>
-              <th scope="col">(Past 30 days&nbsp;Sum)</th>
+              {/*<th scope="col">(Past 30 days&nbsp;Sum)</th>*/}
             </tr>
             </thead>
             <tbody>
@@ -936,18 +936,18 @@ export default function Main() {
                   PURSEPrice
                 ).toLocaleString("en-US", {maximumFractionDigits: 0})}
               </td>
-              <td>
-                {parseFloat(
-                  formatUnits(sum30TransferAmount, "ether")
-                ).toLocaleString("en-US", {
-                  maximumFractionDigits: 0,
-                })}{" "}
-                / ${" "}
-                {(
-                  parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                  PURSEPrice
-                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
-              </td>
+              {/*<td>*/}
+              {/*  {parseFloat(*/}
+              {/*    formatUnits(sum30TransferAmount, "ether")*/}
+              {/*  ).toLocaleString("en-US", {*/}
+              {/*    maximumFractionDigits: 0,*/}
+              {/*  })}{" "}*/}
+              {/*  / ${" "}*/}
+              {/*  {(*/}
+              {/*    parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
+              {/*    PURSEPrice*/}
+              {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
+              {/*</td>*/}
             </tr>
             </tbody>
             <thead>
@@ -980,7 +980,7 @@ export default function Main() {
                     </Popup>
                   </span>
               </th>
-              <th scope="col">(Past 30 days&nbsp;Sum)</th>
+              {/*<th scope="col">(Past 30 days&nbsp;Sum)</th>*/}
             </tr>
             </thead>
             <tbody>
@@ -997,18 +997,18 @@ export default function Main() {
                   PURSEPrice
                 ).toLocaleString("en-US", {maximumFractionDigits: 0})}
               </td>
-              <td>
-                {parseFloat(
-                  formatUnits(sum30TransferAmount, "ether")
-                ).toLocaleString("en-US", {
-                  maximumFractionDigits: 0,
-                })}{" "}
-                / ${" "}
-                {(
-                  parseFloat(formatUnits(sum30TransferAmount, "ether")) *
-                  PURSEPrice
-                ).toLocaleString("en-US", {maximumFractionDigits: 0})}
-              </td>
+              {/*<td>*/}
+              {/*  {parseFloat(*/}
+              {/*    formatUnits(sum30TransferAmount, "ether")*/}
+              {/*  ).toLocaleString("en-US", {*/}
+              {/*    maximumFractionDigits: 0,*/}
+              {/*  })}{" "}*/}
+              {/*  / ${" "}*/}
+              {/*  {(*/}
+              {/*    parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
+              {/*    PURSEPrice*/}
+              {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
+              {/*</td>*/}
             </tr>
             </tbody>
             <thead>
