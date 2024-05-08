@@ -1522,12 +1522,12 @@ export default function Main() {
       <MediaQuery minWidth={601}>
         {renderFullTable()}
         {renderProtocolRemarks()}
-        {/*{renderFullCharts()}*/}
+        {renderFullCharts()}
       </MediaQuery>
       <MediaQuery maxWidth={600}>
         {renderNarrowTable()}
         {renderProtocolRemarks()}
-        {/*{renderNarrowCharts()}*/}
+        {renderNarrowCharts()}
       </MediaQuery>
       {renderFarmRemarks()}
     </div>
