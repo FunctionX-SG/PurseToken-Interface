@@ -253,9 +253,9 @@ export default function Navb() {
               <div className="dropdown0">
                 <NavLink to={"/purseboxnft"}>PURSE BOX</NavLink>
               </div>
-              <div className="dropdown0">
-                <NavLink to={"/pandora"}>PANDORA</NavLink>
-              </div>
+              {/*<div className="dropdown0">*/}
+              {/*  <NavLink to={"/pandora"}>PANDORA</NavLink>*/}
+              {/*</div>*/}
               <div className="dropdown">
                 <span
                   className="hover"
@@ -302,9 +302,9 @@ export default function Navb() {
             <div className={"mr-4"}>
               <NavLink to={"/purseboxnft"}>PURSE BOX</NavLink>
             </div>
-            <div className={"mr-4"}>
-              <NavLink to={"/pandora"}>PANDORA</NavLink>
-            </div>
+            {/*<div className={"mr-4"}>*/}
+            {/*  <NavLink to={"/pandora"}>PANDORA</NavLink>*/}
+            {/*</div>*/}
             <div>
               <span
                 className="hover"
