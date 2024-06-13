@@ -1,6 +1,9 @@
 # Use a lightweight Node.js base image
 FROM node:alpine
 
+RUN apk add --no-cache python3 make g++ \
+    && if [ ! -f /usr/bin/python ]; then ln -s python3 /usr/bin/python; fi
+
 # Set the working directory
 WORKDIR /app
 
