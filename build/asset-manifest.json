@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/static/css/main.ddf6d7fb.css",
-    "main.js": "/static/js/main.097d8534.js",
+    "main.css": "/static/css/main.d4ac587b.css",
+    "main.js": "/static/js/main.76ffe30d.js",
     "static/js/774.555a8177.chunk.js": "/static/js/774.555a8177.chunk.js",
     "static/js/459.2651939b.chunk.js": "/static/js/459.2651939b.chunk.js",
     "static/media/orange.png": "/static/media/orange.66b21d3ec36a7ccadcb7.png",
@@ -23,13 +23,13 @@
     "static/media/walletconnect-logo.svg": "/static/media/walletconnect-logo.dfa25e470b69d81428be54242b6c9bd1.svg",
     "static/media/etherscan-logo-circle.svg": "/static/media/etherscan-logo-circle.9766128bc4ad41ad1bbad073e586da74.svg",
     "index.html": "/index.html",
-    "main.ddf6d7fb.css.map": "/static/css/main.ddf6d7fb.css.map",
-    "main.097d8534.js.map": "/static/js/main.097d8534.js.map",
+    "main.d4ac587b.css.map": "/static/css/main.d4ac587b.css.map",
+    "main.76ffe30d.js.map": "/static/js/main.76ffe30d.js.map",
     "774.555a8177.chunk.js.map": "/static/js/774.555a8177.chunk.js.map",
     "459.2651939b.chunk.js.map": "/static/js/459.2651939b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.ddf6d7fb.css",
-    "static/js/main.097d8534.js"
+    "static/css/main.d4ac587b.css",
+    "static/js/main.76ffe30d.js"
   ]
 }
