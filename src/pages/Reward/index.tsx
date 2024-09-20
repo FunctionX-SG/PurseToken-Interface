@@ -5,7 +5,7 @@ import { isAddress, getAddress } from "ethers/lib/utils";
 import { BigNumber } from "ethers";
 import * as Constants from "../../constants";
 import {
-  timeConverter,
+  convertUnixToDate,
   callContract,
   getShortTxHash,
   getMerkleProofUserAmount,
@@ -527,8 +527,8 @@ export default function Rewards() {
                     </tr>
                   ) : (
                     <tr>
-                      <td>{timeConverter(rewardsStartTime)}</td>
-                      <td>{timeConverter(rewardsEndTime)}</td>
+                      <td>{convertUnixToDate(rewardsStartTime)}</td>
+                      <td>{convertUnixToDate(rewardsEndTime)}</td>
                     </tr>
                   )}
                 </tbody>

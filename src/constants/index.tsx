@@ -49,6 +49,9 @@ export const MONGO_RESPONSE_1_API = `https://ap-southeast-1.aws.data.mongodb-api
 export const MONGO_RESPONSE_2_API = `https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/CumulativeBurn`;
 export const MONGO_FXSWAP_RESPONSE_API = `https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/tvl_prod`;
 
+export const SUBGRAPH_API =
+  "https://api.goldsky.com/api/public/project_clz6ti9bm1qjm01086dflgsh3/subgraphs/pursetoken/v0.0.2/gn";
+
 //RPC URLs
 export const WALLETCONNECT_BRIDGE_URL =
   "https://wallet-connect.pundix.com/bridge/";
