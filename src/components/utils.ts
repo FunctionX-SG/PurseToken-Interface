@@ -60,8 +60,13 @@ export function chainId2NetworkName(chainId: number) {
   }
 }
 
-export function timeConverter(UNIX_timestamp: number) {
-  var a = new Date(UNIX_timestamp * 1000);
+export function convertUnixToDate(UNIX_timestamp: number | string) {
+  let numTimestamp =
+    typeof UNIX_timestamp == "string"
+      ? parseInt(UNIX_timestamp as string, 10)
+      : UNIX_timestamp;
+  const a = new Date(numTimestamp * 1000);
+
   var months = [
     "Jan",
     "Feb",
@@ -170,20 +175,28 @@ export const fetcher = (library: any) => (args: any) => {
   return library[method](...params);
 };
 
+export const RawDataFormatter = (number: number) => {
+  return DataFormater(Math.round(number / 10 ** 18));
+};
+
 export const DataFormater = (number: number) => {
   if (number > 1000000000) {
-    return (number / 1000000000).toString() + "B";
+    return Math.round(number / 1000000000).toString() + "B";
   } else if (number > 1000000) {
-    return (number / 1000000).toString() + "M";
+    return Math.round(number / 1000000).toString() + "M";
   } else if (number > 1000) {
-    return (number / 1000).toString() + "K";
+    return Math.round(number / 1000).toString() + "K";
   } else {
     return number.toString();
   }
 };
 
-export const NumberFormatter = (number: string) => {
-  return parseFloat(number).toLocaleString("en-US", {
+export const RawNumberFormatter = (number: number) => {
+  return NumberFormatter(Math.round(number / 10 ** 18));
+};
+
+export const NumberFormatter = (number: number) => {
+  return number.toLocaleString("en-US", {
     maximumFractionDigits: 2,
   });
 };

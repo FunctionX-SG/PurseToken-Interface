@@ -18,12 +18,18 @@ import * as Constants from "../../constants";
 import { Loading } from "../Loading";
 import { usePursePrice } from "../state/PursePrice/hooks";
 import { useContract } from "../state/contract/hooks";
-import { DataFormater, formatBigNumber, NumberFormatter } from "../utils";
+import {
+  convertUnixToDate,
+  formatBigNumber,
+  RawDataFormatter,
+  RawNumberFormatter,
+} from "../utils";
 import { Bounce } from "react-awesome-reveal";
 
 interface CustomTooltipProps {
   payload?: any[];
   label?: string;
+  formatter: (arg0: number) => string;
 }
 
 export default function Main() {
@@ -36,14 +42,12 @@ export default function Main() {
   );
   // PURSE DASHBOARD STATES
   const [totalBurnAmount, setTotalBurnAmount] = useState("0");
-  const [sum30BurnAmount, setSum30BurnAmount] = useState("0");
   const [totalTransferAmount, setTotalTransferAmount] = useState("0");
-  const [sum30TransferAmount, setSum30TransferAmount] = useState("0");
   const [cumulateTransfer, setCumulateTransfer] = useState<
-    { Sum: number; Date: string }[]
+    { totalAmountLiquidity: number; blockTimestamp: string }[]
   >([]);
   const [cumulateBurn, setCumulateBurn] = useState<
-    { Sum: number; Date: string }[]
+    { totalAmountBurned: number; blockTimestamp: string }[]
   >([]);
 
   // FARM DASHBOARD STATES
@@ -57,9 +61,13 @@ export default function Main() {
   const [isFetchMainDataLoading, setIsFetchMainDataLoading] = useState(true);
   const [isFetchFarmDataLoading, setIsFetchFarmDataLoading] = useState(true);
 
-  const CustomTick = (propsCustomTick: any) => {
+  const CustomTick = (propsCustomTick: {
+    x: number;
+    y: number;
+    payload: { value: number };
+  }) => {
     const { x, y, payload } = propsCustomTick;
-    const date = new Date(payload.value);
+    const date = new Date(payload.value * 1000);
     const year = date.getFullYear();
     const month = date.toLocaleString("en-US", { month: "short" });
 
@@ -75,16 +83,18 @@ export default function Main() {
     );
   };
 
-  const CustomTooltip: React.FC<CustomTooltipProps> = ({ payload, label }) => {
+  const CustomTooltip: React.FC<CustomTooltipProps> = ({
+    payload,
+    label,
+    formatter,
+  }) => {
     if (payload && payload.length) {
-      const value = parseFloat(payload[0].value);
-      const date = new Date(label as any);
+      const date = new Date(1000 * Number(label));
       const year = date.getFullYear();
       const month = date.toLocaleString("en-US", { month: "long" });
       const day = date.getDate();
-      const formattedValue = value.toLocaleString("en-US", {
-        maximumFractionDigits: 2,
-      });
+      const value = parseFloat(payload[0].value);
+      const formattedValue = formatter(value);
 
       return (
         <div className="custom-tooltip">
@@ -134,41 +144,73 @@ export default function Main() {
     async function loadData() {
       // trigger fetching data
       const _purseTokenTotalSupply = purseTokenUpgradable._totalSupply();
-      const mongoResponse0 = fetch(Constants.MONGO_RESPONSE_0_API);
-      const cumulateTransferResponse = fetch(Constants.MONGO_RESPONSE_1_API);
-      const cumulateBurnResponse = fetch(Constants.MONGO_RESPONSE_2_API);
-
+      const subgraphPromise = fetch(Constants.SUBGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: `
+              {
+                burns(first: 1000, orderBy: blockTimestamp) {
+                  blockTimestamp
+                  totalAmountBurned
+                }
+                  liquidities(first: 1000, orderBy: blockTimestamp) {
+                  blockTimestamp
+                  totalAmountLiquidity
+                }
+                store(id: "1") {
+                  prevBurnDate
+                  accBurned
+                  prevLiquidityDate
+                  accLiquidity
+                }
+              }
+            `,
+        }),
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((json) => {
+          const liquidities = json.data.liquidities;
+          const burns = json.data.burns;
+          const store = json.data.store;
+          const lastLiquidity = store.accLiquidity;
+          const lastBurn = store.accBurned;
+          const currentTimestamp = (Date.now() / 1000).toFixed(0);
+          if (lastLiquidity) {
+            liquidities.push({
+              blockTimestamp: store.prevLiquidityDate,
+              totalAmountLiquidity: lastLiquidity,
+            });
+            liquidities.push({
+              blockTimestamp: currentTimestamp,
+              totalAmountLiquidity: lastLiquidity,
+            });
+            setTotalTransferAmount(lastLiquidity);
+          }
+          if (lastBurn) {
+            burns.push({
+              blockTimestamp: store.prevBurnDate,
+              totalAmountBurned: lastBurn,
+            });
+            burns.push({
+              blockTimestamp: currentTimestamp,
+              totalAmountBurned: lastBurn,
+            });
+            setTotalBurnAmount(lastBurn);
+          }
+          setCumulateTransfer(liquidities);
+          setCumulateBurn(burns);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
       setPurseTokenTotalSupply(await _purseTokenTotalSupply);
-      const myJson0: any = await mongoResponse0.then((resp) => resp.json());
 
-      const _totalTransferAmount = myJson0["TransferTotal"][0];
-      setTotalTransferAmount(_totalTransferAmount);
-
-      const _sum30TransferAmount = myJson0["Transfer30Days"][0];
-      setSum30TransferAmount(_sum30TransferAmount);
-
-      const _totalBurnAmount = myJson0["BurnTotal"][0];
-      setTotalBurnAmount(_totalBurnAmount);
-
-      const _sum30BurnAmount = myJson0["Burn30Days"][0];
-      setSum30BurnAmount(_sum30BurnAmount);
-
-      let _cumulateTransfer: { Sum: number; Date: string }[] = [];
-      let _cumulateBurn: { Sum: number; Date: string }[] = [];
-      const cumulateTransferJson: any = await cumulateTransferResponse.then(
-        (resp) => resp.json()
-      );
-      cumulateTransferJson.forEach((item: { Sum: string; Date: string }) =>
-        _cumulateTransfer.push({ Sum: parseFloat(item.Sum), Date: item.Date })
-      );
-      const cumulateBurnJson: any = await cumulateBurnResponse.then((resp) =>
-        resp.json()
-      );
-      cumulateBurnJson.forEach((item: { Sum: string; Date: string }) =>
-        _cumulateBurn.push({ Sum: parseFloat(item.Sum), Date: item.Date })
-      );
-      setCumulateTransfer(_cumulateTransfer);
-      setCumulateBurn(_cumulateBurn);
+      await subgraphPromise;
       setIsFetchMainDataLoading(false);
     }
 
@@ -207,7 +249,8 @@ export default function Main() {
 
     loadData();
   }, [purseTokenUpgradable, restakingFarm]);
-
+  console.log(cumulateBurn);
+  console.log(cumulateTransfer);
   const renderFullMainTable = () => {
     return (
       <div className="card mb-4 cardbody">
@@ -627,14 +670,6 @@ export default function Main() {
         </label>
         <div className="row center" style={{ gap: "20px" }}>
           <div>
-            {/* <AreaChart width={460} height={300} data={cumulateBurn}>
-        <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>
-        <YAxis tickFormatter={DataFormater} tick={{fontSize: 14}} stroke="#A9A9A9"/>
-        <CartesianGrid vertical={false} strokeDasharray="2 2" />
-        <Tooltip formatter={NumberFormater} />
-        <Legend verticalAlign="top" height={40} formatter={() => ("Burn")} wrapperStyle={{fontSize: "20px"}}/>
-        <Area type="monotone" dataKey="Sum" stroke="#8884d8" fillOpacity={0.5} fill="#8884d8" />
-      </AreaChart><li style={{color:'transparent'}}/> */}
             <div
               className={`common-title`}
               style={{ marginBottom: "40px", textAlign: "center" }}
@@ -660,14 +695,21 @@ export default function Main() {
               </defs>
               <XAxis
                 axisLine={false}
-                dataKey="Date"
+                dataKey="blockTimestamp"
+                domain={["dataMin", "dataMax"]}
+                interval="preserveStartEnd"
+                tickFormatter={convertUnixToDate}
                 tick={CustomTick}
+                tickCount={5}
+                type="number"
                 stroke="#000"
                 tickLine={false}
               />
               <YAxis
                 axisLine={false}
-                tickFormatter={DataFormater}
+                domain={["auto", (dataMax: any) => dataMax * 2.5]} // ??
+                interval="preserveStartEnd"
+                tickFormatter={RawDataFormatter}
                 tick={{ fontSize: 16 }}
                 stroke="#000"
               />
@@ -678,8 +720,8 @@ export default function Main() {
               />
               <Area
                 strokeWidth={3}
-                type="monotone"
-                dataKey="Sum"
+                type="stepAfter"
+                dataKey="totalAmountBurned"
                 stroke="#f7d509"
                 fill="url(#Burn)"
                 activeDot={{
@@ -690,26 +732,17 @@ export default function Main() {
                 }}
               />
               <Tooltip
-                content={<CustomTooltip />}
+                content={<CustomTooltip formatter={RawNumberFormatter} />}
                 cursor={{
                   stroke: "#000",
                   strokeWidth: 1,
                   strokeDasharray: "2 2",
                 }}
                 itemStyle={{ color: "#8884d8" }}
-                formatter={NumberFormatter}
               />
             </AreaChart>
           </div>
           <div>
-            {/* <AreaChart width={460} height={300} data={cumulateTransfer}>
-        <XAxis dataKey="Date" tick={{fontSize: 14}} stroke="#A9A9A9"/>
-        <YAxis tickFormatter={DataFormater} tick={{fontSize: 14}} stroke="#A9A9A9"/>
-        <CartesianGrid vertical={false} strokeDasharray="2 2" />
-        <Tooltip formatter={NumberFormater} />
-        <Legend verticalAlign="top" height={40} formatter={() => ("Distribution / Liquidity")} wrapperStyle={{fontSize: "20px"}}/>
-        <Area type="monotone" dataKey="Sum" stroke="#82ca9d" fillOpacity={0.5} fill="#82ca9d" />
-      </AreaChart><li style={{color:'transparent'}}/> */}
             <div
               className={`common-title`}
               style={{ marginBottom: "40px", textAlign: "center" }}
@@ -719,12 +752,12 @@ export default function Main() {
             <AreaChart
               width={460}
               height={300}
+              data={cumulateTransfer}
               margin={{
                 bottom: 44,
                 left: 0,
                 top: 20,
               }}
-              data={cumulateTransfer}
             >
               <defs>
                 <linearGradient
@@ -741,14 +774,20 @@ export default function Main() {
               </defs>
               <XAxis
                 axisLine={false}
-                dataKey="Date"
+                dataKey="blockTimestamp"
+                domain={["dataMin", "dataMax"]}
+                interval="preserveStartEnd"
+                tickFormatter={convertUnixToDate}
                 tick={CustomTick}
+                type="number"
                 stroke="#000"
                 tickLine={false}
               />
               <YAxis
                 axisLine={false}
-                tickFormatter={DataFormater}
+                domain={[0, (dataMax: number) => dataMax * 2]} // ??
+                interval="preserveStartEnd"
+                tickFormatter={RawDataFormatter}
                 tick={{ fontSize: 16 }}
                 stroke="#000"
               />
@@ -759,8 +798,8 @@ export default function Main() {
               />
               <Area
                 strokeWidth={3}
-                type="monotone"
-                dataKey="Sum"
+                type="stepAfter"
+                dataKey="totalAmountLiquidity"
                 stroke="#ba00ff"
                 fill="url(#distributionLiquidity)"
                 activeDot={{
@@ -771,14 +810,13 @@ export default function Main() {
                 }}
               />
               <Tooltip
-                content={<CustomTooltip />}
+                content={<CustomTooltip formatter={RawNumberFormatter} />}
                 cursor={{
                   stroke: "#000",
                   strokeWidth: 1,
                   strokeDasharray: "2 2",
                 }}
                 itemStyle={{ color: "#8884d8" }}
-                formatter={NumberFormatter}
               />
             </AreaChart>
           </div>
@@ -1207,14 +1245,18 @@ export default function Main() {
                 </defs>
                 <XAxis
                   axisLine={false}
-                  dataKey="Date"
+                  dataKey="blockTimestamp"
                   tick={CustomTick}
+                  tickFormatter={convertUnixToDate}
                   stroke="#000"
                   tickLine={false}
                 />
                 <YAxis
                   axisLine={false}
-                  tickFormatter={DataFormater}
+                  dataKey="totalAmountBurned"
+                  domain={[0, (dataMax: number) => dataMax * 1.2]}
+                  interval="preserveStartEnd"
+                  tickFormatter={RawDataFormatter}
                   tick={{ fontSize: 16 }}
                   stroke="#000"
                 />
@@ -1226,7 +1268,7 @@ export default function Main() {
                 <Area
                   strokeWidth={3}
                   type="monotone"
-                  dataKey="Sum"
+                  dataKey="totalAmountBurned"
                   stroke="#f7d509"
                   fill="url(#Burn)"
                   activeDot={{
@@ -1237,14 +1279,13 @@ export default function Main() {
                   }}
                 />
                 <Tooltip
-                  content={<CustomTooltip />}
+                  content={<CustomTooltip formatter={RawNumberFormatter} />}
                   cursor={{
                     stroke: "#000",
                     strokeWidth: 1,
                     strokeDasharray: "2 2",
                   }}
                   itemStyle={{ color: "#8884d8" }}
-                  formatter={NumberFormatter}
                 />
               </AreaChart>
             </div>
@@ -1293,15 +1334,19 @@ export default function Main() {
               </defs>
               <XAxis
                 axisLine={false}
-                dataKey="Date"
+                dataKey="blockTimestamp"
                 tick={CustomTick}
+                tickFormatter={convertUnixToDate}
                 stroke="#000"
                 tickLine={false}
               />
               <YAxis
                 axisLine={false}
-                tickFormatter={DataFormater}
+                domain={[0, (dataMax: number) => dataMax * 1.2]}
+                interval="preserveStartEnd"
+                tickFormatter={RawDataFormatter}
                 tick={{ fontSize: 16 }}
+                scale="linear"
                 stroke="#000"
               />
               <CartesianGrid
@@ -1312,7 +1357,7 @@ export default function Main() {
               <Area
                 strokeWidth={3}
                 type="monotone"
-                dataKey="Sum"
+                dataKey="totalAmountLiquidity"
                 stroke="#ba00ff"
                 fill="url(#distributionLiquidity)"
                 activeDot={{
@@ -1323,14 +1368,13 @@ export default function Main() {
                 }}
               />
               <Tooltip
-                content={<CustomTooltip />}
+                content={<CustomTooltip formatter={RawNumberFormatter} />}
                 cursor={{
                   stroke: "#000",
                   strokeWidth: 1,
                   strokeDasharray: "2 2",
                 }}
                 itemStyle={{ color: "#8884d8" }}
-                formatter={NumberFormatter}
               />
             </AreaChart>
           </div>
