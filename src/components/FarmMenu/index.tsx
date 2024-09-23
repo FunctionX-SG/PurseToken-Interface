@@ -44,7 +44,7 @@ export default function FarmMenu() {
   const [poolInfos, setPoolInfos] = useState<any>([]);
   const [userInfos, setUserInfos] = useState<any>([]);
   const [stakeBalances, setStakeBalances] = useState<any>([]);
-  const [farmLoading, setFarmLoading] = useState<Boolean>(false);
+  const [farmLoading, setFarmLoading] = useState<Boolean>(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isUserLoading, setIsUserLoading] = useState(true);
 
@@ -183,7 +183,7 @@ export default function FarmMenu() {
     setApyWeekly(_apyWeekly);
     setApyMonthly(_apyMonthly);
     setAprLoading(true);
-    setFarmLoading(true);
+    setFarmLoading(false);
     setIsUserLoading(false);
   }, [account, bscProvider, purseTokenUpgradable, restakingFarm]);
 
@@ -369,7 +369,7 @@ export default function FarmMenu() {
         </div>
 
         <br />
-        <div className="center mb-2">
+        <div className="center mt-4 mb-2">
           <b>
             <big>Select Your Favourite pool entrees&nbsp;!</big>
           </b>
@@ -383,8 +383,8 @@ export default function FarmMenu() {
         </div>
         <br />
 
-        {farmLoading ? (
-          <div className="row floated">
+        {!farmLoading ? (
+          <div className="row center mt-4">
             {poolInfos.map((poolInfo: any, key: number) => (
               <PoolCard
                 key={`${poolInfos[key].token[farmNetwork]["symbol"]}-${poolInfos[key].quoteToken[farmNetwork]["symbol"]}`}
