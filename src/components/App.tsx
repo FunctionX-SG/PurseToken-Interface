@@ -34,7 +34,7 @@ export default function App() {
         <Navb />
         <div className="container-fluid mt-4">
           <div className="row">
-            <main role="main" className="col-lg-12 ml-auto mr-auto">
+            <main role="main" className="px-4 ml-auto mr-auto">
               <div className="content mr-auto ml-auto" id="content">
                 <Routes>
                   <Route path="/" element={<Main />}></Route>

@@ -823,7 +823,7 @@ export default function PurseBox() {
 
   const renderMobile = () => {
     return (
-      <div style={{ margin: "0 auto", maxWidth: "300px" }}>
+      <div style={{ margin: "0 auto", maxWidth: "400px" }}>
         {/*<div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>*/}
         <div className="center img">
           {" "}
@@ -859,20 +859,25 @@ export default function PurseBox() {
             justifyContent: "center",
           }}
         >
-          <div className="center img">
-            <img src={red} height="135" alt="" />
+          <div className="center row">
+            <div className="img">
+              <img src={red} height="135" alt="" />
+            </div>
+            <div className="img">
+              <img src={green} height="135" alt="" />
+            </div>
           </div>
-          <div className="center img">
-            <img src={green} height="135" alt="" />
-          </div>
+
           <div className="center img">
             <img src={blue} height="135" alt="" />
           </div>
-          <div className="center img">
-            <img src={orange} height="135" alt="" />
-          </div>
-          <div className="center img">
-            <img src={purple} height="135" alt="" />
+          <div className="center row">
+            <div className="center img">
+              <img src={orange} height="135" alt="" />
+            </div>
+            <div className="center img">
+              <img src={purple} height="135" alt="" />
+            </div>
           </div>
         </div>
       </div>
