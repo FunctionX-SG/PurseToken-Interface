@@ -196,7 +196,10 @@ export default function Navb() {
                 fontSize: "15px",
               }}
             >
-              <span className="center" style={{ width: "100%", color: "#fff" }}>
+              <span
+                className="center text-truncate"
+                style={{ flexGrow: 1, color: "#fff" }}
+              >
                 Check out the new roadmap of Purse at &nbsp;
                 <a
                   href="https://purse.land/"
@@ -213,7 +216,7 @@ export default function Navb() {
                 onClick={() => {
                   closeNotice();
                 }}
-                className="mr-2 close-notice"
+                className="mr-2 close-notice mx-auto"
                 style={{
                   color: "#fff",
                   fontSize: "30px",
