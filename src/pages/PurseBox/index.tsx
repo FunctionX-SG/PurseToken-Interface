@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import MediaQuery from "react-responsive";
 import red from "../../assets/images/red.png";
 import blue from "../../assets/images/blue.png";
@@ -6,19 +6,19 @@ import green from "../../assets/images/green.png";
 import orange from "../../assets/images/orange.png";
 import fox from "../../assets/images/metamask-fox.svg";
 import etherscanLogo from "../../assets/images/etherscan-logo-circle.svg";
-import {Loading} from "../../components/Loading";
+import { Loading } from "../../components/Loading";
 import purple from "../../assets/images/purple.png";
-import {useWeb3React} from "@web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import Button from "react-bootstrap/esm/Button";
 import Popup from "reactjs-popup";
-import {BsInfoCircleFill} from "react-icons/bs";
-import {useProvider} from "../../components/state/provider/hooks";
-import {useNetwork} from "../../components/state/network/hooks";
-import {useContract} from "../../components/state/contract/hooks";
-import {useToast} from "../../components/state/toast/hooks";
+import { BsInfoCircleFill } from "react-icons/bs";
+import { useProvider } from "../../components/state/provider/hooks";
+import { useNetwork } from "../../components/state/network/hooks";
+import { useContract } from "../../components/state/contract/hooks";
+import { useToast } from "../../components/state/toast/hooks";
 
 import * as Constants from "../../constants";
-import {useWalletTrigger} from "../../components/state/walletTrigger/hooks";
+import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import {
   callContract,
   capitalizeString,
@@ -26,9 +26,9 @@ import {
   formatShortenAddress,
   getShortTxHash,
 } from "../../components/utils";
-import {CopyIcon} from "../../components/Icons/Icons";
-import {MetaMask} from "@web3-react/metamask";
-import {BigNumber} from "ethers";
+import { CopyIcon } from "../../components/Icons/Icons";
+import { MetaMask } from "@web3-react/metamask";
+import { BigNumber } from "ethers";
 
 type NFTMeta = {
   id: bigint;
@@ -37,7 +37,7 @@ type NFTMeta = {
 };
 
 const MintContainer = () => {
-  const {isActive, chainId, connector, account} = useWeb3React();
+  const { isActive, chainId, connector, account } = useWeb3React();
   const targetChain = Constants.ETH_CHAIN_ID;
   const isTargetChainMatch = chainId === targetChain;
   const isMetaMaskConnected = connector instanceof MetaMask;
@@ -45,9 +45,9 @@ const MintContainer = () => {
   const [, showToast] = useToast();
   const [, setTrigger] = useWalletTrigger();
 
-  const {purseToken404UpgradableEth} = useContract();
+  const { purseToken404UpgradableEth } = useContract();
 
-  const {signer, ethProvider} = useProvider();
+  const { signer, ethProvider } = useProvider();
   const [mintingCost, setMintingCost] = useState<bigint>();
   const [purseRatio, setPurseRatio] = useState<bigint>();
   const [userBalance, setUserBalance] = useState<bigint>();
@@ -106,9 +106,9 @@ const MintContainer = () => {
           setAvailableTokens(
             Number(
               BigInt(maxTokenIdRaw) -
-              BigInt(2 ** 255) +
-              BigInt(queueLength) -
-              BigInt(totalSupply)
+                BigInt(2 ** 255) +
+                BigInt(queueLength) -
+                BigInt(totalSupply)
             )
           );
         }
@@ -213,9 +213,9 @@ const MintContainer = () => {
           setAvailableTokens(
             Number(
               BigInt(maxTokenIdRaw) -
-              BigInt(2 ** 255) +
-              BigInt(queueLength) -
-              BigInt(totalSupply)
+                BigInt(2 ** 255) +
+                BigInt(queueLength) -
+                BigInt(totalSupply)
             )
           );
         }
@@ -264,7 +264,7 @@ const MintContainer = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = Number(event.target.value);
-    if (input === undefined) return;
+    if (input === undefined || Number.isNaN(input)) return;
     if (availableTokens && input > availableTokens) {
       setMintAmount(availableTokens);
     } else {
@@ -323,7 +323,7 @@ const MintContainer = () => {
               <div>
                 <div
                   className="center textWhiteMedium mt-3 mb-3"
-                  style={{textAlign: "center"}}
+                  style={{ textAlign: "center" }}
                 >
                   <text>Connect wallet to mint PURSE BOX</text>
                 </div>
@@ -352,7 +352,7 @@ const MintContainer = () => {
               <div>
                 <div
                   className="center textWhiteMedium mt-3 mb-3"
-                  style={{textAlign: "center"}}
+                  style={{ textAlign: "center" }}
                 >
                   <text>Switch chain to mint PURSE BOX</text>
                 </div>
@@ -378,50 +378,57 @@ const MintContainer = () => {
                 marginBottom: "2%",
               }}
             >
-              <div style={{display: "flex"}}>
-                <text style={{marginRight: "auto"}}>Total NFTs:</text>
+              <div style={{ display: "flex" }}>
+                <text style={{ marginRight: "auto" }}>Total NFTs:</text>
                 <text>{Number(10000).toLocaleString()} PURSEBOX</text>
               </div>
               {availableTokens !== undefined ? (
-                <div style={{display: "flex"}}>
-                  <text style={{marginRight: "auto"}}>NFTs Available:</text>
+                <div style={{ display: "flex" }}>
+                  <text style={{ marginRight: "auto" }}>NFTs Available:</text>
                   <text>{availableTokens.toLocaleString()} PURSEBOX</text>
                 </div>
               ) : null}
-              <div style={{display: "flex"}}>
-                <text style={{marginRight: "auto"}}>Your NFTs:</text>
+              <div style={{ display: "flex" }}>
+                <text style={{ marginRight: "auto" }}>Your NFTs:</text>
                 <text>{Number(numUserTokens).toLocaleString()} PURSEBOX</text>
               </div>
               {userBalance !== undefined ? (
-                <div style={{display: "flex"}}>
-                  <div style={{marginRight: "auto"}}>
+                <div style={{ display: "flex" }}>
+                  <div style={{ marginRight: "auto" }}>
                     <text>Your PURSE Balance:</text>
-                      <Popup
-                        trigger={(open) => (
-                          <span style={{position: "relative", top: "-1.0px", paddingLeft: "2px"}}>
-                            <BsInfoCircleFill size={10}/>
-                          </span>
-                        )}
-                        on="hover"
-                        position="top center"
-                        offsetY={20}
-                        offsetX={0}
-                        contentStyle={{padding: "3px"}}
-                      >
-                        <text className="textInfo">
-                          {"An address's total balance of PURSE is the sum " +
-                            "of all PURSE tokens & PURSEBOX NFTs as ERC20 tokens."}
-                          <br /><br />
-                          {"Your total balance of PURSE:"}
-                          <br />
-                          {`
+                    <Popup
+                      trigger={(open) => (
+                        <span
+                          style={{
+                            position: "relative",
+                            top: "-1.0px",
+                            paddingLeft: "2px",
+                          }}
+                        >
+                          <BsInfoCircleFill size={10} />
+                        </span>
+                      )}
+                      on="hover"
+                      position="top center"
+                      offsetY={20}
+                      offsetX={0}
+                      contentStyle={{ padding: "3px" }}
+                    >
+                      <text className="textInfo">
+                        {"An address's total balance of PURSE is the sum " +
+                          "of all PURSE tokens & PURSEBOX NFTs as ERC20 tokens."}
+                        <br />
+                        <br />
+                        {"Your total balance of PURSE:"}
+                        <br />
+                        {`
                             ${FormatBigIntToString({
                               bigInt: userInactiveBalance ?? BigInt(0),
                             })} PURSE +
                             ${(numUserTokens ?? 0).toLocaleString()} PURSEBOX
                           `}
-                        </text>
-                      </Popup>
+                      </text>
+                    </Popup>
                   </div>
                   <text>
                     {FormatBigIntToString({
@@ -433,65 +440,73 @@ const MintContainer = () => {
                 </div>
               ) : null}
               {maxMint !== undefined ? (
-                <div style={{display: "flex"}}>
-                  <div style={{marginRight: "auto"}}>
-                    <text >You can mint:</text>
+                <div style={{ display: "flex" }}>
+                  <div style={{ marginRight: "auto" }}>
+                    <text>You can mint:</text>
                     <Popup
                       trigger={(open) => (
-                        <span style={{position: "relative", top: "-1.0px", paddingLeft: "2px"}}>
-                              <BsInfoCircleFill size={10}/>
-                            </span>
+                        <span
+                          style={{
+                            position: "relative",
+                            top: "-1.0px",
+                            paddingLeft: "2px",
+                          }}
+                        >
+                          <BsInfoCircleFill size={10} />
+                        </span>
                       )}
                       on="hover"
                       position="top center"
                       offsetY={20}
                       offsetX={0}
-                      contentStyle={{padding: "3px"}}
+                      contentStyle={{ padding: "3px" }}
                     >
                       <text className="textInfo">
                         {"Minting PURSEBOX NFTs does not deduct PURSE from your total " +
                           "balance of PURSE. "}
-                        <a href="https://pundix-purse.gitbook.io/untitled/purse-token/minting-purse-nft-s"
-                           target="_blank"
-                           rel="noopener noreferrer"
+                        <a
+                          href="https://pundix-purse.gitbook.io/untitled/purse-token/minting-purse-nft-s"
+                          target="_blank"
+                          rel="noopener noreferrer"
                         >
                           (more)
                         </a>
-                        <br /><br />
+                        <br />
+                        <br />
                         {`Cost to mint ${mintAmount} PURSEBOX:`}
                         <br />
                         {mintingCost !== undefined
                           ? FormatBigIntToString({
-                            bigInt: mintingCost,
-                            multiplier: mintAmount,
-                            decimalPlaces: 4,
-                            suffix: " ETH + ",
-                          })
+                              bigInt: mintingCost,
+                              multiplier: mintAmount,
+                              decimalPlaces: 4,
+                              suffix: " ETH + ",
+                            })
                           : `${(0.01).toLocaleString()} ETH + `}
                         {purseRatio !== undefined
                           ? FormatBigIntToString({
-                            bigInt: purseRatio,
-                            multiplier: mintAmount,
-                            decimalPlaces: 3,
-                            suffix: " PURSE",
-                          })
+                              bigInt: purseRatio,
+                              multiplier: mintAmount,
+                              decimalPlaces: 3,
+                              suffix: " PURSE",
+                            })
                           : `${Number(1000000).toLocaleString()} $PURSE`}
                       </text>
                     </Popup>
                   </div>
                   <text>
                     {(availableTokens
-                        ? Math.min(maxMint, availableTokens)
-                        : maxMint
+                      ? Math.min(maxMint, availableTokens)
+                      : maxMint
                     ).toLocaleString()}{" "}
                     PURSEBOX
                   </text>
                 </div>
               ) : null}
             </div>
-            <div style={{margin: "1% 0"}}>
+            <div style={{ margin: "1% 0" }}>
               <input
-                style={{width: "85%", verticalAlign: "middle"}}
+                style={{ width: "85%", verticalAlign: "middle" }}
                 type="number"
                 min="0"
                 value={mintAmount}
@@ -517,19 +532,19 @@ const MintContainer = () => {
               </Button>
             </div>
             {isInsufficientEth ? (
-              <small style={{color: "red"}}>Insufficient ETH balance</small>
+              <small style={{ color: "red" }}>Insufficient ETH balance</small>
             ) : null}
             <Button
               disabled={mintAmount === 0 || isInsufficientEth}
-              style={{backgroundColor: "#ba00ff"}}
+              style={{ backgroundColor: "#ba00ff" }}
               onClick={handleMint}
             >
               Mint
             </Button>
           </>
         ) : (
-          <div style={{margin: "10% auto"}}>
-            <Loading/>
+          <div style={{ margin: "10% auto" }}>
+            <Loading />
           </div>
         )}
       </div>
@@ -560,7 +575,7 @@ const MintContainer = () => {
         >
           Your NFTs
         </p>
-        <ol style={{listStyleType: "decimal"}}>
+        <ol style={{ listStyleType: "decimal" }}>
           <div
             style={{
               display: "flex",
@@ -570,7 +585,7 @@ const MintContainer = () => {
               fontSize: "20px",
             }}
           >
-            <div style={{paddingLeft: "5%", marginRight: "30%"}}>NFT ID</div>
+            <div style={{ paddingLeft: "5%", marginRight: "30%" }}>NFT ID</div>
             <div>Color Trait</div>
             <div
               style={{
@@ -593,7 +608,7 @@ const MintContainer = () => {
                 }}
               >
                 <div
-                  style={{marginRight: isMetaMaskConnected ? "14%" : "21%"}}
+                  style={{ marginRight: isMetaMaskConnected ? "14%" : "21%" }}
                 >
                   <text>
                     {formatShortenAddress(token.id.toLocaleString(), 4, 5)}
@@ -613,7 +628,7 @@ const MintContainer = () => {
                     <Popup
                       trigger={(open) => (
                         <span>
-                          <CopyIcon/>
+                          <CopyIcon />
                         </span>
                       )}
                       position={"top center"}
@@ -629,7 +644,7 @@ const MintContainer = () => {
                         verticalAlign: "middle",
                       }}
                     >
-                      <small style={{color: "white"}}>Copy NFT ID</small>
+                      <small style={{ color: "white" }}>Copy NFT ID</small>
                     </Popup>
                   </button>
                   <button
@@ -671,7 +686,7 @@ const MintContainer = () => {
                         verticalAlign: "middle",
                       }}
                     >
-                      <small style={{color: "white"}}>
+                      <small style={{ color: "white" }}>
                         Open in Etherscan
                       </small>
                     </Popup>
@@ -711,7 +726,7 @@ const MintContainer = () => {
                           verticalAlign: "middle",
                         }}
                       >
-                        <small style={{color: "white"}}>
+                        <small style={{ color: "white" }}>
                           Add to Metamask
                         </small>
                       </Popup>
@@ -722,7 +737,7 @@ const MintContainer = () => {
                 <img
                   alt=""
                   height="35px"
-                  style={{translate: "0 -7px", marginLeft: "auto"}}
+                  style={{ translate: "0 -7px", marginLeft: "auto" }}
                   src={`https://gateway.ipfs.io/ipfs/${token.image}`}
                 />
               </div>
@@ -749,16 +764,16 @@ const MintContainer = () => {
 export default function PurseBox() {
   const renderWeb = () => {
     return (
-      <div style={{margin: "0 auto", maxWidth: "1000px"}}>
+      <div style={{ margin: "0 auto", maxWidth: "1000px" }}>
         {/*<div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>*/}
         <div className="center img">
           {" "}
           {/*className="left img" style={{marginRight: '20px'}}*/}
-          <img src={purple} height="180" alt=""/>
+          <img src={purple} height="180" alt="" />
         </div>
         <label
           className="textWhite center"
-          style={{fontSize: "40px", textAlign: "center"}}
+          style={{ fontSize: "40px", textAlign: "center" }}
         >
           <big>
             <text>PURSE BOX</text>
@@ -787,19 +802,19 @@ export default function PurseBox() {
           }}
         >
           <div className="center img">
-            <img src={red} height="135" alt=""/>
+            <img src={red} height="135" alt="" />
           </div>
           <div className="center img">
-            <img src={green} height="135" alt=""/>
+            <img src={green} height="135" alt="" />
           </div>
           <div className="center img">
-            <img src={blue} height="135" alt=""/>
+            <img src={blue} height="135" alt="" />
           </div>
           <div className="center img">
-            <img src={orange} height="135" alt=""/>
+            <img src={orange} height="135" alt="" />
           </div>
           <div className="center img">
-            <img src={purple} height="135" alt=""/>
+            <img src={purple} height="135" alt="" />
           </div>
         </div>
       </div>
@@ -808,16 +823,16 @@ export default function PurseBox() {
 
   const renderMobile = () => {
     return (
-      <div style={{margin: "0 auto", maxWidth: "300px"}}>
+      <div style={{ margin: "0 auto", maxWidth: "300px" }}>
         {/*<div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>*/}
         <div className="center img">
           {" "}
           {/*className="left img" style={{marginRight: '20px'}}*/}
-          <img src={purple} height="180" alt=""/>
+          <img src={purple} height="180" alt="" />
         </div>
         <label
           className="textWhite center"
-          style={{fontSize: "40px", textAlign: "center"}}
+          style={{ fontSize: "40px", textAlign: "center" }}
         >
           <big>
             <text>PURSE BOX</text>
@@ -845,19 +860,19 @@ export default function PurseBox() {
           }}
         >
           <div className="center img">
-            <img src={red} height="135" alt=""/>
+            <img src={red} height="135" alt="" />
           </div>
           <div className="center img">
-            <img src={green} height="135" alt=""/>
+            <img src={green} height="135" alt="" />
           </div>
           <div className="center img">
-            <img src={blue} height="135" alt=""/>
+            <img src={blue} height="135" alt="" />
           </div>
           <div className="center img">
-            <img src={orange} height="135" alt=""/>
+            <img src={orange} height="135" alt="" />
           </div>
           <div className="center img">
-            <img src={purple} height="135" alt=""/>
+            <img src={purple} height="135" alt="" />
           </div>
         </div>
       </div>
@@ -868,7 +883,7 @@ export default function PurseBox() {
     <div id="content">
       <MediaQuery minWidth={601}>{renderWeb()}</MediaQuery>
       <MediaQuery maxWidth={600}>{renderMobile()}</MediaQuery>
-      <MintContainer/>
+      <MintContainer />
     </div>
   );
 }

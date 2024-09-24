@@ -249,8 +249,6 @@ export default function Main() {
 
     loadData();
   }, [purseTokenUpgradable, restakingFarm]);
-  console.log(cumulateBurn);
-  console.log(cumulateTransfer);
   const renderFullMainTable = () => {
     return (
       <div className="card mb-4 cardbody">
