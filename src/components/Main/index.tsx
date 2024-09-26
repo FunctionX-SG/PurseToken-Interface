@@ -25,6 +25,7 @@ import {
   RawNumberFormatter,
 } from "../utils";
 import { Bounce } from "react-awesome-reveal";
+import { Burn, Liquidity } from "./types";
 
 interface CustomTooltipProps {
   payload?: any[];
@@ -43,12 +44,8 @@ export default function Main() {
   // PURSE DASHBOARD STATES
   const [totalBurnAmount, setTotalBurnAmount] = useState("0");
   const [totalTransferAmount, setTotalTransferAmount] = useState("0");
-  const [cumulateTransfer, setCumulateTransfer] = useState<
-    { totalAmountLiquidity: number; blockTimestamp: string }[]
-  >([]);
-  const [cumulateBurn, setCumulateBurn] = useState<
-    { totalAmountBurned: number; blockTimestamp: string }[]
-  >([]);
+  const [cumulateTransfer, setCumulateTransfer] = useState<Liquidity[]>([]);
+  const [cumulateBurn, setCumulateBurn] = useState<Burn[]>([]);
 
   // FARM DASHBOARD STATES
   const [totalRewardPerBlock, setTotalRewardPerBlock] = useState<BigNumber>(
@@ -160,12 +157,6 @@ export default function Main() {
                   blockTimestamp
                   totalAmountLiquidity
                 }
-                store(id: "1") {
-                  prevBurnDate
-                  accBurned
-                  prevLiquidityDate
-                  accLiquidity
-                }
               }
             `,
         }),
@@ -174,28 +165,20 @@ export default function Main() {
           return res.json();
         })
         .then((json) => {
-          const liquidities = json.data.liquidities;
-          const burns = json.data.burns;
-          const store = json.data.store;
-          const lastLiquidity = store.accLiquidity;
-          const lastBurn = store.accBurned;
+          const liquidities: Liquidity[] = json.data.liquidities;
+          const burns: Burn[] = json.data.burns;
           const currentTimestamp = (Date.now() / 1000).toFixed(0);
-          if (lastLiquidity) {
-            liquidities.push({
-              blockTimestamp: store.prevLiquidityDate,
-              totalAmountLiquidity: lastLiquidity,
-            });
+          if (liquidities.length > 0) {
+            const lastLiquidity =
+              liquidities[liquidities.length - 1].totalAmountLiquidity;
             liquidities.push({
               blockTimestamp: currentTimestamp,
               totalAmountLiquidity: lastLiquidity,
             });
             setTotalTransferAmount(lastLiquidity);
           }
-          if (lastBurn) {
-            burns.push({
-              blockTimestamp: store.prevBurnDate,
-              totalAmountBurned: lastBurn,
-            });
+          if (burns.length > 0) {
+            const lastBurn = burns[burns.length - 1].totalAmountBurned;
             burns.push({
               blockTimestamp: currentTimestamp,
               totalAmountBurned: lastBurn,
