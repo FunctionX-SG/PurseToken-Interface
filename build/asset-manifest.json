@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.d4ac587b.css",
-    "main.js": "/static/js/main.67a4c3a1.js",
+    "main.js": "/static/js/main.74a09a5c.js",
     "static/js/774.555a8177.chunk.js": "/static/js/774.555a8177.chunk.js",
     "static/js/459.2651939b.chunk.js": "/static/js/459.2651939b.chunk.js",
     "static/media/orange.png": "/static/media/orange.66b21d3ec36a7ccadcb7.png",
@@ -24,12 +24,12 @@
     "static/media/etherscan-logo-circle.svg": "/static/media/etherscan-logo-circle.9766128bc4ad41ad1bbad073e586da74.svg",
     "index.html": "/index.html",
     "main.d4ac587b.css.map": "/static/css/main.d4ac587b.css.map",
-    "main.67a4c3a1.js.map": "/static/js/main.67a4c3a1.js.map",
+    "main.74a09a5c.js.map": "/static/js/main.74a09a5c.js.map",
     "774.555a8177.chunk.js.map": "/static/js/774.555a8177.chunk.js.map",
     "459.2651939b.chunk.js.map": "/static/js/459.2651939b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.d4ac587b.css",
-    "static/js/main.67a4c3a1.js"
+    "static/js/main.74a09a5c.js"
   ]
 }
