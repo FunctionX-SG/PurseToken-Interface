@@ -244,7 +244,7 @@ export default function StakeShell(props: StakeShellProps) {
                   } else if (mode === "Unstake") {
                     success = await onClickHandlerWithdraw(amount);
                   }
-                  if (success) onChangeHandler("");
+                  if (success) setAmount("");
                 }}
               >
                 {stakeLoading ? <Loading /> : mode}
