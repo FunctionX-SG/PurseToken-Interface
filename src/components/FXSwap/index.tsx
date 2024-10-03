@@ -115,7 +115,7 @@ export default function FXSwap(props: any) {
               variant="outline"
               size="lg"
             >
-              FXSWAP
+              MarginX
             </Buttons>
           </Link>
         </ButtonGroup>
@@ -133,7 +133,7 @@ export default function FXSwap(props: any) {
         className="center mt-4 mb-3"
         style={{ color: "#999", textAlign: "center" }}
       >
-        Stake FXSWAP LP Tokens to earn FX&nbsp;!
+        Stake MarginX LP Tokens to earn FX&nbsp;!
       </div>
       <br />
       <div className="row center" style={{ minWidth: "300px" }}>
@@ -313,7 +313,7 @@ export default function FXSwap(props: any) {
                 <div className="">
                   <small>
                     Deposit
-                    <small className="textSmall">FX-PURSE FXSWAP LP</small> to
+                    <small className="textSmall">FX-PURSE MarginX LP</small> to
                     Earn FX
                   </small>
                 </div>

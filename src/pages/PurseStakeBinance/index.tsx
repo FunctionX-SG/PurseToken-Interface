@@ -29,7 +29,7 @@ import StakeShell from "../../components/Stake/StakeShell";
 
 export default function PurseStakeBinance() {
   const { isActive, chainId, account } = useWeb3React();
-  const targetChain = 56;
+  const targetChain = 56; //change to 56 for bsc mainnet, 97 for bsc testnet
   const isTargetChainMatch = chainId === targetChain;
   const [, switchNetwork] = useNetwork();
   const [PURSEPrice] = usePursePrice();
@@ -58,6 +58,8 @@ export default function PurseStakeBinance() {
   const [purseAmountUnlock, setPurseAmountUnlock] = useState(0);
   const [purseAmountLock, setPurseAmountLock] = useState(0);
   const [stakeLoading, setStakeLoading] = useState(false);
+  const [claimLoading, setClaimLoading] = useState(false);
+  const [claimVestingLoading, setClaimVestingLoading] = useState(false);
   const [, setTrigger] = useWalletTrigger();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -323,11 +325,11 @@ export default function PurseStakeBinance() {
     if (!isActive) {
       return false;
     }
-    setStakeLoading(true);
+    setClaimLoading(true);
     const success = await handleTxResponse(
       callContract(signer, treasuryContract, "claimRewards", account)
     );
-    setStakeLoading(false);
+    setClaimLoading(false);
     return success;
   };
 
@@ -335,7 +337,7 @@ export default function PurseStakeBinance() {
     if (!isActive) {
       return false;
     }
-    setStakeLoading(true);
+    setClaimVestingLoading(true);
     let promise: Promise<any>;
     if (
       purseStakingUserWithdrawReward > 0 &&
@@ -350,7 +352,7 @@ export default function PurseStakeBinance() {
       );
     }
     const success = await handleTxResponse(promise);
-    setStakeLoading(false);
+    setClaimVestingLoading(false);
     return success;
   };
 
@@ -692,8 +694,8 @@ export default function PurseStakeBinance() {
                   variant="outline-success"
                   disabled={
                     isLoading ||
-                    formatBigNumber(purseStakingReward, "ether") === "0" ||
-                    stakeLoading
+                    claimLoading ||
+                    formatBigNumber(purseStakingReward, "ether") === "0"
                   }
                   onClick={(event) => {
                     claim();
@@ -945,6 +947,7 @@ export default function PurseStakeBinance() {
         onClickHandlerDeposit={onClickHandlerDeposit}
         onClickHandlerWithdraw={onClickHandlerWithdraw}
         stakeInfo={renderCombinedStakeInfo()}
+        claimVestingLoading={claimVestingLoading}
         isTargetChainMatch={isTargetChainMatch}
         maxStake={purseTokenUpgradableBalance}
         maxUnstake={purseStakingUserTotalReceipt}

@@ -68,6 +68,12 @@ body {
   /* background-image: linear-gradient(200deg, #485461 74%, #28313b 0%); */
 }
 
+.cardbody2 {
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  padding: 1.25rem;
+}
+
 .borderTop {
   border-top: 0.1px solid rgb(187, 187, 187);
   padding: 0.2rem;

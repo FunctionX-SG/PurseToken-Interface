@@ -143,7 +143,7 @@ export default function PoolCard(props: any) {
       <div>
         <div className="col">
           <div
-            className="card mb-4 cardbody card-body text-center"
+            className="card cardbody card-body text-center"
             style={{ maxWidth: "230px", color: "white" }}
           >
             <span>
@@ -404,7 +404,7 @@ export default function PoolCard(props: any) {
           </div>
         </div>
       </div>
-      <div className="content mr-auto ml-auto" id="content">
+      <div className="content mr-auto mb-4 ml-auto">
         <Popup trigger={depositTrigger} setTrigger={setDepositTrigger}>
           <div className="container-fluid">
             <Deposit

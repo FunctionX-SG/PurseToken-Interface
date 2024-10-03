@@ -16,6 +16,7 @@ type StakeShellProps = {
   claimVesting: () => void;
   onClickHandlerDeposit: (amount: string) => Promise<boolean>;
   onClickHandlerWithdraw: (amount: string) => Promise<boolean>;
+  claimVestingLoading: boolean;
   isTargetChainMatch: boolean;
   maxStake: BigNumber;
   maxUnstake: BigNumber;
@@ -30,6 +31,7 @@ export default function StakeShell(props: StakeShellProps) {
     claimVesting,
     onClickHandlerDeposit,
     onClickHandlerWithdraw,
+    claimVestingLoading,
     isTargetChainMatch,
     maxStake,
     maxUnstake,
@@ -242,7 +244,7 @@ export default function StakeShell(props: StakeShellProps) {
                   } else if (mode === "Unstake") {
                     success = await onClickHandlerWithdraw(amount);
                   }
-                  if (success) onChangeHandler("");
+                  if (success) setAmount("");
                 }}
               >
                 {stakeLoading ? <Loading /> : mode}
@@ -417,7 +419,7 @@ export default function StakeShell(props: StakeShellProps) {
                 className="btn btn-sm mt-3 mb-3"
                 style={{ width: "100px" }}
                 disabled={
-                  stakeLoading ||
+                  claimVestingLoading ||
                   ((purseStakingEndTime === 0 ||
                     purseStakingEndTime > Date.now() / 1000) &&
                     !!!vestingData?.reduce(

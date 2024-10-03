@@ -250,7 +250,7 @@ export default function Deposit(props: any) {
         Deposit {pairName} LP Token and earn PURSE&nbsp;!
       </div>
       <br />
-      <div className="card mb-2 cardbody" style={{ color: "#999" }}>
+      <div className="card mb-2 cardbody" style={{ color: "#999", backgroundColor: "rgba(248,248,248,0)" }}>
         <div className="card-body">
           <div className="float-left row mb-3 ml-1" style={{ width: "70%" }}>
             <div
@@ -322,7 +322,9 @@ export default function Deposit(props: any) {
               </tr>
             </tbody>
           </table>
-          <div className="card mb-4 cardbody">
+          <div className="card mb-4 cardbody"
+               style={{ backgroundColor: "rgba(248,248,248,0)"}}
+          >
             <div className="card-body">
               {!isActive ? (
                 <div className="rowC center">

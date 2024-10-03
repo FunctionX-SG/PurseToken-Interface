@@ -20,9 +20,9 @@ import { useToast } from "../../components/state/toast/hooks";
 import * as Constants from "../../constants";
 import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import {
-  FormatBigIntToString,
   callContract,
   capitalizeString,
+  FormatBigIntToString,
   formatShortenAddress,
   getShortTxHash,
 } from "../../components/utils";
@@ -176,7 +176,10 @@ const MintContainer = () => {
         )}`;
         showToast(message, "success", link);
         return true;
-      } else if (tx?.message.includes("user rejected transaction")) {
+      } else {
+        setIsLoading(false);
+      }
+      if (tx?.message.includes("user rejected transaction")) {
         showToast(`User rejected transaction.`, "failure");
       } else if (tx?.message.includes("insufficient funds for gas")) {
         showToast(`Insufficient funds for gas.`, "failure");
@@ -261,7 +264,7 @@ const MintContainer = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = Number(event.target.value);
-    if (input === undefined) return;
+    if (input === undefined || Number.isNaN(input)) return;
     if (availableTokens && input > availableTokens) {
       setMintAmount(availableTokens);
     } else {
@@ -276,7 +279,7 @@ const MintContainer = () => {
         params: {
           type: "ERC721",
           options: {
-            address: Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH_GOERLI,
+            address: Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH,
             tokenId: tokenId.toLocaleString(),
           },
         },
@@ -376,59 +379,121 @@ const MintContainer = () => {
               }}
             >
               <div style={{ display: "flex" }}>
-                <text style={{ marginRight: "auto" }}>Total NFTs: </text>
+                <text style={{ marginRight: "auto" }}>Total NFTs:</text>
                 <text>{Number(10000).toLocaleString()} PURSEBOX</text>
               </div>
               {availableTokens !== undefined ? (
                 <div style={{ display: "flex" }}>
-                  <text style={{ marginRight: "auto" }}>NFTs Available: </text>
+                  <text style={{ marginRight: "auto" }}>NFTs Available:</text>
                   <text>{availableTokens.toLocaleString()} PURSEBOX</text>
                 </div>
               ) : null}
               <div style={{ display: "flex" }}>
-                <text style={{ marginRight: "auto" }}>Your NFTs: </text>
+                <text style={{ marginRight: "auto" }}>Your NFTs:</text>
                 <text>{Number(numUserTokens).toLocaleString()} PURSEBOX</text>
               </div>
               {userBalance !== undefined ? (
                 <div style={{ display: "flex" }}>
                   <div style={{ marginRight: "auto" }}>
-                    <text>Your $PURSE Tokens: </text>
-                    {numUserTokens > 0 ? (
-                      <Popup
-                        trigger={(open) => (
-                          <span style={{ position: "relative", top: "-1.5px" }}>
-                            <BsInfoCircleFill size={10} />
-                          </span>
-                        )}
-                        on="hover"
-                        position="top center"
-                        offsetY={20}
-                        offsetX={0}
-                        contentStyle={{ padding: "3px" }}
-                      >
-                        <text className="textInfo">{`${FormatBigIntToString({
-                          bigInt: userBalance,
-                        })} Total $PURSE = \
-                      ${(
-                        numUserTokens ?? 0
-                      ).toLocaleString()} PURSEBOX + ${FormatBigIntToString({
-                          bigInt: userInactiveBalance ?? BigInt(0),
-                        })} $PURSE`}</text>
-                      </Popup>
-                    ) : null}
+                    <text>Your PURSE Balance:</text>
+                    <Popup
+                      trigger={(open) => (
+                        <span
+                          style={{
+                            position: "relative",
+                            top: "-1.0px",
+                            paddingLeft: "2px",
+                          }}
+                        >
+                          <BsInfoCircleFill size={10} />
+                        </span>
+                      )}
+                      on="hover"
+                      position="top center"
+                      offsetY={20}
+                      offsetX={0}
+                      contentStyle={{ padding: "3px" }}
+                    >
+                      <text className="textInfo">
+                        {"An address's total balance of PURSE is the sum " +
+                          "of all PURSE tokens & PURSEBOX NFTs as ERC20 tokens."}
+                        <br />
+                        <br />
+                        {"Your total balance of PURSE:"}
+                        <br />
+                        {`
+                            ${FormatBigIntToString({
+                              bigInt: userInactiveBalance ?? BigInt(0),
+                            })} PURSE +
+                            ${(numUserTokens ?? 0).toLocaleString()} PURSEBOX
+                          `}
+                      </text>
+                    </Popup>
                   </div>
                   <text>
                     {FormatBigIntToString({
                       bigInt: userBalance,
                       decimalPlaces: 3,
-                      suffix: " $PURSE",
+                      suffix: " PURSE",
                     })}
                   </text>
                 </div>
               ) : null}
               {maxMint !== undefined ? (
                 <div style={{ display: "flex" }}>
-                  <text style={{ marginRight: "auto" }}>You can mint: </text>
+                  <div style={{ marginRight: "auto" }}>
+                    <text>You can mint:</text>
+                    <Popup
+                      trigger={(open) => (
+                        <span
+                          style={{
+                            position: "relative",
+                            top: "-1.0px",
+                            paddingLeft: "2px",
+                          }}
+                        >
+                          <BsInfoCircleFill size={10} />
+                        </span>
+                      )}
+                      on="hover"
+                      position="top center"
+                      offsetY={20}
+                      offsetX={0}
+                      contentStyle={{ padding: "3px" }}
+                    >
+                      <text className="textInfo">
+                        {"Minting PURSEBOX NFTs does not deduct PURSE from your total " +
+                          "balance of PURSE. "}
+                        <a
+                          href="https://pundix-purse.gitbook.io/untitled/purse-token/minting-purse-nft-s"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          (more)
+                        </a>
+                        <br />
+                        <br />
+                        {`Cost to mint ${mintAmount} PURSEBOX:`}
+                        <br />
+                        {mintingCost !== undefined
+                          ? FormatBigIntToString({
+                              bigInt: mintingCost,
+                              multiplier: mintAmount,
+                              decimalPlaces: 4,
+                              suffix: " ETH + ",
+                            })
+                          : `${(0.01).toLocaleString()} ETH + `}
+                        {purseRatio !== undefined
+                          ? FormatBigIntToString({
+                              bigInt: purseRatio,
+                              multiplier: mintAmount,
+                              decimalPlaces: 3,
+                              suffix: " PURSE",
+                            })
+                          : `${Number(1000000).toLocaleString()} $PURSE`}
+                      </text>
+                    </Popup>
+                  </div>
                   <text>
                     {(availableTokens
                       ? Math.min(maxMint, availableTokens)
@@ -438,33 +503,6 @@ const MintContainer = () => {
                   </text>
                 </div>
               ) : null}
-            </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                textAlign: "right",
-              }}
-            >
-              <text>
-                {mintAmount} PURSEBOX ={" "}
-                {mintingCost !== undefined
-                  ? FormatBigIntToString({
-                      bigInt: mintingCost,
-                      multiplier: mintAmount,
-                      decimalPlaces: 4,
-                      suffix: " ETH + ",
-                    })
-                  : `${(0.01).toLocaleString()} ETH + `}
-                {purseRatio !== undefined
-                  ? FormatBigIntToString({
-                      bigInt: purseRatio,
-                      multiplier: mintAmount,
-                      decimalPlaces: 3,
-                      suffix: " $PURSE",
-                    })
-                  : `${Number(1000000).toLocaleString()} $PURSE`}
-              </text>
             </div>
             <div style={{ margin: "1% 0" }}>
               <input
@@ -618,7 +656,7 @@ const MintContainer = () => {
                     }}
                     onClick={() =>
                       window.open(
-                        `${Constants.ETH_TESTNET_BLOCKEXPLORER_GOERLI}nft/${Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH_GOERLI}/0x${token.id}`,
+                        `${Constants.ETH_MAINNET_BLOCKEXPLORER}nft/${Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH}/0x${token.id}`,
                         "_blank"
                       )
                     }
@@ -785,7 +823,7 @@ export default function PurseBox() {
 
   const renderMobile = () => {
     return (
-      <div style={{ margin: "0 auto", maxWidth: "300px" }}>
+      <div style={{ margin: "0 auto", maxWidth: "400px" }}>
         {/*<div style={{display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>*/}
         <div className="center img">
           {" "}
@@ -821,20 +859,25 @@ export default function PurseBox() {
             justifyContent: "center",
           }}
         >
-          <div className="center img">
-            <img src={red} height="135" alt="" />
+          <div className="center row">
+            <div className="img">
+              <img src={red} height="135" alt="" />
+            </div>
+            <div className="img">
+              <img src={green} height="135" alt="" />
+            </div>
           </div>
-          <div className="center img">
-            <img src={green} height="135" alt="" />
-          </div>
+
           <div className="center img">
             <img src={blue} height="135" alt="" />
           </div>
-          <div className="center img">
-            <img src={orange} height="135" alt="" />
-          </div>
-          <div className="center img">
-            <img src={purple} height="135" alt="" />
+          <div className="center row">
+            <div className="center img">
+              <img src={orange} height="135" alt="" />
+            </div>
+            <div className="center img">
+              <img src={purple} height="135" alt="" />
+            </div>
           </div>
         </div>
       </div>
