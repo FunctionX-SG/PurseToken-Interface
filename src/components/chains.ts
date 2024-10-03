@@ -66,7 +66,7 @@ export const MAINNET_CHAINS: ChainConfig = {
   },
   11155111: {
     urls: [Constants.ETH_TESTNET_RPCURL_SEPOLIA].filter(Boolean),
-    name: "ETH Testnet Sepolia",
+    name: "SEPOLIA",
     blockExplorerUrls: [Constants.ETH_TESTNET_BLOCKEXPLORER_SEPOLIA],
     nativeCurrency: SepoliaETH,
   },

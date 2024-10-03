@@ -24,6 +24,9 @@ export const contractSlice = createSlice({
     const ethProvider = new ethers.providers.JsonRpcProvider(
       Constants.ETH_MAINNET_RPCURL
     );
+    const sepoliaProvider = new ethers.providers.JsonRpcProvider(
+      Constants.ETH_TESTNET_RPCURL_SEPOLIA
+    );
     const fxProvider = new ethers.providers.JsonRpcProvider(Constants.PROVIDER);
     const purseTokenUpgradable = new ethers.Contract(
       Constants.PURSE_TOKEN_UPGRADABLE_ADDRESS,
@@ -80,6 +83,11 @@ export const contractSlice = createSlice({
       PurseToken404UpgradableEth.abi,
       ethProvider
     );
+    const purseToken404UpgradeableSepolia = new ethers.Contract(
+      Constants.PURSE_TOKEN_404_UPGRADEABLE_ADDRESS_ETH_SEPOLIA,
+      PurseToken404UpgradableEth.abi,
+      sepoliaProvider
+    )
     const ethRewardsContract = new ethers.Contract(
       Constants.REWARDS_CONTRACT_ADDRESS_ETH,
       EthRewardsContract.abi,
@@ -100,6 +108,7 @@ export const contractSlice = createSlice({
         rewardDistributor,
         rewardContract,
         purseToken404UpgradableEth,
+        purseToken404UpgradeableSepolia,
       },
     };
   },

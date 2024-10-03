@@ -36,16 +36,22 @@ type NFTMeta = {
   image: string;
 };
 
+/*
+For configuring between Mainnet and Sepolia, please update the following lines:
+46, 53-54, 172, 288, 665
+ */
+
 const MintContainer = () => {
   const { isActive, chainId, connector, account } = useWeb3React();
-  const targetChain = Constants.ETH_CHAIN_ID;
+  const targetChain = Constants.SEPOLIA_CHAIN_ID; //Constants.ETH_CHAIN_ID;
   const isTargetChainMatch = chainId === targetChain;
   const isMetaMaskConnected = connector instanceof MetaMask;
   const [, switchNetwork] = useNetwork();
   const [, showToast] = useToast();
   const [, setTrigger] = useWalletTrigger();
 
-  const { purseToken404UpgradableEth } = useContract();
+  const { purseToken404UpgradeableSepolia } = useContract(); //const { purseToken404UpgradableEth } = useContract();
+  const purseToken404UpgradableEth = purseToken404UpgradeableSepolia;
 
   const { signer, ethProvider } = useProvider();
   const [mintingCost, setMintingCost] = useState<bigint>();
@@ -163,7 +169,7 @@ const MintContainer = () => {
     try {
       const tx = await promise;
       if (tx?.hash) {
-        const link = `${Constants.ETH_MAINNET_BLOCKEXPLORER}/tx/${tx.hash}`;
+        const link = `${Constants.ETH_TESTNET_BLOCKEXPLORER_SEPOLIA}/tx/${tx.hash}`; //`${Constants.ETH_MAINNET_BLOCKEXPLORER}/tx/${tx.hash}`;
         showToast("Transaction sent!", "success", link);
         setIsLoading(true);
         await tx.wait();
@@ -279,7 +285,7 @@ const MintContainer = () => {
         params: {
           type: "ERC721",
           options: {
-            address: Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH,
+            address: Constants.PURSE_TOKEN_404_UPGRADEABLE_ADDRESS_ETH_SEPOLIA, //Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH,
             tokenId: tokenId.toLocaleString(),
           },
         },
@@ -656,7 +662,7 @@ const MintContainer = () => {
                     }}
                     onClick={() =>
                       window.open(
-                        `${Constants.ETH_MAINNET_BLOCKEXPLORER}nft/${Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH}/0x${token.id}`,
+                        `${Constants.ETH_TESTNET_BLOCKEXPLORER_SEPOLIA}nft/${Constants.PURSE_TOKEN_404_UPGRADEABLE_ADDRESS_ETH_SEPOLIA}/0x${token.id}`, //`${Constants.ETH_MAINNET_BLOCKEXPLORER}nft/${Constants.PURSE_TOKEN_404_UPGRADABLE_ADDRESS_ETH}/0x${token.id}`,
                         "_blank"
                       )
                     }

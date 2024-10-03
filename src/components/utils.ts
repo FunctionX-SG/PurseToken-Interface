@@ -55,6 +55,8 @@ export function chainId2NetworkName(chainId: number) {
     return "Fuji";
   } else if (chainId === 43114) {
     return "Avalanche";
+  } else if (chainId === 11155111) {
+    return "Sepolia";
   } else {
     return "NaN";
   }
