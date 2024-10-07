@@ -93,7 +93,7 @@ export default function StakeShell(props: StakeShellProps) {
           style={{ color: "#fff" }}
         >
           <a
-            href="https://pundix-purse.gitbook.io/untitled/products/purse-staking-rewards"
+            href="https://pundi.gitbook.io/pundi/readme/purse-docs/protocols/purse-staking-rewards"
             target="_blank"
             rel="noreferrer"
             style={{ textDecoration: "none" }}
