@@ -265,7 +265,7 @@ export default function Navb() {
                   style={{ fontSize: "16px" }}
                   onClick={() => {
                     window.open(
-                      `https://pundix-purse.gitbook.io/untitled/`,
+                      `https://pundi.gitbook.io/pundi/readme/purse-docs`,
                       "_blank"
                     );
                   }}
@@ -314,7 +314,7 @@ export default function Navb() {
                 style={{ fontSize: "16px" }}
                 onClick={() => {
                   window.open(
-                    `https://pundix-purse.gitbook.io/untitled/`,
+                    `https://pundi.gitbook.io/pundi/readme/purse-docs`,
                     "_blank"
                   );
                 }}

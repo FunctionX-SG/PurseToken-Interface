@@ -465,7 +465,7 @@ const MintContainer = () => {
                         {"Minting PURSEBOX NFTs does not deduct PURSE from your total " +
                           "balance of PURSE. "}
                         <a
-                          href="https://pundix-purse.gitbook.io/untitled/purse-token/minting-purse-nft-s"
+                          href="https://pundi.gitbook.io/pundi/readme/purse-docs/purse-token/minting-purse-nft-s"
                           target="_blank"
                           rel="noopener noreferrer"
                         >
