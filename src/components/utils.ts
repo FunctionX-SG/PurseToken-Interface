@@ -211,6 +211,18 @@ export const NumberFormatter = (number: number) => {
   });
 };
 
+export const getNumberWithCommas = (
+  number: number,
+  maximumFractionDigits?: number
+) => {
+  const number_string = maximumFractionDigits
+    ? Number(number).toFixed(maximumFractionDigits)
+    : number.toString();
+  var parts = number_string.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+};
+
 export const FormatNumberToString = ({
   bigNum,
   units = "ether",

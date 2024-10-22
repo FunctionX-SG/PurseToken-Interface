@@ -10,6 +10,8 @@ import {
   convertUnixToDateTime,
   formatBigNumber,
   FormatNumberToString,
+  getNumberWithCommas,
+  NumberFormatter,
   RawDataFormatter,
   RawNumberFormatter,
 } from "../utils";
@@ -474,6 +476,76 @@ export default function StakeShell(props: StakeShellProps) {
     );
   };
 
+  const renderTVLHeader = () => {
+    if (!TVLData) {
+      return <></>;
+    }
+    return (
+      <div className="mb-4">
+        <div className={`common-title text-muted`}>Total Staked</div>
+        <div className={`h3 bold`}>
+          <strong>
+            {RawNumberFormatter(
+              TVLData[TVLData.length - 1].totalAmountLiquidity
+            )}
+          </strong>
+        </div>
+        <div className={`h5 text-muted`}>
+          {`$${getNumberWithCommas(
+            TVLData[TVLData.length - 1].totalLiquidityValueUSD,
+            2
+          )}`}
+        </div>
+      </div>
+    );
+  };
+  const renderTVLChart = () => {
+    return (
+      <AreaChart data={TVLData} margin={{ top: 10 }}>
+        <XAxis
+          axisLine={false}
+          dataKey="blockTimestamp"
+          domain={["dataMin", "dataMax"]}
+          interval="preserveStartEnd"
+          type="number"
+          tickFormatter={convertUnixToDate}
+          stroke="#000"
+          tickLine={false}
+        />
+        <YAxis
+          axisLine={false}
+          domain={[0, (dataMax: number) => dataMax * 11]} // ??
+          interval="preserveStartEnd"
+          tickFormatter={RawDataFormatter}
+          tick={{ fontSize: 12 }}
+          stroke="#000"
+        />
+        <Tooltip
+          content={<CustomTooltip formatter={RawNumberFormatter} />}
+          cursor={{
+            stroke: "#000",
+            strokeWidth: 1,
+            strokeDasharray: "2 2",
+          }}
+          itemStyle={{ color: "#8884d8" }}
+        />
+        <defs>
+          <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#d94cf5" stopOpacity={0.5} />
+            <stop offset="95%" stopColor="#dd59f7" stopOpacity={0.1} />
+          </linearGradient>
+        </defs>
+        <Area
+          type="monotone"
+          dataKey="totalAmountLiquidity"
+          stroke="#c80ced"
+          strokeWidth={2.5}
+          fillOpacity={1}
+          fill="url(#colorUv)"
+        />
+      </AreaChart>
+    );
+  };
   return (
     <>
       <MediaQuery minWidth={601}>
@@ -509,55 +581,14 @@ export default function StakeShell(props: StakeShellProps) {
             <div
               style={{
                 margin: "0 auto",
-                padding: "24px",
+                padding: "12px",
                 width: "70%",
                 minWidth: "750px",
               }}
             >
+              {renderTVLHeader()}
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={TVLData} margin={{ top: 10 }}>
-                  <XAxis
-                    dataKey="blockTimestamp"
-                    domain={["dataMin", "dataMax"]}
-                    interval="preserveStartEnd"
-                    type="number"
-                    tickFormatter={(value) =>
-                      convertUnixToDateTime(value, false)
-                    }
-                    stroke="#000"
-                    tickLine={false}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    domain={[0, (dataMax: number) => dataMax * 11]} // ??
-                    interval="preserveStartEnd"
-                    tickFormatter={RawDataFormatter}
-                    tick={{ fontSize: 12 }}
-                    stroke="#000"
-                  />
-                  <Tooltip
-                    content={<CustomTooltip formatter={RawNumberFormatter} />}
-                    cursor={{
-                      stroke: "#000",
-                      strokeWidth: 1,
-                      strokeDasharray: "2 2",
-                    }}
-                    itemStyle={{ color: "#8884d8" }}
-                  />
-                  <defs>
-                    <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    type="monotone"
-                    dataKey="totalAmountLiquidity"
-                    stroke="#8884d8"
-                    fillOpacity={1}
-                    fill="url(#colorUv)"
-                  />
-                </AreaChart>
+                {renderTVLChart()}
               </ResponsiveContainer>
             </div>
           ) : null}
@@ -576,48 +607,9 @@ export default function StakeShell(props: StakeShellProps) {
                 width: "100%",
               }}
             >
+              {renderTVLHeader()}
               <ResponsiveContainer width="100%" height={150}>
-                <AreaChart data={TVLData} margin={{ top: 10 }}>
-                  <XAxis
-                    dataKey="blockTimestamp"
-                    domain={["dataMin", "dataMax"]}
-                    interval="preserveStartEnd"
-                    type="number"
-                    tickFormatter={convertUnixToDate}
-                    stroke="#000"
-                    tickLine={false}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    domain={[0, (dataMax: number) => dataMax * 11]} // ??
-                    interval="preserveStartEnd"
-                    tickFormatter={RawDataFormatter}
-                    tick={{ fontSize: 12 }}
-                    stroke="#000"
-                  />
-                  <Tooltip
-                    content={<CustomTooltip formatter={RawNumberFormatter} />}
-                    cursor={{
-                      stroke: "#000",
-                      strokeWidth: 1,
-                      strokeDasharray: "2 2",
-                    }}
-                    itemStyle={{ color: "#8884d8" }}
-                  />
-                  <defs>
-                    <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area
-                    type="monotone"
-                    dataKey="totalAmountLiquidity"
-                    stroke="#8884d8"
-                    fillOpacity={1}
-                    fill="url(#colorUv)"
-                  />
-                </AreaChart>
+                {renderTVLChart()}
               </ResponsiveContainer>
             </div>
           ) : null}
