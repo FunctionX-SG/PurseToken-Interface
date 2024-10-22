@@ -26,6 +26,7 @@ import { useContract } from "../../components/state/contract/hooks";
 import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import { useNetwork } from "../../components/state/network/hooks";
 import StakeShell from "../../components/Stake/StakeShell";
+import { TVLData } from "../../components/Stake/types";
 
 export default function PurseStakeBinance() {
   const { isActive, chainId, account } = useWeb3React();
@@ -61,6 +62,7 @@ export default function PurseStakeBinance() {
   const [claimLoading, setClaimLoading] = useState(false);
   const [claimVestingLoading, setClaimVestingLoading] = useState(false);
   const [, setTrigger] = useWalletTrigger();
+  const [stakingTVLData, setStakingTVLData] = useState<TVLData[]>();
   const [isLoading, setIsLoading] = useState(true);
 
   const { data: purseStakingTotalStake } = useSWR(
@@ -215,6 +217,8 @@ export default function PurseStakeBinance() {
         }),
       ]).then(() => setIsLoading(false));
     }
+
+    fetchStakeTvl();
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -354,6 +358,29 @@ export default function PurseStakeBinance() {
     const success = await handleTxResponse(promise);
     setClaimVestingLoading(false);
     return success;
+  };
+
+  const fetchStakeTvl = async () => {
+    const res = await fetch(Constants.SUBGRAPH_API, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query: `
+          {
+            stakingTVLUpdates(first: 1000, orderBy: blockTimestamp) {
+              blockTimestamp
+              totalAmountLiquidity
+              totalLiquidityValueUSD
+            }
+          }
+        `,
+      }),
+    });
+    const json = await res.json();
+    const tvl: TVLData[] = json.data.stakingTVLUpdates;
+    setStakingTVLData(tvl);
   };
 
   const checkPurseAmount = async (receipt: BigNumber) => {
@@ -954,6 +981,7 @@ export default function PurseStakeBinance() {
         purseStakingEndTime={purseStakingEndTime}
         stakeLoading={stakeLoading}
         vestingData={purseStakingVestingData}
+        TVLData={stakingTVLData}
       />
     </div>
   );

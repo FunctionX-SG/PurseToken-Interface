@@ -1,5 +1,4 @@
 //BSC mainnet: 56, testnet: 97
-export const NETWORK_ID = "56";
 export const BSC_CHAIN_ID = 56;
 
 export const ETH_CHAIN_ID = 1;
@@ -50,7 +49,7 @@ export const MONGO_RESPONSE_2_API = `https://ap-southeast-1.aws.data.mongodb-api
 export const MONGO_FXSWAP_RESPONSE_API = `https://ap-southeast-1.aws.data.mongodb-api.com/app/data-rjjms/endpoint/tvl_prod`;
 
 export const SUBGRAPH_API =
-  "https://api.goldsky.com/api/public/project_clz6ti9bm1qjm01086dflgsh3/subgraphs/pursetoken/0.0.3/gn";
+  "https://api.goldsky.com/api/public/project_clz6ti9bm1qjm01086dflgsh3/subgraphs/pursetoken/0.0.2/gn";
 
 //RPC URLs
 export const WALLETCONNECT_BRIDGE_URL =

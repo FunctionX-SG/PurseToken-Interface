@@ -5,12 +5,29 @@ import MediaQuery from "react-responsive";
 import { Popup as ReactPopup } from "reactjs-popup";
 import { BsFillQuestionCircleFill, BsArrowRight } from "react-icons/bs";
 import { AiFillAlert } from "react-icons/ai";
-import { formatBigNumber, FormatNumberToString } from "../utils";
+import {
+  convertUnixToDate,
+  convertUnixToDateTime,
+  formatBigNumber,
+  FormatNumberToString,
+  RawDataFormatter,
+  RawNumberFormatter,
+} from "../utils";
 
 import "../App.css";
 import { useWeb3React } from "@web3-react/core";
 import { Loading } from "../Loading";
 import { BigNumber } from "ethers";
+import { TVLData } from "./types";
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import CustomTooltip from "../CustomTooltip";
 
 type StakeShellProps = {
   claimVesting: () => void;
@@ -24,6 +41,7 @@ type StakeShellProps = {
   stakeInfo: ReactNode;
   stakeLoading: boolean;
   vestingData: any[];
+  TVLData?: TVLData[];
 };
 
 export default function StakeShell(props: StakeShellProps) {
@@ -39,6 +57,7 @@ export default function StakeShell(props: StakeShellProps) {
     stakeInfo,
     stakeLoading,
     vestingData,
+    TVLData,
   } = props;
 
   const { isActive } = useWeb3React();
@@ -458,31 +477,91 @@ export default function StakeShell(props: StakeShellProps) {
   return (
     <>
       <MediaQuery minWidth={601}>
-        <div
-          className="card cardbody"
-          style={{
-            margin: "0 auto",
-            padding: "24px",
-            width: "70%",
-            minWidth: "750px",
-          }}
-        >
-          {renderInfoBanner()}
-          <div style={{ padding: "0 5px" }}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "center",
-              }}
-            >
-              <div style={{ minWidth: "330px", width: "65%" }}>{stakeInfo}</div>
-              {isActive && isTargetChainMatch
-                ? renderWideUserActionContainer()
-                : null}
+        <>
+          <div
+            className="card cardbody"
+            style={{
+              margin: "0 auto",
+              padding: "24px",
+              width: "70%",
+              minWidth: "750px",
+            }}
+          >
+            {renderInfoBanner()}
+            <div style={{ padding: "0 5px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "center",
+                }}
+              >
+                <div style={{ minWidth: "330px", width: "65%" }}>
+                  {stakeInfo}
+                </div>
+                {isActive && isTargetChainMatch
+                  ? renderWideUserActionContainer()
+                  : null}
+              </div>
             </div>
           </div>
-        </div>
+          {TVLData ? (
+            <div
+              style={{
+                margin: "0 auto",
+                padding: "24px",
+                width: "70%",
+                minWidth: "750px",
+              }}
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={TVLData} margin={{ top: 10 }}>
+                  <XAxis
+                    dataKey="blockTimestamp"
+                    domain={["dataMin", "dataMax"]}
+                    interval="preserveStartEnd"
+                    type="number"
+                    tickFormatter={(value) =>
+                      convertUnixToDateTime(value, false)
+                    }
+                    stroke="#000"
+                    tickLine={false}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    domain={[0, (dataMax: number) => dataMax * 11]} // ??
+                    interval="preserveStartEnd"
+                    tickFormatter={RawDataFormatter}
+                    tick={{ fontSize: 12 }}
+                    stroke="#000"
+                  />
+                  <Tooltip
+                    content={<CustomTooltip formatter={RawNumberFormatter} />}
+                    cursor={{
+                      stroke: "#000",
+                      strokeWidth: 1,
+                      strokeDasharray: "2 2",
+                    }}
+                    itemStyle={{ color: "#8884d8" }}
+                  />
+                  <defs>
+                    <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="totalAmountLiquidity"
+                    stroke="#8884d8"
+                    fillOpacity={1}
+                    fill="url(#colorUv)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          ) : null}
+        </>
       </MediaQuery>
       <MediaQuery maxWidth={600}>
         <div className="card cardbody" style={{ padding: "16px" }}>
@@ -490,6 +569,58 @@ export default function StakeShell(props: StakeShellProps) {
           {stakeInfo}
           <hr style={{ marginBottom: "24px" }} />
           {isActive && isTargetChainMatch ? renderUserActionContainer() : null}
+          {TVLData ? (
+            <div
+              style={{
+                margin: "0 auto",
+                width: "100%",
+              }}
+            >
+              <ResponsiveContainer width="100%" height={150}>
+                <AreaChart data={TVLData} margin={{ top: 10 }}>
+                  <XAxis
+                    dataKey="blockTimestamp"
+                    domain={["dataMin", "dataMax"]}
+                    interval="preserveStartEnd"
+                    type="number"
+                    tickFormatter={convertUnixToDate}
+                    stroke="#000"
+                    tickLine={false}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    domain={[0, (dataMax: number) => dataMax * 11]} // ??
+                    interval="preserveStartEnd"
+                    tickFormatter={RawDataFormatter}
+                    tick={{ fontSize: 12 }}
+                    stroke="#000"
+                  />
+                  <Tooltip
+                    content={<CustomTooltip formatter={RawNumberFormatter} />}
+                    cursor={{
+                      stroke: "#000",
+                      strokeWidth: 1,
+                      strokeDasharray: "2 2",
+                    }}
+                    itemStyle={{ color: "#8884d8" }}
+                  />
+                  <defs>
+                    <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
+                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <Area
+                    type="monotone"
+                    dataKey="totalAmountLiquidity"
+                    stroke="#8884d8"
+                    fillOpacity={1}
+                    fill="url(#colorUv)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          ) : null}
         </div>
       </MediaQuery>
     </>
