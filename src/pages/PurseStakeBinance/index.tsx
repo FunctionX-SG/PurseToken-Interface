@@ -26,7 +26,7 @@ import { useContract } from "../../components/state/contract/hooks";
 import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import { useNetwork } from "../../components/state/network/hooks";
 import StakeShell from "../../components/Stake/StakeShell";
-import { TVLData } from "../../components/Stake/types";
+import { TVLData } from "../../components/TvlChart/types";
 
 export default function PurseStakeBinance() {
   const { isActive, chainId, account } = useWeb3React();
@@ -202,6 +202,10 @@ export default function PurseStakeBinance() {
   ]);
 
   useEffect(() => {
+    fetchStakeTvl();
+  }, []);
+
+  useEffect(() => {
     async function loadData() {
       Promise.all([
         purseStaking
@@ -218,7 +222,6 @@ export default function PurseStakeBinance() {
       ]).then(() => setIsLoading(false));
     }
 
-    fetchStakeTvl();
     loadData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
