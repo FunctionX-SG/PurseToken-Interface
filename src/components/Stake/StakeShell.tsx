@@ -5,31 +5,14 @@ import MediaQuery from "react-responsive";
 import { Popup as ReactPopup } from "reactjs-popup";
 import { BsFillQuestionCircleFill, BsArrowRight } from "react-icons/bs";
 import { AiFillAlert } from "react-icons/ai";
-import {
-  convertUnixToDate,
-  convertUnixToDateTime,
-  formatBigNumber,
-  FormatNumberToString,
-  getNumberWithCommas,
-  NumberFormatter,
-  RawDataFormatter,
-  RawNumberFormatter,
-} from "../utils";
+import { formatBigNumber, FormatNumberToString } from "../utils";
 
 import "../App.css";
 import { useWeb3React } from "@web3-react/core";
 import { Loading } from "../Loading";
 import { BigNumber } from "ethers";
-import { TVLData } from "./types";
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import CustomTooltip from "../CustomTooltip";
+import TVLChart from "../TvlChart";
+import { TVLData } from "../TvlChart/types";
 
 type StakeShellProps = {
   claimVesting: () => void;
@@ -476,76 +459,6 @@ export default function StakeShell(props: StakeShellProps) {
     );
   };
 
-  const renderTVLHeader = () => {
-    if (!TVLData) {
-      return <></>;
-    }
-    return (
-      <div className="mb-4">
-        <div className={`common-title text-muted`}>Total Staked</div>
-        <div className={`h3 bold`}>
-          <strong>
-            {RawNumberFormatter(
-              TVLData[TVLData.length - 1].totalAmountLiquidity
-            )}
-          </strong>
-        </div>
-        <div className={`h5 text-muted`}>
-          {`$${getNumberWithCommas(
-            TVLData[TVLData.length - 1].totalLiquidityValueUSD,
-            2
-          )}`}
-        </div>
-      </div>
-    );
-  };
-  const renderTVLChart = () => {
-    return (
-      <AreaChart data={TVLData} margin={{ top: 10 }}>
-        <XAxis
-          axisLine={false}
-          dataKey="blockTimestamp"
-          domain={["dataMin", "dataMax"]}
-          interval="preserveStartEnd"
-          type="number"
-          tickFormatter={convertUnixToDate}
-          stroke="#000"
-          tickLine={false}
-        />
-        <YAxis
-          axisLine={false}
-          domain={[0, (dataMax: number) => dataMax * 11]} // ??
-          interval="preserveStartEnd"
-          tickFormatter={RawDataFormatter}
-          tick={{ fontSize: 12 }}
-          stroke="#000"
-        />
-        <Tooltip
-          content={<CustomTooltip formatter={RawNumberFormatter} />}
-          cursor={{
-            stroke: "#000",
-            strokeWidth: 1,
-            strokeDasharray: "2 2",
-          }}
-          itemStyle={{ color: "#8884d8" }}
-        />
-        <defs>
-          <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="5%" stopColor="#d94cf5" stopOpacity={0.5} />
-            <stop offset="95%" stopColor="#dd59f7" stopOpacity={0.1} />
-          </linearGradient>
-        </defs>
-        <Area
-          type="monotone"
-          dataKey="totalAmountLiquidity"
-          stroke="#c80ced"
-          strokeWidth={2.5}
-          fillOpacity={1}
-          fill="url(#colorUv)"
-        />
-      </AreaChart>
-    );
-  };
   return (
     <>
       <MediaQuery minWidth={601}>
@@ -577,7 +490,7 @@ export default function StakeShell(props: StakeShellProps) {
               </div>
             </div>
           </div>
-          {TVLData ? (
+          {/* {TVLData ? (
             <div
               style={{
                 margin: "0 auto",
@@ -586,12 +499,15 @@ export default function StakeShell(props: StakeShellProps) {
                 minWidth: "750px",
               }}
             >
-              {renderTVLHeader()}
-              <ResponsiveContainer width="100%" height={300}>
-                {renderTVLChart()}
-              </ResponsiveContainer>
+              <TVLChart
+                chartTitle="Total Staked"
+                displayHeader
+                domainHeightMultiplier={11}
+                height={300}
+                tvlData={TVLData}
+              />
             </div>
-          ) : null}
+          ) : null} */}
         </>
       </MediaQuery>
       <MediaQuery maxWidth={600}>
@@ -600,19 +516,22 @@ export default function StakeShell(props: StakeShellProps) {
           {stakeInfo}
           <hr style={{ marginBottom: "24px" }} />
           {isActive && isTargetChainMatch ? renderUserActionContainer() : null}
-          {TVLData ? (
+          {/* {TVLData ? (
             <div
               style={{
                 margin: "0 auto",
                 width: "100%",
               }}
             >
-              {renderTVLHeader()}
-              <ResponsiveContainer width="100%" height={150}>
-                {renderTVLChart()}
-              </ResponsiveContainer>
+              <TVLChart
+                chartTitle="Total Staked"
+                displayHeader
+                domainHeightMultiplier={11}
+                height={150}
+                tvlData={TVLData}
+              />
             </div>
-          ) : null}
+          ) : null} */}
         </div>
       </MediaQuery>
     </>
