@@ -27,6 +27,7 @@ type StakeShellProps = {
   stakeLoading: boolean;
   vestingData: any[];
   TVLData?: TVLData[];
+  TVLHeightScale?: number;
 };
 
 export default function StakeShell(props: StakeShellProps) {
@@ -43,6 +44,7 @@ export default function StakeShell(props: StakeShellProps) {
     stakeLoading,
     vestingData,
     TVLData,
+    TVLHeightScale,
   } = props;
 
   const { isActive } = useWeb3React();
@@ -490,7 +492,7 @@ export default function StakeShell(props: StakeShellProps) {
               </div>
             </div>
           </div>
-          {/* {TVLData ? (
+          {TVLData ? (
             <div
               style={{
                 margin: "0 auto",
@@ -502,12 +504,12 @@ export default function StakeShell(props: StakeShellProps) {
               <TVLChart
                 chartTitle="Total Staked"
                 displayHeader
-                domainHeightMultiplier={11}
+                domainHeightMultiplier={TVLHeightScale}
                 height={300}
                 tvlData={TVLData}
               />
             </div>
-          ) : null} */}
+          ) : null}
         </>
       </MediaQuery>
       <MediaQuery maxWidth={600}>
@@ -516,7 +518,7 @@ export default function StakeShell(props: StakeShellProps) {
           {stakeInfo}
           <hr style={{ marginBottom: "24px" }} />
           {isActive && isTargetChainMatch ? renderUserActionContainer() : null}
-          {/* {TVLData ? (
+          {TVLData ? (
             <div
               style={{
                 margin: "0 auto",
@@ -526,12 +528,12 @@ export default function StakeShell(props: StakeShellProps) {
               <TVLChart
                 chartTitle="Total Staked"
                 displayHeader
-                domainHeightMultiplier={11}
+                domainHeightMultiplier={TVLHeightScale}
                 height={150}
                 tvlData={TVLData}
               />
             </div>
-          ) : null} */}
+          ) : null}
         </div>
       </MediaQuery>
     </>

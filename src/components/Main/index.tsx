@@ -1520,7 +1520,7 @@ export default function Main() {
         {renderProtocolRemarks()}
         {renderFullCharts()}
         {renderFarmRemarks()}
-        {/* {farmTVLData && selectedTab == SelectedTab.FARM ? (
+        {farmTVLData && selectedTab == SelectedTab.FARM ? (
           <div className="mt-4">
             <TVLChart
               chartTitle="Total Farm TVL"
@@ -1530,14 +1530,14 @@ export default function Main() {
               tvlData={farmTVLData}
             />
           </div>
-        ) : null} */}
+        ) : null}
       </MediaQuery>
       <MediaQuery maxWidth={600}>
         {renderNarrowTable()}
         {renderProtocolRemarks()}
         {renderNarrowCharts()}
         {renderFarmRemarks()}
-        {/* {farmTVLData && selectedTab == SelectedTab.FARM ? (
+        {farmTVLData && selectedTab == SelectedTab.FARM ? (
           <div className="mt-4">
             <TVLChart
               chartTitle="Total Farm TVL"
@@ -1547,7 +1547,7 @@ export default function Main() {
               tvlData={farmTVLData}
             />
           </div>
-        ) : null} */}
+        ) : null}
       </MediaQuery>
     </div>
   );
