@@ -143,34 +143,39 @@ export default function FarmMenu() {
         "poolTokenList",
         i
       );
-      const subgraphData = subgraphResponse.get(_lpAddress.toLowerCase());
-      const _poolInfo = await readContract(
+
+      const poolInfoPromise = readContract(
         restakingFarm,
         "poolInfo",
         _lpAddress.toString()
-      );
-      _totalRewardPerBlock = _totalRewardPerBlock.add(
-        _poolInfo.pursePerBlock?.mul(_poolInfo.bonusMultiplier)
-      );
+      ).then((poolInfo) => {
+        _totalRewardPerBlock = _totalRewardPerBlock.add(
+          poolInfo.pursePerBlock?.mul(poolInfo.bonusMultiplier)
+        );
+      });
 
-      const _pendingReward = await readContract(
+      const pendingRewardPromise = readContract(
         restakingFarm,
         "pendingReward",
         _lpAddress,
         account
-      );
-      _pendingRewards.push(_pendingReward);
-      _totalPendingReward = _totalPendingReward.add(
-        _pendingReward ? _pendingReward : 0
-      );
+      ).then((pendingReward) => {
+        _pendingRewards.push(pendingReward);
+        _totalPendingReward = _totalPendingReward.add(
+          pendingReward ? pendingReward : 0
+        );
+      });
 
-      const _userInfo = await readContract(
+      const userInfoPromise = readContract(
         restakingFarm,
         "userInfo",
         _lpAddress,
         account
-      );
-      _userInfos.push(_userInfo ? _userInfo.amount : "NaN");
+      ).then((userInfo) => {
+        _userInfos.push(userInfo ? userInfo.amount : "NaN");
+      });
+
+      const subgraphData = subgraphResponse.get(_lpAddress.toLowerCase());
 
       _tvl.push(subgraphData?.poolTvl || 0);
       const apr = subgraphData?.poolApr || 0;
@@ -179,6 +184,12 @@ export default function FarmMenu() {
       _apyDaily.push((Math.pow(1 + (0.8 * apr) / 36500, 365) - 1) * 100);
       _apyWeekly.push((Math.pow(1 + (0.8 * apr) / 5200, 52) - 1) * 100);
       _apyMonthly.push((Math.pow(1 + (0.8 * apr) / 1200, 12) - 1) * 100);
+
+      await Promise.all([
+        poolInfoPromise,
+        pendingRewardPromise,
+        userInfoPromise,
+      ]);
     }
 
     ////// Testnet //////
