@@ -299,7 +299,6 @@ export default function StakeShell(props: StakeShellProps) {
               padding: "5px",
               width: "90%",
               margin: "0 auto",
-              minWidth: "210px",
             }}
           >
             <div className="row center" style={{ fontWeight: "900" }}>
@@ -452,7 +451,6 @@ export default function StakeShell(props: StakeShellProps) {
       <div
         style={{
           marginLeft: "0 1vw 0 2vw",
-          minWidth: "300px",
           width: "40%",
         }}
       >
@@ -471,7 +469,6 @@ export default function StakeShell(props: StakeShellProps) {
               margin: "0 auto",
               padding: "24px",
               width: "70%",
-              minWidth: "750px",
             }}
           >
             {renderInfoBanner()}
@@ -483,33 +480,13 @@ export default function StakeShell(props: StakeShellProps) {
                   justifyContent: "center",
                 }}
               >
-                <div style={{ minWidth: "330px", width: "65%" }}>
-                  {stakeInfo}
-                </div>
+                <div style={{ width: "65%" }}>{stakeInfo}</div>
                 {isActive && isTargetChainMatch
                   ? renderWideUserActionContainer()
                   : null}
               </div>
             </div>
           </div>
-          {TVLData ? (
-            <div
-              style={{
-                margin: "0 auto",
-                padding: "12px",
-                width: "70%",
-                minWidth: "750px",
-              }}
-            >
-              <TVLChart
-                chartTitle="Total Staked"
-                displayHeader
-                domainHeightMultiplier={TVLHeightScale}
-                height={300}
-                tvlData={TVLData}
-              />
-            </div>
-          ) : null}
         </>
       </MediaQuery>
       <MediaQuery maxWidth={600}>
