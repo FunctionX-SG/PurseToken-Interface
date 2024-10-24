@@ -452,11 +452,11 @@ export default function PurseStakeBinance() {
 
   const renderCombinedStakeInfo = () => {
     return (
-      <>
+      <div className="ml-2">
         {stakingTVLData ? (
           <div
             style={{
-              margin: "0 auto",
+              margin: "0 auto 20px auto",
               padding: "12px",
               width: "100%",
             }}
@@ -464,13 +464,14 @@ export default function PurseStakeBinance() {
             <TVLChart
               chartTitle="Total Staked"
               displayHeader
+              displayTokenAmount
               height={200}
               tvlData={stakingTVLData}
             />
           </div>
         ) : null}
         <form
-          className="ml-4 mb-0"
+          className="mb-0"
           onSubmit={async (event) => {
             event.preventDefault();
           }}
@@ -997,7 +998,7 @@ export default function PurseStakeBinance() {
             )}
           </div>
         </form>
-      </>
+      </div>
     );
   };
 
