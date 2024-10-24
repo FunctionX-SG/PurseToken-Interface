@@ -175,12 +175,26 @@ export default function FarmMenu() {
         _userInfos.push(userInfo ? userInfo.amount : "NaN");
       });
 
+      const lpContract = await new ethers.Contract(
+        _lpAddress,
+        IPancakePair.abi,
+        bscProvider
+      );
+
+      const stakedBalancePromise = readContract(
+        lpContract,
+        "balanceOf",
+        Constants.RESTAKING_FARM_ADDRESS
+      ).then((stakedBalance) => {
+        _stakeBalances.push(stakedBalance);
+      });
+
       const subgraphData = subgraphResponse.get(_lpAddress.toLowerCase());
 
       _tvl.push(subgraphData?.poolTvl || 0);
       const apr = subgraphData?.poolApr || 0;
       _apr.push(apr);
-      _stakeBalances.push(subgraphData?.poolTotalStaked || BigNumber.from(0));
+
       _apyDaily.push((Math.pow(1 + (0.8 * apr) / 36500, 365) - 1) * 100);
       _apyWeekly.push((Math.pow(1 + (0.8 * apr) / 5200, 52) - 1) * 100);
       _apyMonthly.push((Math.pow(1 + (0.8 * apr) / 1200, 12) - 1) * 100);
@@ -189,6 +203,7 @@ export default function FarmMenu() {
         poolInfoPromise,
         pendingRewardPromise,
         userInfoPromise,
+        stakedBalancePromise,
       ]);
     }
 

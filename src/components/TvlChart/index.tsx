@@ -20,6 +20,7 @@ function TVLChart(props: TvlChartProps) {
     tvlData,
     height,
     displayHeader = false,
+    displayTokenAmount = false,
     chartTitle = "TVL",
     domainHeightMultiplier = 1,
   } = props;
@@ -33,13 +34,15 @@ function TVLChart(props: TvlChartProps) {
       {displayHeader ? (
         <div className="mb-4">
           <div className={`common-title text-muted`}>{chartTitle}</div>
-          <div className={`h3 bold`}>
-            <strong>
-              {RawNumberFormatter(
-                tvlData[tvlData.length - 1].totalAmountLiquidity
-              )}
-            </strong>
-          </div>
+          {displayTokenAmount ? (
+            <div className={`h3 bold`}>
+              <strong>
+                {RawNumberFormatter(
+                  tvlData[tvlData.length - 1].totalAmountLiquidity
+                )}
+              </strong>
+            </div>
+          ) : null}
           <div className={`h5 text-muted`}>
             {`$${getNumberWithCommas(
               tvlData[tvlData.length - 1].totalLiquidityValueUSD,
