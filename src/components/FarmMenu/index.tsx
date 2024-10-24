@@ -18,6 +18,7 @@ import useSWR from "swr";
 import { useContract } from "../state/contract/hooks";
 import IPancakePair from "../../abis/IPancakePair.json";
 import { useProvider } from "../state/provider/hooks";
+import { PoolSubgraphData, SubgraphResponse } from "./types";
 
 export default function FarmMenu() {
   const farmNetwork = "MAINNET";
@@ -60,6 +61,52 @@ export default function FarmMenu() {
     }
   );
 
+  const fetchFromSubgraph = async (): Promise<
+    Map<string, PoolSubgraphData>
+  > => {
+    try {
+      const response = await fetch(Constants.SUBGRAPH_API, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: `
+          {
+            farmPools {
+              id
+              latestAPR
+              latestFarmBalanceOf
+              latestFarmValue
+            }
+          }
+        `,
+        }),
+      });
+
+      const json: SubgraphResponse = await response.json();
+      const addressToInfoMap = new Map<string, PoolSubgraphData>();
+
+      if (!json.data?.farmPools) {
+        throw new Error("Invalid response format from subgraph");
+      }
+
+      json.data.farmPools.forEach((pool) => {
+        const entryData: PoolSubgraphData = {
+          poolApr: parseFloat(pool.latestAPR),
+          poolTotalStaked: BigNumber.from(pool.latestFarmBalanceOf),
+          poolTvl: parseFloat(pool.latestFarmValue),
+        };
+        addressToInfoMap.set(pool.id.toLowerCase(), entryData);
+      });
+
+      return addressToInfoMap;
+    } catch (error) {
+      console.error("Error fetching from subgraph:", error);
+      throw error;
+    }
+  };
+
   const loadData = useCallback(async () => {
     let _poolLength = await restakingFarm.poolLength();
     _poolLength = parseFloat(_poolLength.toString());
@@ -76,10 +123,6 @@ export default function FarmMenu() {
     let _poolInfos: any[] = farm;
     let _userInfos: any[] = [];
 
-    let response = await fetch(Constants.MONGO_RESPONSE_0_API);
-    const myJson = await response.json();
-    let tvlArray = myJson["TVL"]?.["TVL"];
-    let aprArray = myJson["APR"]?.["APR"];
     let _tvl: number[] = [];
     let _apr: number[] = [];
     let _apyDaily: number[] = [];
@@ -90,9 +133,17 @@ export default function FarmMenu() {
     // Mainnet: 0:Purse-BUSD (deprecated) 1:Purse-USDT
     // Testnet: 0:Purse-USDT
 
+    const subgraphResponse: Map<string, PoolSubgraphData> =
+      await fetchFromSubgraph();
+
     ////// Mainnet /////
     for (let i = 0; i < _poolLength; i++) {
-      const _lpAddress = await readContract(restakingFarm, "poolTokenList", i);
+      const _lpAddress: string = await readContract(
+        restakingFarm,
+        "poolTokenList",
+        i
+      );
+      const subgraphData = subgraphResponse.get(_lpAddress.toLowerCase());
       const _poolInfo = await readContract(
         restakingFarm,
         "poolInfo",
@@ -100,18 +151,6 @@ export default function FarmMenu() {
       );
       _totalRewardPerBlock = _totalRewardPerBlock.add(
         _poolInfo.pursePerBlock?.mul(_poolInfo.bonusMultiplier)
-      );
-
-      const lpContract = new ethers.Contract(
-        _lpAddress,
-        IPancakePair.abi,
-        bscProvider
-      );
-
-      const stakedBalance = await readContract(
-        lpContract,
-        "balanceOf",
-        Constants.RESTAKING_FARM_ADDRESS
       );
 
       const _pendingReward = await readContract(
@@ -133,18 +172,13 @@ export default function FarmMenu() {
       );
       _userInfos.push(_userInfo ? _userInfo.amount : "NaN");
 
-      _tvl.push(tvlArray?.[i].tvl || 0);
-      _apr.push(aprArray?.[i].apr || 0);
-      _stakeBalances.push(stakedBalance);
-      _apyDaily.push(
-        (Math.pow(1 + (0.8 * aprArray?.[i].apr) / 36500, 365) - 1) * 100
-      );
-      _apyWeekly.push(
-        (Math.pow(1 + (0.8 * aprArray?.[i].apr) / 5200, 52) - 1) * 100
-      );
-      _apyMonthly.push(
-        (Math.pow(1 + (0.8 * aprArray?.[i].apr) / 1200, 12) - 1) * 100
-      );
+      _tvl.push(subgraphData?.poolTvl || 0);
+      const apr = subgraphData?.poolApr || 0;
+      _apr.push(apr);
+      _stakeBalances.push(subgraphData?.poolTotalStaked || BigNumber.from(0));
+      _apyDaily.push((Math.pow(1 + (0.8 * apr) / 36500, 365) - 1) * 100);
+      _apyWeekly.push((Math.pow(1 + (0.8 * apr) / 5200, 52) - 1) * 100);
+      _apyMonthly.push((Math.pow(1 + (0.8 * apr) / 1200, 12) - 1) * 100);
     }
 
     ////// Testnet //////
