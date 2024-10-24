@@ -264,7 +264,8 @@ const MintContainer = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = Number(event.target.value);
-    if (input === undefined || Number.isNaN(input)) return;
+    if (input === undefined || Number.isNaN(input) || !Number.isInteger(input))
+      return;
     if (availableTokens && input > availableTokens) {
       setMintAmount(availableTokens);
     } else {
