@@ -25,16 +25,13 @@ import {
   RawNumberFormatter,
 } from "../utils";
 import { Bounce } from "react-awesome-reveal";
-import { Burn, Liquidity } from "./types";
-
-interface CustomTooltipProps {
-  payload?: any[];
-  label?: string;
-  formatter: (arg0: number) => string;
-}
+import { Burn, Liquidity, SelectedTab } from "./types";
+import CustomTooltip from "../CustomTooltip";
+import TVLChart from "../TvlChart";
+import { TVLData } from "../TvlChart/types";
 
 export default function Main() {
-  const [selectedTab, setSelectedTab] = useState("main");
+  const [selectedTab, setSelectedTab] = useState<SelectedTab>(SelectedTab.MAIN);
   const [PURSEPrice] = usePursePrice();
   const { restakingFarm, purseTokenUpgradable } = useContract();
 
@@ -57,6 +54,7 @@ export default function Main() {
   const [poolRewardToken, setPoolRewardToken] = useState("0");
   const [isFetchMainDataLoading, setIsFetchMainDataLoading] = useState(true);
   const [isFetchFarmDataLoading, setIsFetchFarmDataLoading] = useState(true);
+  const [farmTVLData, setFarmTVLData] = useState<TVLData[]>();
 
   const CustomTick = (propsCustomTick: {
     x: number;
@@ -80,63 +78,6 @@ export default function Main() {
     );
   };
 
-  const CustomTooltip: React.FC<CustomTooltipProps> = ({
-    payload,
-    label,
-    formatter,
-  }) => {
-    if (payload && payload.length) {
-      const date = new Date(1000 * Number(label));
-      const year = date.getFullYear();
-      const month = date.toLocaleString("en-US", { month: "long" });
-      const day = date.getDate();
-      const value = parseFloat(payload[0].value);
-      const formattedValue = formatter(value);
-
-      return (
-        <div className="custom-tooltip">
-          <p
-            className="textWhiteSmall"
-            style={{
-              padding: "0",
-              margin: "0",
-              textAlign: "center",
-              width: "40px",
-              height: "18px",
-              color: "#fff",
-              lineHeight: "18px",
-              backgroundColor: "var(--basic-black)",
-            }}
-          >
-            SUM
-          </p>
-          <div
-            className="textWhiteHeading"
-            style={{
-              color: "#000",
-              padding: "0",
-              margin: "0",
-            }}
-          >
-            {formattedValue}
-          </div>
-          <p
-            className="textWhiteSmall"
-            style={{
-              color: "#000",
-              padding: "0",
-              margin: "0",
-            }}
-          >
-            {day}-{month}-{year}
-          </p>
-        </div>
-      );
-    }
-
-    return null;
-  };
-
   useEffect(() => {
     async function loadData() {
       // trigger fetching data
@@ -153,9 +94,14 @@ export default function Main() {
                   blockTimestamp
                   totalAmountBurned
                 }
-                  liquidities(first: 1000, orderBy: blockTimestamp) {
+                liquidities(first: 1000, orderBy: blockTimestamp) {
                   blockTimestamp
                   totalAmountLiquidity
+                }
+                farmTVLUpdates(first: 1000, orderBy: blockTimestamp) {
+                  blockTimestamp
+                  totalAmountLiquidity
+                  totalLiquidityValueUSD
                 }
               }
             `,
@@ -165,6 +111,8 @@ export default function Main() {
           return res.json();
         })
         .then((json) => {
+          const tvl: TVLData[] = json.data.farmTVLUpdates;
+          setFarmTVLData(tvl);
           const liquidities: Liquidity[] = json.data.liquidities;
           const burns: Burn[] = json.data.burns;
           const currentTimestamp = (Date.now() / 1000).toFixed(0);
@@ -619,10 +567,18 @@ export default function Main() {
   const renderFullTable = () => {
     return (
       <>
-        <div style={{ display: selectedTab === "main" ? "block" : "none" }}>
+        <div
+          style={{
+            display: selectedTab === SelectedTab.MAIN ? "block" : "none",
+          }}
+        >
           {renderFullMainTable()}
         </div>
-        <div style={{ display: selectedTab === "farm" ? "block" : "none" }}>
+        <div
+          style={{
+            display: selectedTab === SelectedTab.FARM ? "block" : "none",
+          }}
+        >
           {renderFullFarmTable()}
         </div>
         {/* <div style={{display: selectedTab === "vault" ? "block" : "none"}}>
@@ -637,7 +593,7 @@ export default function Main() {
       <div
         className="container pt-4"
         style={{
-          display: selectedTab === "main" ? "block" : "none",
+          display: selectedTab === SelectedTab.MAIN ? "block" : "none",
           width: "fit-content",
         }}
       >
@@ -1158,10 +1114,18 @@ export default function Main() {
   const renderNarrowTable = () => {
     return (
       <>
-        <div style={{ display: selectedTab === "main" ? "block" : "none" }}>
+        <div
+          style={{
+            display: selectedTab === SelectedTab.MAIN ? "block" : "none",
+          }}
+        >
           {renderNarrowMainTable()}
         </div>
-        <div style={{ display: selectedTab === "farm" ? "block" : "none" }}>
+        <div
+          style={{
+            display: selectedTab === SelectedTab.FARM ? "block" : "none",
+          }}
+        >
           {renderNarrowFarmTable()}
         </div>
         {/* <div style={{display: selectedTab === "vault" ? "block" : "none"}}>
@@ -1176,7 +1140,7 @@ export default function Main() {
       <div
         className="container pt-4"
         style={{
-          display: selectedTab === "main" ? "block" : "none",
+          display: selectedTab === SelectedTab.MAIN ? "block" : "none",
           width: "fit-content",
         }}
       >
@@ -1368,8 +1332,8 @@ export default function Main() {
     return (
       <div
         style={{
-          display: selectedTab === "farm" ? "block" : "none",
-          margin: "60px 0 140px 0",
+          display: selectedTab === SelectedTab.FARM ? "block" : "none",
+          marginTop: "30px",
         }}
       >
         <div
@@ -1523,28 +1487,28 @@ export default function Main() {
         <button
           type="button"
           style={{
-            backgroundColor: selectedTab === "main" ? "#d461ff" : "",
+            backgroundColor: selectedTab === SelectedTab.MAIN ? "#d461ff" : "",
             borderWidth: 0,
             borderRadius: "12px",
-            color: selectedTab === "main" ? "#fff" : "#000",
+            color: selectedTab === SelectedTab.MAIN ? "#fff" : "#000",
             padding: "5px 3px",
             width: "100%",
           }}
-          onClick={() => setSelectedTab("main")}
+          onClick={() => setSelectedTab(SelectedTab.MAIN)}
         >
           TOKEN
         </button>
         <button
           type="button"
           style={{
-            backgroundColor: selectedTab === "farm" ? "#d461ff" : "",
+            backgroundColor: selectedTab === SelectedTab.FARM ? "#d461ff" : "",
             borderWidth: 0,
             borderRadius: "12px",
-            color: selectedTab === "farm" ? "#fff" : "#000",
+            color: selectedTab === SelectedTab.FARM ? "#fff" : "#000",
             padding: "5px 3px",
             width: "100%",
           }}
-          onClick={() => setSelectedTab("farm")}
+          onClick={() => setSelectedTab(SelectedTab.FARM)}
         >
           FARM
         </button>
@@ -1555,13 +1519,36 @@ export default function Main() {
         {renderFullTable()}
         {renderProtocolRemarks()}
         {renderFullCharts()}
+        {renderFarmRemarks()}
+        {farmTVLData && selectedTab == SelectedTab.FARM ? (
+          <div className="mt-4">
+            <TVLChart
+              chartTitle="Total Farm TVL"
+              displayHeader
+              domainHeightMultiplier={1.5}
+              height={300}
+              tvlData={farmTVLData}
+            />
+          </div>
+        ) : null}
       </MediaQuery>
       <MediaQuery maxWidth={600}>
         {renderNarrowTable()}
         {renderProtocolRemarks()}
         {renderNarrowCharts()}
+        {renderFarmRemarks()}
+        {farmTVLData && selectedTab == SelectedTab.FARM ? (
+          <div className="mt-4">
+            <TVLChart
+              chartTitle="Total Farm TVL"
+              displayHeader
+              domainHeightMultiplier={1.5}
+              height={150}
+              tvlData={farmTVLData}
+            />
+          </div>
+        ) : null}
       </MediaQuery>
-      {renderFarmRemarks()}
     </div>
   );
 }

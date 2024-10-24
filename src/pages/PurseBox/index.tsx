@@ -270,7 +270,8 @@ const MintContainer = () => {
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const input = Number(event.target.value);
-    if (input === undefined || Number.isNaN(input)) return;
+    if (input === undefined || Number.isNaN(input) || !Number.isInteger(input))
+      return;
     if (availableTokens && input > availableTokens) {
       setMintAmount(availableTokens);
     } else {
@@ -310,8 +311,7 @@ const MintContainer = () => {
           justifyContent: "center",
           margin: "40px auto 0 auto",
           padding: "1%",
-          width: "50%",
-          minWidth: "535px",
+          width: "100%",
           maxWidth: "565px",
           border: "2px inset grey",
           borderRadius: "10px",
@@ -510,9 +510,9 @@ const MintContainer = () => {
                 </div>
               ) : null}
             </div>
-            <div style={{ margin: "1% 0" }}>
+            <div style={{ margin: "1% 0", justifyItems: "space-between" }}>
               <input
-                style={{ width: "85%", verticalAlign: "middle" }}
+                style={{ width: "75%", verticalAlign: "middle" }}
                 type="number"
                 min="0"
                 value={mintAmount}
@@ -522,7 +522,7 @@ const MintContainer = () => {
               <Button
                 variant="outline-primary"
                 style={{
-                  width: "15%",
+                  width: "20%",
                   height: "100%",
                   color: "#ba00ff",
                 }}
@@ -565,8 +565,7 @@ const MintContainer = () => {
           display: "flex",
           margin: "3% auto 0 auto",
           padding: "1%",
-          width: "50%",
-          minWidth: "535px",
+          width: "100%",
           maxWidth: "565px",
           border: "1px inset grey",
         }}

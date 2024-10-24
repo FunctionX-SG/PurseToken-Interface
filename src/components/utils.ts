@@ -62,7 +62,14 @@ export function chainId2NetworkName(chainId: number) {
   }
 }
 
-export function convertUnixToDate(UNIX_timestamp: number | string) {
+export function convertUnixToDate(UnixTimestamp: number | string) {
+  return convertUnixToDateTime(UnixTimestamp, false);
+}
+
+export function convertUnixToDateTime(
+  UNIX_timestamp: number | string,
+  showTime?: boolean
+) {
   let numTimestamp =
     typeof UNIX_timestamp == "string"
       ? parseInt(UNIX_timestamp as string, 10)
@@ -86,6 +93,11 @@ export function convertUnixToDate(UNIX_timestamp: number | string) {
   var year = a.getFullYear();
   var month = months[a.getMonth()];
   var date = a.getDate();
+  var dateTime = date + " " + month + " " + year;
+  if (!showTime) {
+    return dateTime;
+  }
+
   var hour = a
     .getHours()
     .toLocaleString("en-US", { minimumIntegerDigits: 2, useGrouping: false });
@@ -95,9 +107,7 @@ export function convertUnixToDate(UNIX_timestamp: number | string) {
   var sec = a
     .getSeconds()
     .toLocaleString("en-US", { minimumIntegerDigits: 2, useGrouping: false });
-  var time =
-    date + " " + month + " " + year + " " + hour + ":" + min + ":" + sec;
-  return time;
+  return dateTime + " " + hour + ":" + min + ":" + sec;
 }
 
 export function secondsToDhms(lockPeriod: number, remainingTime: number) {
@@ -201,6 +211,18 @@ export const NumberFormatter = (number: number) => {
   return number.toLocaleString("en-US", {
     maximumFractionDigits: 2,
   });
+};
+
+export const getNumberWithCommas = (
+  number: number,
+  maximumFractionDigits?: number
+) => {
+  const number_string = maximumFractionDigits
+    ? Number(number).toFixed(maximumFractionDigits)
+    : number.toString();
+  var parts = number_string.split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
 };
 
 export const FormatNumberToString = ({
