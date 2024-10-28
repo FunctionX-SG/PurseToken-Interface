@@ -1520,34 +1520,54 @@ export default function Main() {
         {renderProtocolRemarks()}
         {renderFullCharts()}
         {renderFarmRemarks()}
-        {/* {farmTVLData && selectedTab == SelectedTab.FARM ? (
-          <div className="mt-4">
-            <TVLChart
-              chartTitle="Total Farm TVL"
-              displayHeader
-              domainHeightMultiplier={1.5}
-              height={300}
-              tvlData={farmTVLData}
-            />
-          </div>
-        ) : null} */}
+        {farmTVLData && selectedTab == SelectedTab.FARM ? (
+          <>
+            <label
+              className="textWhite center mb-2 pt-4"
+              style={{ fontSize: "40px", textAlign: "center" }}
+            >
+              <big>
+                <b>CHARTS</b>
+              </big>
+            </label>
+            <div className="mt-4">
+              <TVLChart
+                chartTitle="Total Farm TVL"
+                displayHeader
+                domainHeightMultiplier={1.5}
+                height={300}
+                tvlData={farmTVLData}
+              />
+            </div>
+          </>
+        ) : null}
       </MediaQuery>
       <MediaQuery maxWidth={600}>
         {renderNarrowTable()}
         {renderProtocolRemarks()}
         {renderNarrowCharts()}
         {renderFarmRemarks()}
-        {/* {farmTVLData && selectedTab == SelectedTab.FARM ? (
-          <div className="mt-4">
-            <TVLChart
-              chartTitle="Total Farm TVL"
-              displayHeader
-              domainHeightMultiplier={1.5}
-              height={150}
-              tvlData={farmTVLData}
-            />
-          </div>
-        ) : null} */}
+        {farmTVLData && selectedTab == SelectedTab.FARM ? (
+          <>
+            <label
+              className="textWhite center mb-2 pt-4"
+              style={{ fontSize: "40px", textAlign: "center" }}
+            >
+              <big>
+                <b>CHARTS</b>
+              </big>
+            </label>
+            <div className="mt-4">
+              <TVLChart
+                chartTitle="Total Farm TVL"
+                displayHeader
+                domainHeightMultiplier={1.5}
+                height={150}
+                tvlData={farmTVLData}
+              />
+            </div>
+          </>
+        ) : null}
       </MediaQuery>
     </div>
   );

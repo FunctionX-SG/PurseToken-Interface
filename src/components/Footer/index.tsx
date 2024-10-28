@@ -70,7 +70,10 @@ export default function Footer() {
         <img
           src="https://purse.land/assets/img-social-gitbook-b2bf3331.svg"
           onClick={() => {
-            window.open("https://pundi.gitbook.io/pundi/readme/purse-docs", "_blank");
+            window.open(
+              "https://pundi.gitbook.io/pundi/readme/purse-docs",
+              "_blank"
+            );
           }}
           style={{ marginLeft: "20px" }}
         ></img>

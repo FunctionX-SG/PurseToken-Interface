@@ -27,6 +27,7 @@ import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import { useNetwork } from "../../components/state/network/hooks";
 import StakeShell from "../../components/Stake/StakeShell";
 import { TVLData } from "../../components/TvlChart/types";
+import TVLChart from "../../components/TvlChart";
 
 export default function PurseStakeBinance() {
   const { isActive, chainId, account } = useWeb3React();
@@ -67,12 +68,12 @@ export default function PurseStakeBinance() {
 
   const { data: purseStakingTotalStake } = useSWR(
     {
-      contract: "purseTokenUpgradable",
-      method: "balanceOf",
-      params: [Constants.PURSE_STAKING_ADDRESS],
+      contract: "purseStaking",
+      method: "availablePurseSupply",
+      params: [],
     },
     {
-      fetcher: fetcher(purseTokenUpgradable),
+      fetcher: fetcher(purseStaking),
       refreshInterval: 5000,
     }
   );
@@ -202,10 +203,6 @@ export default function PurseStakeBinance() {
   ]);
 
   useEffect(() => {
-    fetchStakeTvl();
-  }, []);
-
-  useEffect(() => {
     async function loadData() {
       Promise.all([
         purseStaking
@@ -219,6 +216,7 @@ export default function PurseStakeBinance() {
         checkPurseAmount(purseStakingUserNewReceipt).then((amount) => {
           setPurseAmountLock(parseFloat(amount[2]));
         }),
+        fetchStakeTvl(),
       ]).then(() => setIsLoading(false));
     }
 
@@ -451,303 +449,142 @@ export default function PurseStakeBinance() {
 
   const renderCombinedStakeInfo = () => {
     return (
-      <form
-        className="mb-0"
-        onSubmit={async (event) => {
-          event.preventDefault();
-        }}
-        style={{ paddingRight: "5%" }}
-      >
-        <div>
-          <div>
-            <div className="row mt-3 ml-2 mr-2">
-              <div
-                style={{
-                  width: "50%",
-                  paddingRight: "5px",
-                }}
-              >
-                <div>
-                  <div className="textWhiteSmall mb-1">
-                    <b style={{ fontFamily: "arial" }}>TVL:&nbsp;&nbsp;</b>
-                    <ReactPopup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1.5px" }}>
-                          <BsInfoCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="top center"
-                      offsetY={20}
-                      offsetX={0}
-                      contentStyle={{ padding: "3px" }}
-                    >
-                      <span className="textInfo">
-                        Total PURSE amount in the PURSE Staking contract
-                      </span>
-                      <span className="textInfo mt-2">
-                        Calculated based on PURSE staked by PURSE holders +
-                        PURSE Distribution
-                      </span>
-                    </ReactPopup>
-                  </div>
-                  <div
-                    className="textWhiteSmall mb-2"
-                    style={{ color: "#000" }}
-                  >
-                    {isLoading ? (
-                      <Loading />
-                    ) : (
-                      <div style={{ display: "flex", flexDirection: "column" }}>
-                        <b>
-                          {FormatNumberToString({
-                            bigNum: purseStakingTotalStake,
-                            decimalPlaces: 5,
-                            suffix: " PURSE",
-                          })}
-                        </b>
-                        <b>
-                          {FormatNumberToString({
-                            bigNum: purseStakingTotalStake,
-                            multiplier: PURSEPrice,
-                            decimalPlaces: 5,
-                            prefix: "(",
-                            suffix: " USD)",
-                          })}
-                        </b>
-                      </div>
-                    )}
-                  </div>
-                  <div className="textWhiteSmall mb-1">
-                    <b style={{ fontFamily: "arial" }}>APR:&nbsp;&nbsp;</b>
-                    <ReactPopup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1.5px" }}>
-                          <BsInfoCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="right center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "3px" }}
-                    >
-                      <span className="textInfo">
-                        Percentage of the amount of tokens to distribute per
-                        interval x 31,536,000 / Total staked (Pool)
-                      </span>
-                    </ReactPopup>
-                  </div>
-                  <div
-                    className="textWhiteSmall mb-3"
-                    style={{ color: "#000" }}
-                  >
-                    {isLoading ? (
-                      <Loading />
-                    ) : (
-                      <b>
-                        {`${apr.toLocaleString("en-US", {
-                          maximumFractionDigits: 5,
-                        })} %`}
-                      </b>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div style={{ width: "50%" }}>
-                <div
-                  className="textWhiteSmall mb-1"
-                  style={{ minWidth: "151px" }}
-                >
-                  <b style={{ fontFamily: "arial" }}>
-                    Total Shares (Pool):&nbsp;&nbsp;
-                  </b>
-                  <ReactPopup
-                    trigger={(open) => (
-                      <span style={{ position: "relative", top: "-1.5px" }}>
-                        <BsInfoCircleFill size={10} />
-                      </span>
-                    )}
-                    on="hover"
-                    position="top center"
-                    offsetY={20}
-                    offsetX={0}
-                    contentStyle={{ padding: "3px" }}
-                  >
-                    <span className="textInfo">
-                      Represents the total amount of PURSE in the PURSE Staking
-                      contract
-                    </span>
-                    <span className="textInfo mt-2">
-                      Total Shares (Pool) ≡ Total Staked (Pool)
-                    </span>
-                  </ReactPopup>
-                </div>
-                <div className="textWhiteSmall mb-3" style={{ color: "#000" }}>
-                  {isLoading ? (
-                    <Loading />
-                  ) : (
-                    <b>
-                      {FormatNumberToString({
-                        bigNum: purseStakingTotalReceipt,
-                        decimalPlaces: 5,
-                        suffix: " Shares",
-                      })}
-                    </b>
-                  )}
-                </div>
-              </div>
-            </div>
+      <div className="ml-2">
+        {stakingTVLData ? (
+          <div
+            style={{
+              margin: "0 auto 20px auto",
+              padding: "12px",
+              width: "100%",
+            }}
+          >
+            <TVLChart
+              chartTitle="Total Staked"
+              displayHeader
+              displayTokenAmount
+              height={200}
+              size={"s"}
+              tvlData={stakingTVLData}
+            />
           </div>
-          <hr></hr>
-          {!isActive ? (
-            <div
-              className="card cardbody"
-              style={{
-                height: "200px",
-                color: "White",
-              }}
-            >
-              <div className="card-body">
-                <div>
-                  <div
-                    className="center textWhiteMedium mt-3 mb-3"
-                    style={{ textAlign: "center" }}
-                  >
-                    <b>Connect wallet to stake PURSE</b>
-                  </div>
-                  <div className="center">
-                    <button
-                      type="button"
-                      className="btn btn-primary mt-3"
-                      onClick={() => setTrigger(true)}
-                    >
-                      {" "}
-                      Connect{" "}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : !isTargetChainMatch ? (
-            <div
-              className="card cardbody"
-              style={{
-                height: "200px",
-                color: "White",
-              }}
-            >
-              <div className="card-body">
-                <div>
-                  <div
-                    className="center textWhiteMedium mt-3 mb-3"
-                    style={{ textAlign: "center" }}
-                  >
-                    <b>Switch chain to stake PURSE</b>
-                  </div>
-                  <div className="center">
-                    <button
-                      type="button"
-                      className="btn btn-primary mt-3"
-                      onClick={() => switchNetwork(targetChain)}
-                    >
-                      {" "}
-                      Switch{" "}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="row mt-3 ml-2 mr-2">
-              <div
-                style={{
-                  paddingRight: "5px",
-                  width: "50%",
-                }}
-              >
-                <div className="textWhiteSmall mb-1">
-                  <b style={{ fontFamily: "arial" }}>Address:</b>
-                </div>
-                <div className="textWhiteSmall mb-3" style={{ color: "#000" }}>
-                  <b>{formatShortenAddress(account)}</b>
-                </div>
-                <div className="textWhiteSmall mb-1">
-                  <b style={{ fontFamily: "arial" }}>PURSE Balance:</b>
-                </div>
-                <div className="textWhiteSmall mb-3" style={{ color: "#000" }}>
-                  {isLoading ? (
-                    <Loading />
-                  ) : (
-                    <b>
-                      {FormatNumberToString({
-                        bigNum: purseTokenUpgradableBalance,
-                        decimalPlaces: 5,
-                        suffix: " PURSE",
-                      })}
-                    </b>
-                  )}
-                </div>
-
-                <div className="textWhiteSmall mb-1">
-                  <b style={{ fontFamily: "arial" }}>Reward:&nbsp;&nbsp;</b>
-                  {/* <ReactPopup trigger={open => (
-                              <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
-                              )}
-                              on="hover"
-                              position="top center"
-                              offsetY={20}
-                              offsetX={0}
-                              contentStyle={{ padding: '3px' }}>
-                              <span className="textInfo">Represents the total amount of PURSE in the PURSE Staking contract</span>
-                              <span className="textInfo mt-2">Total Shares (Pool) ≡ Total Staked (Pool)</span>
-                            </ReactPopup> */}
-                </div>
-                <div className="textWhiteSmall mb-2" style={{ color: "#000" }}>
-                  {isLoading ? (
-                    <Loading />
-                  ) : (
-                    <b>
-                      {FormatNumberToString({
-                        bigNum: purseStakingReward,
-                        decimalPlaces: 5,
-                        suffix: " PURSE",
-                      })}
-                    </b>
-                  )}
-                </div>
-                <Button
-                  type="button"
-                  className="btn btn-sm mb-3"
-                  style={{ padding: "6px 20px" }}
-                  variant="outline-success"
-                  disabled={
-                    isLoading ||
-                    claimLoading ||
-                    formatBigNumber(purseStakingReward, "ether") === "0"
-                  }
-                  onClick={(event) => {
-                    claim();
+        ) : null}
+        <form
+          className="mb-0"
+          onSubmit={async (event) => {
+            event.preventDefault();
+          }}
+          style={{ paddingRight: "5%" }}
+        >
+          <div>
+            <div>
+              <div className="row mt-3 ml-2 mr-2">
+                <div
+                  style={{
+                    width: "50%",
+                    paddingRight: "5px",
                   }}
                 >
-                  Claim
-                </Button>
-              </div>
-              <div style={{ width: "50%" }}>
-                <div>
-                  <div className="textWhiteSmall mb-1">
+                  <div>
+                    <div className="textWhiteSmall mb-1">
+                      <b style={{ fontFamily: "arial" }}>TVL:&nbsp;&nbsp;</b>
+                      <ReactPopup
+                        trigger={(open) => (
+                          <span style={{ position: "relative", top: "-1.5px" }}>
+                            <BsInfoCircleFill size={10} />
+                          </span>
+                        )}
+                        on="hover"
+                        position="top center"
+                        offsetY={20}
+                        offsetX={0}
+                        contentStyle={{ padding: "3px" }}
+                      >
+                        <span className="textInfo">
+                          Total PURSE amount in the PURSE Staking contract
+                        </span>
+                        <span className="textInfo mt-2">
+                          Calculated based on PURSE staked by PURSE holders +
+                          PURSE Distribution
+                        </span>
+                      </ReactPopup>
+                    </div>
+                    <div
+                      className="textWhiteSmall mb-2"
+                      style={{ color: "#000" }}
+                    >
+                      {isLoading ? (
+                        <Loading />
+                      ) : (
+                        <div
+                          style={{ display: "flex", flexDirection: "column" }}
+                        >
+                          <b>
+                            {FormatNumberToString({
+                              bigNum: purseStakingTotalStake,
+                              decimalPlaces: 5,
+                              suffix: " PURSE",
+                            })}
+                          </b>
+                          <b>
+                            {FormatNumberToString({
+                              bigNum: purseStakingTotalStake,
+                              multiplier: PURSEPrice,
+                              decimalPlaces: 5,
+                              prefix: "(",
+                              suffix: " USD)",
+                            })}
+                          </b>
+                        </div>
+                      )}
+                    </div>
+                    <div className="textWhiteSmall mb-1">
+                      <b style={{ fontFamily: "arial" }}>APR:&nbsp;&nbsp;</b>
+                      <ReactPopup
+                        trigger={(open) => (
+                          <span style={{ position: "relative", top: "-1.5px" }}>
+                            <BsInfoCircleFill size={10} />
+                          </span>
+                        )}
+                        on="hover"
+                        position="right center"
+                        offsetY={-23}
+                        offsetX={0}
+                        contentStyle={{ padding: "3px" }}
+                      >
+                        <span className="textInfo">
+                          Percentage of the amount of tokens to distribute per
+                          interval x 31,536,000 / Total staked (Pool)
+                        </span>
+                      </ReactPopup>
+                    </div>
+                    <div
+                      className="textWhiteSmall mb-3"
+                      style={{ color: "#000" }}
+                    >
+                      {isLoading ? (
+                        <Loading />
+                      ) : (
+                        <b>
+                          {`${apr.toLocaleString("en-US", {
+                            maximumFractionDigits: 5,
+                          })} %`}
+                        </b>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ width: "50%" }}>
+                  <div
+                    className="textWhiteSmall mb-1"
+                    style={{ minWidth: "151px" }}
+                  >
                     <b style={{ fontFamily: "arial" }}>
-                      Share Balance:&nbsp;&nbsp;
+                      Total Shares (Pool):&nbsp;&nbsp;
                     </b>
                     <ReactPopup
                       trigger={(open) => (
-                        <span
-                          style={{
-                            position: "relative",
-                            top: "-1.5px",
-                          }}
-                        >
+                        <span style={{ position: "relative", top: "-1.5px" }}>
                           <BsInfoCircleFill size={10} />
                         </span>
                       )}
@@ -758,12 +595,11 @@ export default function PurseStakeBinance() {
                       contentStyle={{ padding: "3px" }}
                     >
                       <span className="textInfo">
-                        Represents the amount of PURSE the user owns in the
-                        PURSE Staking contract
+                        Represents the total amount of PURSE in the PURSE
+                        Staking contract
                       </span>
                       <span className="textInfo mt-2">
-                        Staked Balance = Share Balance / Total Shares (Pool) x
-                        Total Staked (Pool)
+                        Total Shares (Pool) ≡ Total Staked (Pool)
                       </span>
                     </ReactPopup>
                   </div>
@@ -776,155 +612,94 @@ export default function PurseStakeBinance() {
                     ) : (
                       <b>
                         {FormatNumberToString({
-                          bigNum: purseStakingUserTotalReceipt,
+                          bigNum: purseStakingTotalReceipt,
                           decimalPlaces: 5,
                           suffix: " Shares",
                         })}
                       </b>
                     )}
                   </div>
-                  <div className="textWhiteSmaller">
-                    <RiArrowRightFill />
-                    <b
-                      style={{
-                        fontFamily: "arial",
-                        textDecoration: "underline grey",
-                      }}
+                </div>
+              </div>
+            </div>
+            <hr></hr>
+            {!isActive ? (
+              <div
+                className="card cardbody"
+                style={{
+                  height: "200px",
+                  color: "White",
+                }}
+              >
+                <div className="card-body">
+                  <div>
+                    <div
+                      className="center textWhiteMedium mt-3 mb-3"
+                      style={{ textAlign: "center" }}
                     >
-                      {" "}
-                      Unlocked Shares
-                    </b>
-                    &nbsp;&nbsp;
-                    <ReactPopup
-                      trigger={(open) => (
-                        <span
-                          style={{
-                            position: "relative",
-                            top: "-1.5px",
-                          }}
-                        >
-                          <BsInfoCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="top center"
-                      offsetY={20}
-                      offsetX={0}
-                      contentStyle={{ padding: "3px" }}
+                      <b>Connect wallet to stake PURSE</b>
+                    </div>
+                    <div className="center">
+                      <button
+                        type="button"
+                        className="btn btn-primary mt-3"
+                        onClick={() => setTrigger(true)}
+                      >
+                        {" "}
+                        Connect{" "}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : !isTargetChainMatch ? (
+              <div
+                className="card cardbody"
+                style={{
+                  height: "200px",
+                  color: "White",
+                }}
+              >
+                <div className="card-body">
+                  <div>
+                    <div
+                      className="center textWhiteMedium mt-3 mb-3"
+                      style={{ textAlign: "center" }}
                     >
-                      <span className="textInfo">
-                        Shares received previously when staked into contract
-                        before the 21-Day Lock implementation
-                      </span>
-                    </ReactPopup>
+                      <b>Switch chain to stake PURSE</b>
+                    </div>
+                    <div className="center">
+                      <button
+                        type="button"
+                        className="btn btn-primary mt-3"
+                        onClick={() => switchNetwork(targetChain)}
+                      >
+                        {" "}
+                        Switch{" "}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="row mt-3 ml-2 mr-2">
+                <div
+                  style={{
+                    paddingRight: "5px",
+                    width: "50%",
+                  }}
+                >
+                  <div className="textWhiteSmall mb-1">
+                    <b style={{ fontFamily: "arial" }}>Address:</b>
                   </div>
                   <div
-                    className="textWhiteSmall ml-3 mb-2"
+                    className="textWhiteSmall mb-3"
                     style={{ color: "#000" }}
                   >
-                    {isLoading ? (
-                      <Loading />
-                    ) : (
-                      <div style={{ display: "flex", flexDirection: "column" }}>
-                        <b>
-                          {FormatNumberToString({
-                            bigNum: purseStakingUserReceipt,
-                            decimalPlaces: 5,
-                            suffix: " Shares",
-                          })}
-                        </b>
-                        <b>
-                          {`(${purseAmountUnlock.toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          })} PURSE)`}
-                        </b>
-                      </div>
-                    )}
-                  </div>
-                  <div className="textWhiteSmaller">
-                    <RiArrowRightFill />
-                    <b
-                      style={{
-                        fontFamily: "arial",
-                        textDecoration: "underline grey",
-                      }}
-                    >
-                      {" "}
-                      Locked Shares
-                    </b>
-                    &nbsp;&nbsp;
-                    <ReactPopup
-                      trigger={(open) => (
-                        <span
-                          style={{
-                            position: "relative",
-                            top: "-1.5px",
-                          }}
-                        >
-                          <BsInfoCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="top center"
-                      offsetY={20}
-                      offsetX={0}
-                      contentStyle={{ padding: "3px" }}
-                    >
-                      <span className="textInfo">
-                        Locked shares received when staked into contract after
-                        the 21-Day Lock implementation
-                      </span>
-                    </ReactPopup>
-                  </div>
-                  <div
-                    className="textWhiteSmall ml-3 mb-3"
-                    style={{ color: "#000" }}
-                  >
-                    {isLoading ? (
-                      <Loading />
-                    ) : (
-                      <div style={{ display: "flex", flexDirection: "column" }}>
-                        <b>
-                          {FormatNumberToString({
-                            bigNum: purseStakingUserNewReceipt,
-                            decimalPlaces: 5,
-                            suffix: " Shares",
-                          })}
-                        </b>
-                        <b>
-                          {`(${purseAmountLock.toLocaleString("en-US", {
-                            maximumFractionDigits: 5,
-                          })} PURSE)`}
-                        </b>
-                      </div>
-                    )}
+                    <b>{formatShortenAddress(account)}</b>
                   </div>
                   <div className="textWhiteSmall mb-1">
-                    <b style={{ fontFamily: "arial" }}>
-                      Staked Balance:&nbsp;&nbsp;
-                    </b>
-                    <ReactPopup
-                      trigger={(open) => (
-                        <span
-                          style={{
-                            position: "relative",
-                            top: "-1.5px",
-                          }}
-                        >
-                          <BsInfoCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="top center"
-                      offsetY={20}
-                      offsetX={0}
-                      contentStyle={{ padding: "3px" }}
-                    >
-                      <span className="textInfo">
-                        Amount of PURSE user has staked + PURSE reward from
-                        PURSE Distribution
-                      </span>
-                    </ReactPopup>
+                    <b style={{ fontFamily: "arial" }}>PURSE Balance:</b>
                   </div>
                   <div
                     className="textWhiteSmall mb-3"
@@ -933,32 +708,295 @@ export default function PurseStakeBinance() {
                     {isLoading ? (
                       <Loading />
                     ) : (
-                      <div style={{ display: "flex", flexDirection: "column" }}>
-                        <b>
-                          {FormatNumberToString({
-                            bigNum: purseStakingUserStake,
-                            decimalPlaces: 5,
-                            suffix: " PURSE",
-                          })}
-                        </b>
-                        <b>
-                          {FormatNumberToString({
-                            bigNum: purseStakingUserStake,
-                            decimalPlaces: 5,
-                            multiplier: PURSEPrice,
-                            prefix: "(",
-                            suffix: " USD)",
-                          })}
-                        </b>
-                      </div>
+                      <b>
+                        {FormatNumberToString({
+                          bigNum: purseTokenUpgradableBalance,
+                          decimalPlaces: 5,
+                          suffix: " PURSE",
+                        })}
+                      </b>
                     )}
+                  </div>
+
+                  <div className="textWhiteSmall mb-1">
+                    <b style={{ fontFamily: "arial" }}>Reward:&nbsp;&nbsp;</b>
+                    {/* <ReactPopup trigger={open => (
+                              <span style={{ position: "relative", top: '-1.5px' }}><BsInfoCircleFill size={10}/></span>
+                              )}
+                              on="hover"
+                              position="top center"
+                              offsetY={20}
+                              offsetX={0}
+                              contentStyle={{ padding: '3px' }}>
+                              <span className="textInfo">Represents the total amount of PURSE in the PURSE Staking contract</span>
+                              <span className="textInfo mt-2">Total Shares (Pool) ≡ Total Staked (Pool)</span>
+                            </ReactPopup> */}
+                  </div>
+                  <div
+                    className="textWhiteSmall mb-2"
+                    style={{ color: "#000" }}
+                  >
+                    {isLoading ? (
+                      <Loading />
+                    ) : (
+                      <b>
+                        {FormatNumberToString({
+                          bigNum: purseStakingReward,
+                          decimalPlaces: 5,
+                          suffix: " PURSE",
+                        })}
+                      </b>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    className="btn btn-sm mb-3"
+                    style={{ padding: "6px 20px" }}
+                    variant="outline-success"
+                    disabled={
+                      isLoading ||
+                      claimLoading ||
+                      formatBigNumber(purseStakingReward, "ether") === "0"
+                    }
+                    onClick={(event) => {
+                      claim();
+                    }}
+                  >
+                    Claim
+                  </Button>
+                </div>
+                <div style={{ width: "50%" }}>
+                  <div>
+                    <div className="textWhiteSmall mb-1">
+                      <b style={{ fontFamily: "arial" }}>
+                        Share Balance:&nbsp;&nbsp;
+                      </b>
+                      <ReactPopup
+                        trigger={(open) => (
+                          <span
+                            style={{
+                              position: "relative",
+                              top: "-1.5px",
+                            }}
+                          >
+                            <BsInfoCircleFill size={10} />
+                          </span>
+                        )}
+                        on="hover"
+                        position="top center"
+                        offsetY={20}
+                        offsetX={0}
+                        contentStyle={{ padding: "3px" }}
+                      >
+                        <span className="textInfo">
+                          Represents the amount of PURSE the user owns in the
+                          PURSE Staking contract
+                        </span>
+                        <span className="textInfo mt-2">
+                          Staked Balance = Share Balance / Total Shares (Pool) x
+                          Total Staked (Pool)
+                        </span>
+                      </ReactPopup>
+                    </div>
+                    <div
+                      className="textWhiteSmall mb-3"
+                      style={{ color: "#000" }}
+                    >
+                      {isLoading ? (
+                        <Loading />
+                      ) : (
+                        <b>
+                          {FormatNumberToString({
+                            bigNum: purseStakingUserTotalReceipt,
+                            decimalPlaces: 5,
+                            suffix: " Shares",
+                          })}
+                        </b>
+                      )}
+                    </div>
+                    <div className="textWhiteSmaller">
+                      <RiArrowRightFill />
+                      <b
+                        style={{
+                          fontFamily: "arial",
+                          textDecoration: "underline grey",
+                        }}
+                      >
+                        {" "}
+                        Unlocked Shares
+                      </b>
+                      &nbsp;&nbsp;
+                      <ReactPopup
+                        trigger={(open) => (
+                          <span
+                            style={{
+                              position: "relative",
+                              top: "-1.5px",
+                            }}
+                          >
+                            <BsInfoCircleFill size={10} />
+                          </span>
+                        )}
+                        on="hover"
+                        position="top center"
+                        offsetY={20}
+                        offsetX={0}
+                        contentStyle={{ padding: "3px" }}
+                      >
+                        <span className="textInfo">
+                          Shares received previously when staked into contract
+                          before the 21-Day Lock implementation
+                        </span>
+                      </ReactPopup>
+                    </div>
+                    <div
+                      className="textWhiteSmall ml-3 mb-2"
+                      style={{ color: "#000" }}
+                    >
+                      {isLoading ? (
+                        <Loading />
+                      ) : (
+                        <div
+                          style={{ display: "flex", flexDirection: "column" }}
+                        >
+                          <b>
+                            {FormatNumberToString({
+                              bigNum: purseStakingUserReceipt,
+                              decimalPlaces: 5,
+                              suffix: " Shares",
+                            })}
+                          </b>
+                          <b>
+                            {`(${purseAmountUnlock.toLocaleString("en-US", {
+                              maximumFractionDigits: 5,
+                            })} PURSE)`}
+                          </b>
+                        </div>
+                      )}
+                    </div>
+                    <div className="textWhiteSmaller">
+                      <RiArrowRightFill />
+                      <b
+                        style={{
+                          fontFamily: "arial",
+                          textDecoration: "underline grey",
+                        }}
+                      >
+                        {" "}
+                        Locked Shares
+                      </b>
+                      &nbsp;&nbsp;
+                      <ReactPopup
+                        trigger={(open) => (
+                          <span
+                            style={{
+                              position: "relative",
+                              top: "-1.5px",
+                            }}
+                          >
+                            <BsInfoCircleFill size={10} />
+                          </span>
+                        )}
+                        on="hover"
+                        position="top center"
+                        offsetY={20}
+                        offsetX={0}
+                        contentStyle={{ padding: "3px" }}
+                      >
+                        <span className="textInfo">
+                          Locked shares received when staked into contract after
+                          the 21-Day Lock implementation
+                        </span>
+                      </ReactPopup>
+                    </div>
+                    <div
+                      className="textWhiteSmall ml-3 mb-3"
+                      style={{ color: "#000" }}
+                    >
+                      {isLoading ? (
+                        <Loading />
+                      ) : (
+                        <div
+                          style={{ display: "flex", flexDirection: "column" }}
+                        >
+                          <b>
+                            {FormatNumberToString({
+                              bigNum: purseStakingUserNewReceipt,
+                              decimalPlaces: 5,
+                              suffix: " Shares",
+                            })}
+                          </b>
+                          <b>
+                            {`(${purseAmountLock.toLocaleString("en-US", {
+                              maximumFractionDigits: 5,
+                            })} PURSE)`}
+                          </b>
+                        </div>
+                      )}
+                    </div>
+                    <div className="textWhiteSmall mb-1">
+                      <b style={{ fontFamily: "arial" }}>
+                        Staked Balance:&nbsp;&nbsp;
+                      </b>
+                      <ReactPopup
+                        trigger={(open) => (
+                          <span
+                            style={{
+                              position: "relative",
+                              top: "-1.5px",
+                            }}
+                          >
+                            <BsInfoCircleFill size={10} />
+                          </span>
+                        )}
+                        on="hover"
+                        position="top center"
+                        offsetY={20}
+                        offsetX={0}
+                        contentStyle={{ padding: "3px" }}
+                      >
+                        <span className="textInfo">
+                          Amount of PURSE user has staked + PURSE reward from
+                          PURSE Distribution
+                        </span>
+                      </ReactPopup>
+                    </div>
+                    <div
+                      className="textWhiteSmall mb-3"
+                      style={{ color: "#000" }}
+                    >
+                      {isLoading ? (
+                        <Loading />
+                      ) : (
+                        <div
+                          style={{ display: "flex", flexDirection: "column" }}
+                        >
+                          <b>
+                            {FormatNumberToString({
+                              bigNum: purseStakingUserStake,
+                              decimalPlaces: 5,
+                              suffix: " PURSE",
+                            })}
+                          </b>
+                          <b>
+                            {FormatNumberToString({
+                              bigNum: purseStakingUserStake,
+                              decimalPlaces: 5,
+                              multiplier: PURSEPrice,
+                              prefix: "(",
+                              suffix: " USD)",
+                            })}
+                          </b>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </form>
+            )}
+          </div>
+        </form>
+      </div>
     );
   };
 
@@ -984,7 +1022,6 @@ export default function PurseStakeBinance() {
         purseStakingEndTime={purseStakingEndTime}
         stakeLoading={stakeLoading}
         vestingData={purseStakingVestingData}
-        TVLData={stakingTVLData}
       />
     </div>
   );

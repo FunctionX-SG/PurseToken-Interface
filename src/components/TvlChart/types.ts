@@ -3,7 +3,9 @@ export type TvlChartProps = {
   height: number;
   chartTitle?: string;
   displayHeader?: boolean;
+  displayTokenAmount?: boolean;
   domainHeightMultiplier?: number;
+  size?: "s" | "m";
 };
 
 export type TVLData = {
