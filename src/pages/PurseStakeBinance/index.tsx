@@ -13,6 +13,8 @@ import {
   getShortTxHash,
   formatShortenAddress,
   FormatNumberToString,
+  RawDataFormatter,
+  RawNumberFormatter,
 } from "../../components/utils";
 
 import "../../components/App.css";
@@ -459,12 +461,15 @@ export default function PurseStakeBinance() {
             }}
           >
             <TVLChart
+              dataKey="totalAmountLiquidity"
               chartTitle="Total Staked"
               displayHeader
               displayTokenAmount
-              height={200}
+              height={210}
               size={"s"}
               tvlData={stakingTVLData}
+              yAxisFormatter={RawDataFormatter}
+              tooltipFormatter={RawNumberFormatter}
             />
           </div>
         ) : null}
