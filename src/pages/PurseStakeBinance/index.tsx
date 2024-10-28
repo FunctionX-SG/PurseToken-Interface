@@ -13,6 +13,8 @@ import {
   getShortTxHash,
   formatShortenAddress,
   FormatNumberToString,
+  RawDataFormatter,
+  RawNumberFormatter,
 } from "../../components/utils";
 
 import "../../components/App.css";
@@ -68,12 +70,12 @@ export default function PurseStakeBinance() {
 
   const { data: purseStakingTotalStake } = useSWR(
     {
-      contract: "purseTokenUpgradable",
-      method: "balanceOf",
-      params: [Constants.PURSE_STAKING_ADDRESS],
+      contract: "purseStaking",
+      method: "availablePurseSupply",
+      params: [],
     },
     {
-      fetcher: fetcher(purseTokenUpgradable),
+      fetcher: fetcher(purseStaking),
       refreshInterval: 5000,
     }
   );
@@ -203,10 +205,6 @@ export default function PurseStakeBinance() {
   ]);
 
   useEffect(() => {
-    fetchStakeTvl();
-  }, []);
-
-  useEffect(() => {
     async function loadData() {
       Promise.all([
         purseStaking
@@ -220,6 +218,7 @@ export default function PurseStakeBinance() {
         checkPurseAmount(purseStakingUserNewReceipt).then((amount) => {
           setPurseAmountLock(parseFloat(amount[2]));
         }),
+        fetchStakeTvl(),
       ]).then(() => setIsLoading(false));
     }
 
@@ -462,11 +461,15 @@ export default function PurseStakeBinance() {
             }}
           >
             <TVLChart
+              dataKey="totalAmountLiquidity"
               chartTitle="Total Staked"
               displayHeader
               displayTokenAmount
-              height={200}
+              height={210}
+              size={"s"}
               tvlData={stakingTVLData}
+              yAxisFormatter={RawDataFormatter}
+              tooltipFormatter={RawNumberFormatter}
             />
           </div>
         ) : null}

@@ -11,8 +11,6 @@ import "../App.css";
 import { useWeb3React } from "@web3-react/core";
 import { Loading } from "../Loading";
 import { BigNumber } from "ethers";
-import TVLChart from "../TvlChart";
-import { TVLData } from "../TvlChart/types";
 
 type StakeShellProps = {
   claimVesting: () => void;
@@ -26,8 +24,6 @@ type StakeShellProps = {
   stakeInfo: ReactNode;
   stakeLoading: boolean;
   vestingData: any[];
-  TVLData?: TVLData[];
-  TVLHeightScale?: number;
 };
 
 export default function StakeShell(props: StakeShellProps) {
@@ -43,8 +39,6 @@ export default function StakeShell(props: StakeShellProps) {
     stakeInfo,
     stakeLoading,
     vestingData,
-    TVLData,
-    TVLHeightScale,
   } = props;
 
   const { isActive } = useWeb3React();
@@ -495,22 +489,6 @@ export default function StakeShell(props: StakeShellProps) {
           {stakeInfo}
           <hr style={{ marginBottom: "24px" }} />
           {isActive && isTargetChainMatch ? renderUserActionContainer() : null}
-          {TVLData ? (
-            <div
-              style={{
-                margin: "0 auto",
-                width: "100%",
-              }}
-            >
-              <TVLChart
-                chartTitle="Total Staked"
-                displayHeader
-                domainHeightMultiplier={TVLHeightScale}
-                height={150}
-                tvlData={TVLData}
-              />
-            </div>
-          ) : null}
         </div>
       </MediaQuery>
     </>
