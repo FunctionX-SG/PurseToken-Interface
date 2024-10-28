@@ -22,6 +22,7 @@ function TVLChart(props: TvlChartProps) {
     displayHeader = false,
     displayTokenAmount = false,
     chartTitle = "TVL",
+    size = "m",
     domainHeightMultiplier = 1,
   } = props;
 
@@ -35,7 +36,7 @@ function TVLChart(props: TvlChartProps) {
         <div className="mb-4">
           <div className={`common-title text-muted`}>{chartTitle}</div>
           {displayTokenAmount ? (
-            <div className={`h3 bold`}>
+            <div className={size == "m" ? `h3 bold` : `h4 bold`}>
               <strong>
                 {RawNumberFormatter(
                   tvlData[tvlData.length - 1].totalAmountLiquidity
@@ -43,7 +44,7 @@ function TVLChart(props: TvlChartProps) {
               </strong>
             </div>
           ) : null}
-          <div className={`h5 text-muted`}>
+          <div className={size == "m" ? `h5 text-muted` : `h6 text-muted`}>
             {`$${getNumberWithCommas(
               tvlData[tvlData.length - 1].totalLiquidityValueUSD,
               2
@@ -62,6 +63,7 @@ function TVLChart(props: TvlChartProps) {
             tickFormatter={convertUnixToDate}
             stroke="#000"
             tickLine={false}
+            fontSize={size == "m" ? 16 : 12}
           />
           <YAxis
             axisLine={false}

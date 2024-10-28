@@ -68,12 +68,12 @@ export default function PurseStakeBinance() {
 
   const { data: purseStakingTotalStake } = useSWR(
     {
-      contract: "purseTokenUpgradable",
-      method: "balanceOf",
-      params: [Constants.PURSE_STAKING_ADDRESS],
+      contract: "purseStaking",
+      method: "availablePurseSupply",
+      params: [],
     },
     {
-      fetcher: fetcher(purseTokenUpgradable),
+      fetcher: fetcher(purseStaking),
       refreshInterval: 5000,
     }
   );
@@ -463,6 +463,7 @@ export default function PurseStakeBinance() {
               displayHeader
               displayTokenAmount
               height={200}
+              size={"s"}
               tvlData={stakingTVLData}
             />
           </div>
