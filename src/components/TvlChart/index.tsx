@@ -1,6 +1,7 @@
 import {
   Area,
   AreaChart,
+  Label,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -10,13 +11,13 @@ import { TvlChartProps } from "./types";
 import {
   convertUnixToDate,
   getNumberWithCommas,
-  RawDataFormatter,
   RawNumberFormatter,
 } from "../utils";
 import CustomTooltip from "../CustomTooltip";
 
 function TVLChart(props: TvlChartProps) {
   const {
+    dataKey,
     tvlData,
     height,
     displayHeader = false,
@@ -24,6 +25,9 @@ function TVLChart(props: TvlChartProps) {
     chartTitle = "TVL",
     size = "m",
     domainHeightMultiplier = 1,
+    yAxisLabel,
+    yAxisFormatter,
+    tooltipFormatter,
   } = props;
 
   if (!tvlData) {
@@ -33,10 +37,10 @@ function TVLChart(props: TvlChartProps) {
   return (
     <>
       {displayHeader ? (
-        <div className="mb-4">
+        <div className="mb-2">
           <div className={`common-title text-muted`}>{chartTitle}</div>
           {displayTokenAmount ? (
-            <div className={size == "m" ? `h3 bold` : `h4 bold`}>
+            <div className={size === "m" ? `h3 bold` : `h4 bold`}>
               <strong>
                 {RawNumberFormatter(
                   tvlData[tvlData.length - 1].totalAmountLiquidity
@@ -44,7 +48,7 @@ function TVLChart(props: TvlChartProps) {
               </strong>
             </div>
           ) : null}
-          <div className={size == "m" ? `h5 text-muted` : `h6 text-muted`}>
+          <div className={size === "m" ? `h5 text-muted` : `h6 text-muted`}>
             {`$${getNumberWithCommas(
               tvlData[tvlData.length - 1].totalLiquidityValueUSD,
               2
@@ -53,7 +57,7 @@ function TVLChart(props: TvlChartProps) {
         </div>
       ) : null}
       <ResponsiveContainer width="100%" height={height}>
-        <AreaChart data={tvlData} margin={{ top: 10 }}>
+        <AreaChart data={tvlData} margin={{ top: yAxisLabel ? 24 : 10 }}>
           <XAxis
             axisLine={false}
             dataKey="blockTimestamp"
@@ -63,18 +67,28 @@ function TVLChart(props: TvlChartProps) {
             tickFormatter={convertUnixToDate}
             stroke="#000"
             tickLine={false}
-            fontSize={size == "m" ? 16 : 12}
+            fontSize={size === "m" ? 16 : 12}
           />
           <YAxis
             axisLine={false}
+            dataKey={dataKey}
             domain={[0, (dataMax: number) => dataMax * domainHeightMultiplier]} // ??
             interval="preserveStartEnd"
-            tickFormatter={RawDataFormatter}
+            tickFormatter={yAxisFormatter}
             tick={{ fontSize: 12 }}
             stroke="#000"
-          />
+          >
+            {yAxisLabel ? (
+              <Label
+                position="top"
+                value={yAxisLabel}
+                offset={10}
+                style={{ fontSize: "90%", fill: "black", padding: "100px" }}
+              />
+            ) : null}
+          </YAxis>
           <Tooltip
-            content={<CustomTooltip formatter={RawNumberFormatter} />}
+            content={<CustomTooltip formatter={tooltipFormatter} />}
             cursor={{
               stroke: "#000",
               strokeWidth: 1,
@@ -90,7 +104,7 @@ function TVLChart(props: TvlChartProps) {
           </defs>
           <Area
             type="monotone"
-            dataKey="totalAmountLiquidity"
+            dataKey={dataKey}
             stroke="#c80ced"
             strokeWidth={2.5}
             fillOpacity={1}

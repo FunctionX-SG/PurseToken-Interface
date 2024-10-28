@@ -69,7 +69,7 @@ export function convertUnixToDateTime(
   showTime?: boolean
 ) {
   let numTimestamp =
-    typeof UNIX_timestamp == "string"
+    typeof UNIX_timestamp === "string"
       ? parseInt(UNIX_timestamp as string, 10)
       : UNIX_timestamp;
   const a = new Date(numTimestamp * 1000);
@@ -186,10 +186,10 @@ export const fetcher = (library: any) => (args: any) => {
 };
 
 export const RawDataFormatter = (number: number) => {
-  return DataFormater(Math.round(number / 10 ** 18));
+  return DataFormatter(Math.round(number / 10 ** 18));
 };
 
-export const DataFormater = (number: number) => {
+export const DataFormatter = (number: number) => {
   if (number > 1000000000) {
     return Math.round(number / 1000000000).toString() + "B";
   } else if (number > 1000000) {
@@ -209,6 +209,10 @@ export const NumberFormatter = (number: number) => {
   return number.toLocaleString("en-US", {
     maximumFractionDigits: 2,
   });
+};
+
+export const getNumberWithCommasPrice = (number: number) => {
+  return `$${getNumberWithCommas(number, 2)}`;
 };
 
 export const getNumberWithCommas = (

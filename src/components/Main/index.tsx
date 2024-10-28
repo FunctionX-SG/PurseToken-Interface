@@ -20,7 +20,9 @@ import { usePursePrice } from "../state/PursePrice/hooks";
 import { useContract } from "../state/contract/hooks";
 import {
   convertUnixToDate,
+  DataFormatter,
   formatBigNumber,
+  getNumberWithCommasPrice,
   RawDataFormatter,
   RawNumberFormatter,
 } from "../utils";
@@ -1520,7 +1522,7 @@ export default function Main() {
         {renderProtocolRemarks()}
         {renderFullCharts()}
         {renderFarmRemarks()}
-        {farmTVLData && selectedTab == SelectedTab.FARM ? (
+        {farmTVLData && selectedTab === SelectedTab.FARM ? (
           <>
             <label
               className="textWhite center mb-2 pt-4"
@@ -1532,11 +1534,14 @@ export default function Main() {
             </label>
             <div className="mt-4">
               <TVLChart
+                dataKey="totalLiquidityValueUSD"
+                yAxisLabel="TVL ($)"
                 chartTitle="Total Farm TVL"
                 displayHeader
-                domainHeightMultiplier={1.5}
                 height={300}
                 tvlData={farmTVLData}
+                yAxisFormatter={DataFormatter}
+                tooltipFormatter={getNumberWithCommasPrice}
               />
             </div>
           </>
@@ -1547,7 +1552,7 @@ export default function Main() {
         {renderProtocolRemarks()}
         {renderNarrowCharts()}
         {renderFarmRemarks()}
-        {farmTVLData && selectedTab == SelectedTab.FARM ? (
+        {farmTVLData && selectedTab === SelectedTab.FARM ? (
           <>
             <label
               className="textWhite center mb-2 pt-4"
@@ -1560,10 +1565,13 @@ export default function Main() {
             <div className="mt-4">
               <TVLChart
                 chartTitle="Total Farm TVL"
+                dataKey="totalLiquidityValueUSD"
+                yAxisLabel="TVL ($)"
                 displayHeader
-                domainHeightMultiplier={1.5}
                 height={150}
                 tvlData={farmTVLData}
+                yAxisFormatter={DataFormatter}
+                tooltipFormatter={getNumberWithCommasPrice}
               />
             </div>
           </>
