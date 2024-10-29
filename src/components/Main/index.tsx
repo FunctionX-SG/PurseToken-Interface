@@ -100,7 +100,12 @@ export default function Main() {
                   blockTimestamp
                   totalAmountLiquidity
                 }
-                farmTVLUpdates(first: 1000, orderBy: blockTimestamp) {
+                farmUpdatesOne: farmTVLUpdates(first: 1000, orderBy: blockTimestamp) {
+                  blockTimestamp
+                  totalAmountLiquidity
+                  totalLiquidityValueUSD
+                }
+                farmUpdatesTwo: farmTVLUpdates(skip: 1000, first: 1000, orderBy: blockTimestamp) {
                   blockTimestamp
                   totalAmountLiquidity
                   totalLiquidityValueUSD
@@ -113,7 +118,9 @@ export default function Main() {
           return res.json();
         })
         .then((json) => {
-          const tvl: TVLData[] = json.data.farmTVLUpdates;
+          const tvl: TVLData[] = json.data.farmUpdatesOne.concat(
+            json.data.farmUpdatesTwo
+          );
           setFarmTVLData(tvl);
           const liquidities: Liquidity[] = json.data.liquidities;
           const burns: Burn[] = json.data.burns;
