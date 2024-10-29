@@ -31,6 +31,7 @@ import { Burn, Liquidity, SelectedTab } from "./types";
 import CustomTooltip from "../CustomTooltip";
 import TVLChart from "../TvlChart";
 import { TVLData } from "../TvlChart/types";
+import SubgraphDelayWarning from "../alerts";
 
 export default function Main() {
   const [selectedTab, setSelectedTab] = useState<SelectedTab>(SelectedTab.MAIN);
@@ -57,6 +58,7 @@ export default function Main() {
   const [isFetchMainDataLoading, setIsFetchMainDataLoading] = useState(true);
   const [isFetchFarmDataLoading, setIsFetchFarmDataLoading] = useState(true);
   const [farmTVLData, setFarmTVLData] = useState<TVLData[]>();
+  const [subgraphDelay, setSubgraphDelay] = useState(false);
 
   const CustomTick = (propsCustomTick: {
     x: number;
@@ -92,6 +94,11 @@ export default function Main() {
         body: JSON.stringify({
           query: `
               {
+                _meta {
+                  block {
+                    timestamp
+                  }
+                }
                 burns(first: 1000, orderBy: blockTimestamp) {
                   blockTimestamp
                   totalAmountBurned
@@ -118,26 +125,32 @@ export default function Main() {
           return res.json();
         })
         .then((json) => {
+          const currentTimestamp = Math.round(Date.now() / 1000);
+          if (
+            currentTimestamp - json.data._meta.block.timestamp >
+            Constants.SUBGRAPH_DELAY_TOLERANCE_MS
+          ) {
+            setSubgraphDelay(true);
+          }
           const tvl: TVLData[] = json.data.farmUpdatesOne.concat(
             json.data.farmUpdatesTwo
           );
           setFarmTVLData(tvl);
           const liquidities: Liquidity[] = json.data.liquidities;
           const burns: Burn[] = json.data.burns;
-          const currentTimestamp = (Date.now() / 1000).toFixed(0);
-          if (liquidities.length > 0) {
+          if (liquidities.length) {
             const lastLiquidity =
               liquidities[liquidities.length - 1].totalAmountLiquidity;
             liquidities.push({
-              blockTimestamp: currentTimestamp,
+              blockTimestamp: currentTimestamp.toString(),
               totalAmountLiquidity: lastLiquidity,
             });
             setTotalTransferAmount(lastLiquidity);
           }
-          if (burns.length > 0) {
+          if (burns.length) {
             const lastBurn = burns[burns.length - 1].totalAmountBurned;
             burns.push({
-              blockTimestamp: currentTimestamp,
+              blockTimestamp: currentTimestamp.toString(),
               totalAmountBurned: lastBurn,
             });
             setTotalBurnAmount(lastBurn);
@@ -614,6 +627,7 @@ export default function Main() {
             <b>CHARTS</b>
           </big>
         </label>
+        {subgraphDelay ? <SubgraphDelayWarning /> : null}
         <div className="row center" style={{ gap: "20px" }}>
           <div>
             <div
@@ -1161,6 +1175,7 @@ export default function Main() {
             <b>CHARTS</b>
           </big>
         </label>
+        {subgraphDelay ? <SubgraphDelayWarning /> : null}
         <div className="row center">
           {cumulateBurn ? (
             // <div>
@@ -1529,6 +1544,7 @@ export default function Main() {
         {renderProtocolRemarks()}
         {renderFullCharts()}
         {renderFarmRemarks()}
+
         {farmTVLData && selectedTab === SelectedTab.FARM ? (
           <>
             <label
@@ -1539,6 +1555,7 @@ export default function Main() {
                 <b>CHARTS</b>
               </big>
             </label>
+            {subgraphDelay ? <SubgraphDelayWarning /> : null}
             <div className="mt-4">
               <TVLChart
                 dataKey="totalLiquidityValueUSD"
@@ -1569,6 +1586,7 @@ export default function Main() {
                 <b>CHARTS</b>
               </big>
             </label>
+            {subgraphDelay ? <SubgraphDelayWarning /> : null}
             <div className="mt-4">
               <TVLChart
                 chartTitle="Total Farm TVL"

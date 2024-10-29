@@ -51,6 +51,8 @@ export const MONGO_FXSWAP_RESPONSE_API = `https://ap-southeast-1.aws.data.mongod
 export const SUBGRAPH_API =
   "https://api.goldsky.com/api/public/project_clz6ti9bm1qjm01086dflgsh3/subgraphs/pursetoken/0.0.1/gn";
 
+export const SUBGRAPH_DELAY_TOLERANCE_MS = 14400; // 4 * 60 * 60 (4 hours)
+
 //RPC URLs
 export const WALLETCONNECT_BRIDGE_URL =
   "https://wallet-connect.pundix.com/bridge/";

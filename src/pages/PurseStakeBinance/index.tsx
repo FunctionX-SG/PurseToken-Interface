@@ -30,6 +30,7 @@ import { useNetwork } from "../../components/state/network/hooks";
 import StakeShell from "../../components/Stake/StakeShell";
 import { TVLData } from "../../components/TvlChart/types";
 import TVLChart from "../../components/TvlChart";
+import SubgraphDelayWarning from "../../components/alerts";
 
 export default function PurseStakeBinance() {
   const { isActive, chainId, account } = useWeb3React();
@@ -67,6 +68,7 @@ export default function PurseStakeBinance() {
   const [, setTrigger] = useWalletTrigger();
   const [stakingTVLData, setStakingTVLData] = useState<TVLData[]>();
   const [isLoading, setIsLoading] = useState(true);
+  const [subgraphDelay, setSubgraphDelay] = useState(false);
 
   const { data: purseStakingTotalStake } = useSWR(
     {
@@ -372,6 +374,11 @@ export default function PurseStakeBinance() {
       body: JSON.stringify({
         query: `
           {
+            _meta {
+              block {
+                timestamp
+              }
+            }
             stakingTVLUpdates(first: 1000, orderBy: blockTimestamp) {
               blockTimestamp
               totalAmountLiquidity
@@ -382,6 +389,13 @@ export default function PurseStakeBinance() {
       }),
     });
     const json = await res.json();
+    const currentTimestamp = Math.round(Date.now() / 1000);
+    if (
+      currentTimestamp - json.data._meta.block.timestamp >
+      Constants.SUBGRAPH_DELAY_TOLERANCE_MS
+    ) {
+      setSubgraphDelay(true);
+    }
     const tvl: TVLData[] = json.data.stakingTVLUpdates;
     setStakingTVLData(tvl);
   };
@@ -456,10 +470,11 @@ export default function PurseStakeBinance() {
           <div
             style={{
               margin: "0 auto 20px auto",
-              padding: "12px",
+              padding: "4px",
               width: "100%",
             }}
           >
+            {subgraphDelay ? <SubgraphDelayWarning /> : null}
             <TVLChart
               dataKey="totalAmountLiquidity"
               chartTitle="Total Staked"
