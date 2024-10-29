@@ -9,6 +9,7 @@ export type FarmPool = {
 
 export type SubgraphResponse = {
   data: {
+    _meta: { block: { timestamp: number } };
     farmPools: FarmPool[];
   };
 };

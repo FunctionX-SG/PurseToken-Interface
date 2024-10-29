@@ -19,6 +19,7 @@ import { useContract } from "../state/contract/hooks";
 import IPancakePair from "../../abis/IPancakePair.json";
 import { useProvider } from "../state/provider/hooks";
 import { PoolSubgraphData, SubgraphResponse } from "./types";
+import SubgraphDelayWarning from "../alerts";
 
 export default function FarmMenu() {
   const farmNetwork = "MAINNET";
@@ -48,6 +49,7 @@ export default function FarmMenu() {
   const [farmLoading, setFarmLoading] = useState<Boolean>(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isUserLoading, setIsUserLoading] = useState(true);
+  const [subgraphDelay, setSubgraphDelay] = useState(false);
 
   const { data: purseTokenUpgradableBalance } = useSWR(
     {
@@ -73,6 +75,11 @@ export default function FarmMenu() {
         body: JSON.stringify({
           query: `
           {
+            _meta {
+              block {
+                timestamp
+              }
+            }
             farmPools {
               id
               latestAPR
@@ -85,6 +92,13 @@ export default function FarmMenu() {
       });
 
       const json: SubgraphResponse = await response.json();
+      const currentTimestamp = Math.round(Date.now() / 1000);
+      if (
+        currentTimestamp - json.data._meta.block.timestamp >
+        Constants.SUBGRAPH_DELAY_TOLERANCE_MS
+      ) {
+        setSubgraphDelay(true);
+      }
       const addressToInfoMap = new Map<string, PoolSubgraphData>();
 
       if (!json.data?.farmPools) {
@@ -442,6 +456,7 @@ export default function FarmMenu() {
           </small>
         </div>
         <br />
+        {subgraphDelay ? <SubgraphDelayWarning /> : null}
 
         {!farmLoading ? (
           <div className="row center mt-4">
