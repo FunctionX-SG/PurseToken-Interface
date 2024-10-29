@@ -586,30 +586,6 @@ export default function Main() {
     );
   };
 
-  const renderFullTable = () => {
-    return (
-      <>
-        <div
-          style={{
-            display: selectedTab === SelectedTab.MAIN ? "block" : "none",
-          }}
-        >
-          {renderFullMainTable()}
-        </div>
-        <div
-          style={{
-            display: selectedTab === SelectedTab.FARM ? "block" : "none",
-          }}
-        >
-          {renderFullFarmTable()}
-        </div>
-        {/* <div style={{display: selectedTab === "vault" ? "block" : "none"}}>
-            {renderFullVaultTable()}
-          </div> */}
-      </>
-    );
-  };
-
   const renderFullCharts = () => {
     return (
       <div
@@ -782,6 +758,15 @@ export default function Main() {
           </div>
         </div>
       </div>
+    );
+  };
+
+  const renderCharts = () => {
+    return (
+      <>
+        <MediaQuery maxWidth={600}>{renderNarrowCharts()}</MediaQuery>
+        <MediaQuery minWidth={601}>{renderFullCharts()}</MediaQuery>
+      </>
     );
   };
 
@@ -1134,26 +1119,47 @@ export default function Main() {
     );
   };
 
-  const renderNarrowTable = () => {
+  const renderDashboardTable = () => {
     return (
       <>
-        <div
-          style={{
-            display: selectedTab === SelectedTab.MAIN ? "block" : "none",
-          }}
-        >
-          {renderNarrowMainTable()}
-        </div>
-        <div
-          style={{
-            display: selectedTab === SelectedTab.FARM ? "block" : "none",
-          }}
-        >
-          {renderNarrowFarmTable()}
-        </div>
-        {/* <div style={{display: selectedTab === "vault" ? "block" : "none"}}>
+        <MediaQuery maxWidth={600}>
+          <div
+            style={{
+              display: selectedTab === SelectedTab.MAIN ? "block" : "none",
+            }}
+          >
+            {renderNarrowMainTable()}
+          </div>
+          <div
+            style={{
+              display: selectedTab === SelectedTab.FARM ? "block" : "none",
+            }}
+          >
+            {renderNarrowFarmTable()}
+          </div>
+          {/* <div style={{display: selectedTab === "vault" ? "block" : "none"}}>
             {renderNarrowVaultTable()}
           </div> */}
+        </MediaQuery>
+        <MediaQuery minWidth={601}>
+          <div
+            style={{
+              display: selectedTab === SelectedTab.MAIN ? "block" : "none",
+            }}
+          >
+            {renderFullMainTable()}
+          </div>
+          <div
+            style={{
+              display: selectedTab === SelectedTab.FARM ? "block" : "none",
+            }}
+          >
+            {renderFullFarmTable()}
+          </div>
+          {/* <div style={{display: selectedTab === "vault" ? "block" : "none"}}>
+            {renderFullVaultTable()}
+          </div> */}
+        </MediaQuery>
       </>
     );
   };
@@ -1539,24 +1545,24 @@ export default function Main() {
         {/* <button onClick={() => setSelectedTab("vault")}>VAULT</button> */}
       </div>
 
-      <MediaQuery minWidth={601}>
-        {renderFullTable()}
-        {renderProtocolRemarks()}
-        {renderFullCharts()}
-        {renderFarmRemarks()}
+      {renderDashboardTable()}
+      {renderProtocolRemarks()}
+      {renderFarmRemarks()}
+      {renderCharts()}
 
-        {farmTVLData && selectedTab === SelectedTab.FARM ? (
-          <>
-            <label
-              className="textWhite center mb-2 pt-4"
-              style={{ fontSize: "40px", textAlign: "center" }}
-            >
-              <big>
-                <b>CHARTS</b>
-              </big>
-            </label>
-            {subgraphDelay ? <SubgraphDelayWarning /> : null}
-            <div className="mt-4">
+      {farmTVLData && selectedTab === SelectedTab.FARM ? (
+        <>
+          <label
+            className="textWhite center mb-2 pt-4"
+            style={{ fontSize: "40px", textAlign: "center" }}
+          >
+            <big>
+              <b>CHARTS</b>
+            </big>
+          </label>
+          {subgraphDelay ? <SubgraphDelayWarning /> : null}
+          <div className="mt-4">
+            <MediaQuery minWidth={601}>
               <TVLChart
                 dataKey="totalLiquidityValueUSD"
                 yAxisLabel="TVL ($)"
@@ -1567,27 +1573,8 @@ export default function Main() {
                 yAxisFormatter={DataFormatter}
                 tooltipFormatter={getNumberWithCommasPrice}
               />
-            </div>
-          </>
-        ) : null}
-      </MediaQuery>
-      <MediaQuery maxWidth={600}>
-        {renderNarrowTable()}
-        {renderProtocolRemarks()}
-        {renderNarrowCharts()}
-        {renderFarmRemarks()}
-        {farmTVLData && selectedTab === SelectedTab.FARM ? (
-          <>
-            <label
-              className="textWhite center mb-2 pt-4"
-              style={{ fontSize: "40px", textAlign: "center" }}
-            >
-              <big>
-                <b>CHARTS</b>
-              </big>
-            </label>
-            {subgraphDelay ? <SubgraphDelayWarning /> : null}
-            <div className="mt-4">
+            </MediaQuery>
+            <MediaQuery maxWidth={600}>
               <TVLChart
                 chartTitle="Total Farm TVL"
                 dataKey="totalLiquidityValueUSD"
@@ -1598,10 +1585,10 @@ export default function Main() {
                 yAxisFormatter={DataFormatter}
                 tooltipFormatter={getNumberWithCommasPrice}
               />
-            </div>
-          </>
-        ) : null}
-      </MediaQuery>
+            </MediaQuery>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
