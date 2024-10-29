@@ -848,7 +848,29 @@ export default function Main() {
                     </Popup>
                   </span>
                 </th>
-                {/*<th scope="col">(Past 30 days&nbsp;Sum)</th>*/}
+                <th scope="col">
+                  Liquidity (Total)
+                  <span className="">
+                    &nbsp;
+                    <Popup
+                      trigger={(open) => (
+                        <span style={{ position: "relative", top: "-1px" }}>
+                          <BsFillQuestionCircleFill size={10} />
+                        </span>
+                      )}
+                      on="hover"
+                      position="bottom center"
+                      offsetY={-23}
+                      offsetX={0}
+                      contentStyle={{ padding: "1px" }}
+                    >
+                      <span className="textInfo">
+                        {" "}
+                        (Unit in Token / unit in USD){" "}
+                      </span>
+                    </Popup>
+                  </span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -874,6 +896,30 @@ export default function Main() {
                 {/*  / ${" "}*/}
                 {/*  {(*/}
                 {/*    parseFloat(formatUnits(sum30BurnAmount, "ether")) **/}
+                {/*    PURSEPrice*/}
+                {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
+                {/*</td>*/}
+                <td>
+                  {parseFloat(
+                    formatUnits(totalTransferAmount, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  / ${" "}
+                  {(
+                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                </td>
+                {/*<td>*/}
+                {/*  {parseFloat(*/}
+                {/*    formatUnits(sum30TransferAmount, "ether")*/}
+                {/*  ).toLocaleString("en-US", {*/}
+                {/*    maximumFractionDigits: 0,*/}
+                {/*  })}{" "}*/}
+                {/*  / ${" "}*/}
+                {/*  {(*/}
+                {/*    parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
                 {/*    PURSEPrice*/}
                 {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
                 {/*</td>*/}
@@ -909,110 +955,36 @@ export default function Main() {
                     </Popup>
                   </span>
                 </th>
-                {/*<th scope="col">(Past 30 days&nbsp;Sum)</th>*/}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                {/*<td>*/}
-                {/*  {parseFloat(*/}
-                {/*    formatUnits(sum30TransferAmount, "ether")*/}
-                {/*  ).toLocaleString("en-US", {*/}
-                {/*    maximumFractionDigits: 0,*/}
-                {/*  })}{" "}*/}
-                {/*  / ${" "}*/}
-                {/*  {(*/}
-                {/*    parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
-                {/*    PURSEPrice*/}
-                {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
-                {/*</td>*/}
-              </tr>
-            </tbody>
-            <thead>
-              <tr>
-                <td></td>
-              </tr>
-            </thead>
-            <thead>
-              <tr>
-                <th scope="col">
-                  Liquidity (Total)
-                  <span className="">
-                    &nbsp;
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="bottom center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
-                      <span className="textInfo">
-                        {" "}
-                        (Unit in Token / unit in USD){" "}
-                      </span>
-                    </Popup>
-                  </span>
-                </th>
-                {/*<th scope="col">(Past 30 days&nbsp;Sum)</th>*/}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                {/*<td>*/}
-                {/*  {parseFloat(*/}
-                {/*    formatUnits(sum30TransferAmount, "ether")*/}
-                {/*  ).toLocaleString("en-US", {*/}
-                {/*    maximumFractionDigits: 0,*/}
-                {/*  })}{" "}*/}
-                {/*  / ${" "}*/}
-                {/*  {(*/}
-                {/*    parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
-                {/*    PURSEPrice*/}
-                {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
-                {/*</td>*/}
-              </tr>
-            </tbody>
-            <thead>
-              <tr>
-                <td></td>
-              </tr>
-            </thead>
-            <thead>
-              <tr>
                 <th scope="col">PURSE Token Price</th>
+                {/*<th scope="col">(Past 30 days&nbsp;Sum)</th>*/}
               </tr>
             </thead>
             <tbody>
               <tr>
+                <td>
+                  {parseFloat(
+                    formatUnits(totalTransferAmount, "ether")
+                  ).toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}{" "}
+                  / ${" "}
+                  {(
+                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
+                    PURSEPrice
+                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                </td>
+                {/*<td>*/}
+                {/*  {parseFloat(*/}
+                {/*    formatUnits(sum30TransferAmount, "ether")*/}
+                {/*  ).toLocaleString("en-US", {*/}
+                {/*    maximumFractionDigits: 0,*/}
+                {/*  })}{" "}*/}
+                {/*  / ${" "}*/}
+                {/*  {(*/}
+                {/*    parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
+                {/*    PURSEPrice*/}
+                {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
+                {/*</td>*/}
                 <td>
                   $
                   {parseFloat(PURSEPrice.toString()).toLocaleString("en-US", {
