@@ -1,29 +1,30 @@
-# Use a lightweight Node.js base image
-FROM node:alpine
+# syntax=docker/dockerfile:1
 
-# Set the working directory
+FROM node:20-alpine AS deps
 WORKDIR /app
-
-# Copy the package files and install dependencies
 COPY package*.json ./
-RUN npm cache clean --force
-RUN npm install
+RUN npm ci
 
-# Copy the remaining application files
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Build the application to generate the build folder
+# If you use Next standalone output, uncomment next line and adjust runner stage
+# RUN sed -i '1s/^/module.exports = { output: "standalone", ...require("./next.config") }/' /dev/null
 RUN npm run build
 
-# Set the desired port (replace 3000 with your custom port)
-ENV PORT=2001
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+# If using standalone output:
+# COPY --from=builder /app/.next/standalone ./
+# COPY --from=builder /app/.next/static ./.next/static
+# COPY --from=builder /app/public ./public
 
-# Install `serve` to run the application.
-RUN npm install -g serve
+# Simple (non-standalone) runtime:
+COPY --from=builder /app/.next ./.next
+COPY package*.json ./
+RUN npm ci --omit=dev
 
-# Uses port which is used by the actual application
-EXPOSE 2001
-
-# Run application
-#CMD [ "npm", "start" ]
-CMD serve -s build
+EXPOSE 3000
+CMD ["npm","start"]
