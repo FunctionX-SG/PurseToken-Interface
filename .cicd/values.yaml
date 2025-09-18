@@ -1,0 +1,43 @@
+version: 2.0
+kind: common_customize
+
+profiles:
+  default:
+    services:
+      - pursetoken-staging    # <-- must match the key below
+
+services:
+  pursetoken-staging:        # <-- must match the profile entry above
+    template:
+      env:
+        - name: NODE_ENV
+          value: production
+      containerPort:
+        - name: http1
+          port: 3000
+          protocol: TCP
+
+      labels:
+        stack: common
+        tier: frontend
+
+      resources:
+        requests: { cpu: 0.05, memory: 128Mi }
+        limits:   { cpu: 0.5,  memory: 512Mi }
+
+      ingress:
+        host: staging.pursetoken.com
+        className: traefik        # use 'nginx' if you installed ingress-nginx
+        path: /           # <= add this (keep it)
+        paths:
+          - /
+        annotations:
+          kubernetes.io/ingress.class: traefik
+          traefik.ingress.kubernetes.io/router.rule: >
+            Host(`staging.pursetoken.com`) && PathPrefix(`/`)
+          traefik.ingress.kubernetes.io/router.priority: "200"
+
+      image:
+        repository: pursetoken-staging   # or portfolio-nextjs-staging if that's your image
+        tag: latest
+        pullPolicy: IfNotPresent
