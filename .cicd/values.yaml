@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: lancelai/pursetoken-react   # CI will overwrite repo/tag if you like
+  repository: lancelai/pursetoken-interface   # CI will overwrite repo/tag if you like
   tag: dev                                   # CI sets stg-<sha7>
   pullPolicy: IfNotPresent
 
