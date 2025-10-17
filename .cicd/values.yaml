@@ -1,43 +1,45 @@
-version: 2.0
-kind: common_customize
+# .cicd/values.yaml  (for pursetoken staging)
+replicaCount: 1
 
-profiles:
-  default:
-    services:
-      - pursetoken-staging    # <-- must match the key below
+image:
+  repository: lancelai/pursetoken-react   # CI will overwrite repo/tag if you like
+  tag: dev                                   # CI sets stg-<sha7>
+  pullPolicy: IfNotPresent
 
-services:
-  pursetoken-staging:        # <-- must match the profile entry above
-    template:
-      env:
-        - name: NODE_ENV
-          value: production
-      containerPort:
-        - name: http1
-          port: 3000
-          protocol: TCP
+imagePullSecrets:
+  - name: regcred
 
-      labels:
-        stack: common
-        tier: frontend
+containerPort: 3000
 
-      resources:
-        requests: { cpu: 0.05, memory: 128Mi }
-        limits:   { cpu: 0.5,  memory: 512Mi }
+env:
+  - name: NODE_ENV
+    value: production
 
-      ingress:
-        host: staging.pursetoken.com
-        className: traefik        # use 'nginx' if you installed ingress-nginx
-        path: /           # <= add this (keep it)
-        paths:
-          - /
-        annotations:
-          kubernetes.io/ingress.class: traefik
-          traefik.ingress.kubernetes.io/router.rule: >
-            Host(`staging.pursetoken.com`) && PathPrefix(`/`)
-          traefik.ingress.kubernetes.io/router.priority: "200"
+resources:
+  requests:
+    cpu: "50m"
+    memory: 128Mi
+  limits:
+    cpu: "500m"
+    memory: 512Mi
 
-      image:
-        repository: pursetoken-staging   # or portfolio-nextjs-staging if that's your image
-        tag: latest
-        pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}   # ← REMOVE all Traefik keys
+  hosts:
+    - host: staging.pursetoken.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []           # add cert-manager later if needed 
+
+# optional: extra labels you wanted
+podLabels:
+  stack: common
+  tier: frontend
