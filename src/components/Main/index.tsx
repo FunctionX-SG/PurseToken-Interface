@@ -32,6 +32,14 @@ import CustomTooltip from "../CustomTooltip";
 import TVLChart from "../TvlChart";
 import { TVLData } from "../TvlChart/types";
 import SubgraphDelayWarning from "../alerts";
+import { fetchSubgraph, isSubgraphDelayed, SubgraphMeta } from "../subgraph";
+
+type MainSubgraphData = SubgraphMeta & {
+  burns?: Burn[];
+  liquidities?: Liquidity[];
+  farmUpdatesOne?: TVLData[];
+  farmUpdatesTwo?: TVLData[];
+};
 
 export default function Main() {
   const [selectedTab, setSelectedTab] = useState<SelectedTab>(SelectedTab.MAIN);
@@ -42,8 +50,6 @@ export default function Main() {
     BigNumber.from("0")
   );
   // PURSE DASHBOARD STATES
-  const [totalBurnAmount, setTotalBurnAmount] = useState("0");
-  const [totalTransferAmount, setTotalTransferAmount] = useState("0");
   const [cumulateTransfer, setCumulateTransfer] = useState<Liquidity[]>([]);
   const [cumulateBurn, setCumulateBurn] = useState<Burn[]>([]);
 
@@ -86,58 +92,48 @@ export default function Main() {
     async function loadData() {
       // trigger fetching data
       const _purseTokenTotalSupply = purseTokenUpgradable._totalSupply();
-      const subgraphPromise = fetch(Constants.SUBGRAPH_API, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: `
-              {
-                _meta {
-                  block {
-                    timestamp
-                  }
-                }
-                burns(first: 1000, orderBy: blockTimestamp) {
-                  blockTimestamp
-                  totalAmountBurned
-                }
-                liquidities(first: 1000, orderBy: blockTimestamp) {
-                  blockTimestamp
-                  totalAmountLiquidity
-                }
-                farmUpdatesOne: farmTVLUpdates(first: 1000, orderBy: blockTimestamp) {
-                  blockTimestamp
-                  totalAmountLiquidity
-                  totalLiquidityValueUSD
-                }
-                farmUpdatesTwo: farmTVLUpdates(skip: 1000, first: 1000, orderBy: blockTimestamp) {
-                  blockTimestamp
-                  totalAmountLiquidity
-                  totalLiquidityValueUSD
-                }
+      const subgraphPromise = fetchSubgraph<MainSubgraphData>(`
+          {
+            _meta {
+              block {
+                timestamp
               }
-            `,
-        }),
-      })
-        .then((res) => {
-          return res.json();
-        })
-        .then((json) => {
-          const currentTimestamp = Math.round(Date.now() / 1000);
-          if (
-            currentTimestamp - json.data._meta.block.timestamp >
-            Constants.SUBGRAPH_DELAY_TOLERANCE_MS
-          ) {
-            setSubgraphDelay(true);
+            }
+            burns(first: 1000, orderBy: blockTimestamp) {
+              blockTimestamp
+              totalAmountBurned
+            }
+            liquidities(first: 1000, orderBy: blockTimestamp) {
+              blockTimestamp
+              totalAmountLiquidity
+            }
+            farmUpdatesOne: farmTVLUpdates(first: 1000, orderBy: blockTimestamp) {
+              blockTimestamp
+              totalAmountLiquidity
+              totalLiquidityValueUSD
+            }
+            farmUpdatesTwo: farmTVLUpdates(skip: 1000, first: 1000, orderBy: blockTimestamp) {
+              blockTimestamp
+              totalAmountLiquidity
+              totalLiquidityValueUSD
+            }
           }
-          const tvl: TVLData[] = json.data.farmUpdatesOne.concat(
-            json.data.farmUpdatesTwo
+        `)
+        .then((data) => {
+          const currentTimestamp = Math.round(Date.now() / 1000);
+          setSubgraphDelay(
+            isSubgraphDelayed(data._meta?.block?.timestamp)
           );
+
+          const tvl: TVLData[] = [
+            ...(data.farmUpdatesOne || []),
+            ...(data.farmUpdatesTwo || []),
+          ];
           setFarmTVLData(tvl);
-          const liquidities: Liquidity[] = json.data.liquidities;
-          const burns: Burn[] = json.data.burns;
+
+          const liquidities: Liquidity[] = [...(data.liquidities || [])];
+          const burns: Burn[] = [...(data.burns || [])];
+
           if (liquidities.length) {
             const lastLiquidity =
               liquidities[liquidities.length - 1].totalAmountLiquidity;
@@ -145,21 +141,25 @@ export default function Main() {
               blockTimestamp: currentTimestamp.toString(),
               totalAmountLiquidity: lastLiquidity,
             });
-            setTotalTransferAmount(lastLiquidity);
           }
+
           if (burns.length) {
             const lastBurn = burns[burns.length - 1].totalAmountBurned;
             burns.push({
               blockTimestamp: currentTimestamp.toString(),
               totalAmountBurned: lastBurn,
             });
-            setTotalBurnAmount(lastBurn);
           }
+
           setCumulateTransfer(liquidities);
           setCumulateBurn(burns);
         })
-        .catch((e) => {
-          console.error(e);
+        .catch((error) => {
+          console.error("Error fetching dashboard data from subgraph:", error);
+          setSubgraphDelay(false);
+          setFarmTVLData([]);
+          setCumulateTransfer([]);
+          setCumulateBurn([]);
         });
       setPurseTokenTotalSupply(await _purseTokenTotalSupply);
 
@@ -267,144 +267,6 @@ export default function Main() {
                     {parseFloat(PURSEPrice.toString()).toLocaleString("en-US", {
                       maximumFractionDigits: 6,
                     })}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-            <thead>
-              <tr>
-                <td></td>
-              </tr>
-            </thead>
-            <thead>
-              <tr>
-                <th scope="col">
-                  Burn{" "}
-                  <span className="">
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="right center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
-                      <span className="textInfo">
-                        {" "}
-                        (Unit in Token / Unit in USD)
-                      </span>
-                    </Popup>
-                  </span>
-                </th>
-
-                <th scope="col">
-                  Distribution{" "}
-                  <span className="">
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="bottom center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
-                      <span className="textInfo">
-                        {" "}
-                        (Unit in Token / Unit in USD)
-                      </span>
-                    </Popup>
-                  </span>
-                </th>
-
-                <th scope="col">
-                  Liquidity{" "}
-                  <span className="">
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="left center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
-                      <span className="textInfo">
-                        {" "}
-                        (Unit in Token / Unit in USD){" "}
-                      </span>
-                    </Popup>
-                  </span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="col">(Total)</th>
-                <th scope="col">(Total)</th>
-                <th scope="col">(Total)</th>
-              </tr>
-            </tbody>
-            <tbody>
-              {isFetchMainDataLoading ? (
-                <tr>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                  <td>
-                    <Loading />
-                  </td>
-                </tr>
-              ) : (
-                <tr>
-                  <td>
-                    {parseFloat(
-                      formatUnits(totalBurnAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(totalBurnAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatUnits(totalTransferAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                  </td>
-                  <td>
-                    {parseFloat(
-                      formatUnits(totalTransferAmount, "ether")
-                    ).toLocaleString("en-US", {
-                      maximumFractionDigits: 0,
-                    })}{" "}
-                    / ${" "}
-                    {(
-                      parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                      PURSEPrice
-                    ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
                   </td>
                 </tr>
               )}
@@ -820,172 +682,14 @@ export default function Main() {
             </tbody>
             <thead>
               <tr>
-                <td></td>
-              </tr>
-            </thead>
-            <thead>
-              <tr>
-                <th scope="col">
-                  Burn (Total)
-                  <span className="">
-                    &nbsp;
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="bottom center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
-                      <span className="textInfo">
-                        {" "}
-                        (Unit in Token / unit in USD)
-                      </span>
-                    </Popup>
-                  </span>
-                </th>
-                <th scope="col">
-                  Liquidity (Total)
-                  <span className="">
-                    &nbsp;
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="bottom center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
-                      <span className="textInfo">
-                        {" "}
-                        (Unit in Token / unit in USD){" "}
-                      </span>
-                    </Popup>
-                  </span>
+                <th scope="col" colSpan={2}>
+                  PURSE Token Price
                 </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalBurnAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalBurnAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                {/*<td>*/}
-                {/*  {parseFloat(*/}
-                {/*    formatUnits(sum30BurnAmount, "ether")*/}
-                {/*  ).toLocaleString("en-US", {*/}
-                {/*    maximumFractionDigits: 0,*/}
-                {/*  })}{" "}*/}
-                {/*  / ${" "}*/}
-                {/*  {(*/}
-                {/*    parseFloat(formatUnits(sum30BurnAmount, "ether")) **/}
-                {/*    PURSEPrice*/}
-                {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
-                {/*</td>*/}
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                {/*<td>*/}
-                {/*  {parseFloat(*/}
-                {/*    formatUnits(sum30TransferAmount, "ether")*/}
-                {/*  ).toLocaleString("en-US", {*/}
-                {/*    maximumFractionDigits: 0,*/}
-                {/*  })}{" "}*/}
-                {/*  / ${" "}*/}
-                {/*  {(*/}
-                {/*    parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
-                {/*    PURSEPrice*/}
-                {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
-                {/*</td>*/}
-              </tr>
-            </tbody>
-            <thead>
-              <tr>
-                <td></td>
-              </tr>
-            </thead>
-            <thead>
-              <tr>
-                <th scope="col">
-                  Distribution (Total)
-                  <span className="">
-                    &nbsp;
-                    <Popup
-                      trigger={(open) => (
-                        <span style={{ position: "relative", top: "-1px" }}>
-                          <BsFillQuestionCircleFill size={10} />
-                        </span>
-                      )}
-                      on="hover"
-                      position="bottom center"
-                      offsetY={-23}
-                      offsetX={0}
-                      contentStyle={{ padding: "1px" }}
-                    >
-                      <span className="textInfo">
-                        {" "}
-                        (Unit in Token / unit in USD)
-                      </span>
-                    </Popup>
-                  </span>
-                </th>
-                <th scope="col">PURSE Token Price</th>
-                {/*<th scope="col">(Past 30 days&nbsp;Sum)</th>*/}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>
-                  {parseFloat(
-                    formatUnits(totalTransferAmount, "ether")
-                  ).toLocaleString("en-US", {
-                    maximumFractionDigits: 0,
-                  })}{" "}
-                  / ${" "}
-                  {(
-                    parseFloat(formatUnits(totalTransferAmount, "ether")) *
-                    PURSEPrice
-                  ).toLocaleString("en-US", { maximumFractionDigits: 0 })}
-                </td>
-                {/*<td>*/}
-                {/*  {parseFloat(*/}
-                {/*    formatUnits(sum30TransferAmount, "ether")*/}
-                {/*  ).toLocaleString("en-US", {*/}
-                {/*    maximumFractionDigits: 0,*/}
-                {/*  })}{" "}*/}
-                {/*  / ${" "}*/}
-                {/*  {(*/}
-                {/*    parseFloat(formatUnits(sum30TransferAmount, "ether")) **/}
-                {/*    PURSEPrice*/}
-                {/*  ).toLocaleString("en-US", {maximumFractionDigits: 0})}*/}
-                {/*</td>*/}
-                <td>
+                <td colSpan={2}>
                   $
                   {parseFloat(PURSEPrice.toString()).toLocaleString("en-US", {
                     maximumFractionDigits: 6,

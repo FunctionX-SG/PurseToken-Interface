@@ -34,6 +34,21 @@ function TVLChart(props: TvlChartProps) {
     return <></>;
   }
 
+  const sanitizedTvlData = tvlData.filter(
+    (entry) =>
+      entry &&
+      typeof entry.blockTimestamp !== "undefined" &&
+      typeof entry.totalAmountLiquidity !== "undefined" &&
+      typeof entry.totalLiquidityValueUSD !== "undefined"
+  );
+  const lastDataPoint =
+    sanitizedTvlData.length > 0
+      ? sanitizedTvlData[sanitizedTvlData.length - 1]
+      : null;
+  const latestTotalAmountLiquidity = lastDataPoint?.totalAmountLiquidity || 0;
+  const latestTotalLiquidityValueUSD =
+    lastDataPoint?.totalLiquidityValueUSD || 0;
+
   return (
     <>
       {displayHeader ? (
@@ -41,23 +56,19 @@ function TVLChart(props: TvlChartProps) {
           <div className={`common-title text-muted`}>{chartTitle}</div>
           {displayTokenAmount ? (
             <div className={size === "m" ? `h3 bold` : `h4 bold`}>
-              <strong>
-                {RawNumberFormatter(
-                  tvlData[tvlData.length - 1].totalAmountLiquidity
-                )}
-              </strong>
+              <strong>{RawNumberFormatter(latestTotalAmountLiquidity)}</strong>
             </div>
           ) : null}
           <div className={size === "m" ? `h5 text-muted` : `h6 text-muted`}>
-            {`$${getNumberWithCommas(
-              tvlData[tvlData.length - 1].totalLiquidityValueUSD,
-              2
-            )}`}
+            {`$${getNumberWithCommas(latestTotalLiquidityValueUSD, 2)}`}
           </div>
         </div>
       ) : null}
       <ResponsiveContainer width="100%" height={height}>
-        <AreaChart data={tvlData} margin={{ top: yAxisLabel ? 24 : 10 }}>
+        <AreaChart
+          data={sanitizedTvlData}
+          margin={{ top: yAxisLabel ? 24 : 10 }}
+        >
           <XAxis
             axisLine={false}
             dataKey="blockTimestamp"

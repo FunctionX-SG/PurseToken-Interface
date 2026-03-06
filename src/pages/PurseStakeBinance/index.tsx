@@ -13,8 +13,6 @@ import {
   getShortTxHash,
   formatShortenAddress,
   FormatNumberToString,
-  RawDataFormatter,
-  RawNumberFormatter,
 } from "../../components/utils";
 
 import "../../components/App.css";
@@ -29,8 +27,16 @@ import { useWalletTrigger } from "../../components/state/walletTrigger/hooks";
 import { useNetwork } from "../../components/state/network/hooks";
 import StakeShell from "../../components/Stake/StakeShell";
 import { TVLData } from "../../components/TvlChart/types";
-import TVLChart from "../../components/TvlChart";
 import SubgraphDelayWarning from "../../components/alerts";
+import {
+  fetchSubgraph,
+  isSubgraphDelayed,
+  SubgraphMeta,
+} from "../../components/subgraph";
+
+type StakingSubgraphData = SubgraphMeta & {
+  stakingTVLUpdates?: TVLData[];
+};
 
 export default function PurseStakeBinance() {
   const { isActive, chainId, account } = useWeb3React();
@@ -366,13 +372,8 @@ export default function PurseStakeBinance() {
   };
 
   const fetchStakeTvl = async () => {
-    const res = await fetch(Constants.SUBGRAPH_API, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        query: `
+    try {
+      const data = await fetchSubgraph<StakingSubgraphData>(`
           {
             _meta {
               block {
@@ -385,19 +386,15 @@ export default function PurseStakeBinance() {
               totalLiquidityValueUSD
             }
           }
-        `,
-      }),
-    });
-    const json = await res.json();
-    const currentTimestamp = Math.round(Date.now() / 1000);
-    if (
-      currentTimestamp - json.data._meta.block.timestamp >
-      Constants.SUBGRAPH_DELAY_TOLERANCE_MS
-    ) {
-      setSubgraphDelay(true);
+        `);
+
+      setSubgraphDelay(isSubgraphDelayed(data._meta?.block?.timestamp));
+      setStakingTVLData(data.stakingTVLUpdates || []);
+    } catch (error) {
+      console.error("Error fetching staking TVL from subgraph:", error);
+      setSubgraphDelay(false);
+      setStakingTVLData([]);
     }
-    const tvl: TVLData[] = json.data.stakingTVLUpdates;
-    setStakingTVLData(tvl);
   };
 
   const checkPurseAmount = async (receipt: BigNumber) => {
@@ -475,7 +472,7 @@ export default function PurseStakeBinance() {
             }}
           >
             {subgraphDelay ? <SubgraphDelayWarning /> : null}
-            <TVLChart
+            {/* <TVLChart
               dataKey="totalAmountLiquidity"
               chartTitle="Total Staked"
               displayHeader
@@ -485,7 +482,7 @@ export default function PurseStakeBinance() {
               tvlData={stakingTVLData}
               yAxisFormatter={RawDataFormatter}
               tooltipFormatter={RawNumberFormatter}
-            />
+            /> */}
           </div>
         ) : null}
         <form
@@ -506,7 +503,7 @@ export default function PurseStakeBinance() {
                 >
                   <div>
                     <div className="textWhiteSmall mb-1">
-                      <b style={{ fontFamily: "arial" }}>TVL:&nbsp;&nbsp;</b>
+                      <b style={{ fontFamily: "arial" }}>Total Staked (TVL):&nbsp;&nbsp;</b>
                       <ReactPopup
                         trigger={(open) => (
                           <span style={{ position: "relative", top: "-1.5px" }}>

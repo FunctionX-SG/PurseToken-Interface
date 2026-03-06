@@ -7,13 +7,6 @@ export type FarmPool = {
   latestFarmValue: string;
 };
 
-export type SubgraphResponse = {
-  data: {
-    _meta: { block: { timestamp: number } };
-    farmPools: FarmPool[];
-  };
-};
-
 export type PoolSubgraphData = {
   poolApr: number;
   poolTotalStaked: BigNumber;

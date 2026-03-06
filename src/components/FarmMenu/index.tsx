@@ -9,6 +9,7 @@ import { BsFillQuestionCircleFill } from "react-icons/bs";
 import { FaExclamationCircle } from "react-icons/fa";
 import PurseFarm from "../../farm/farmPurse.json";
 import { BigNumber, ethers } from "ethers";
+import { formatUnits } from "ethers/lib/utils";
 import * as Constants from "../../constants";
 import { formatBigNumber, readContract, fetcher } from "../utils";
 import { useWeb3React } from "@web3-react/core";
@@ -18,8 +19,20 @@ import useSWR from "swr";
 import { useContract } from "../state/contract/hooks";
 import IPancakePair from "../../abis/IPancakePair.json";
 import { useProvider } from "../state/provider/hooks";
-import { PoolSubgraphData, SubgraphResponse } from "./types";
+import { PoolSubgraphData } from "./types";
 import SubgraphDelayWarning from "../alerts";
+import { fetchSubgraph, isSubgraphDelayed, SubgraphMeta } from "../subgraph";
+
+type FarmMenuSubgraphData = SubgraphMeta & {
+  farmPools?: {
+    id: string;
+    latestAPR: string;
+    latestFarmBalanceOf: string;
+    latestFarmValue: string;
+  }[];
+};
+
+const LP_RATIO_PRECISION = BigNumber.from(10).pow(18);
 
 export default function FarmMenu() {
   const farmNetwork = "MAINNET";
@@ -63,17 +76,65 @@ export default function FarmMenu() {
     }
   );
 
+  const calculatePoolTvl = ({
+    quoteTokenAddress,
+    quoteTokenDecimals,
+    stakedBalance,
+    totalSupply,
+    token0,
+    token1,
+    reserves,
+  }: {
+    quoteTokenAddress: string;
+    quoteTokenDecimals: number;
+    stakedBalance: BigNumber | null;
+    totalSupply: BigNumber | null;
+    token0: string | null;
+    token1: string | null;
+    reserves: any;
+  }): number | null => {
+    if (
+      !BigNumber.isBigNumber(stakedBalance) ||
+      !BigNumber.isBigNumber(totalSupply) ||
+      totalSupply.lte(0)
+    ) {
+      return null;
+    }
+
+    const reserve0 = reserves?._reserve0 ?? reserves?.[0];
+    const reserve1 = reserves?._reserve1 ?? reserves?.[1];
+    if (!BigNumber.isBigNumber(reserve0) || !BigNumber.isBigNumber(reserve1)) {
+      return null;
+    }
+
+    // Current Pancake farms are PURSE paired with USD stablecoins, so
+    // doubling the stablecoin reserve gives the pair's total USD value.
+    let quoteReserve: BigNumber | null = null;
+    if (token0?.toLowerCase() === quoteTokenAddress) {
+      quoteReserve = reserve0;
+    } else if (token1?.toLowerCase() === quoteTokenAddress) {
+      quoteReserve = reserve1;
+    }
+
+    if (!quoteReserve) {
+      return null;
+    }
+
+    const stakedShare = parseFloat(
+      formatUnits(stakedBalance.mul(LP_RATIO_PRECISION).div(totalSupply), 18)
+    );
+    const quoteReserveAmount = parseFloat(
+      formatUnits(quoteReserve, quoteTokenDecimals)
+    );
+
+    return quoteReserveAmount * 2 * stakedShare;
+  };
+
   const fetchFromSubgraph = async (): Promise<
     Map<string, PoolSubgraphData>
   > => {
     try {
-      const response = await fetch(Constants.SUBGRAPH_API, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          query: `
+      const data = await fetchSubgraph<FarmMenuSubgraphData>(`
           {
             _meta {
               block {
@@ -87,25 +148,16 @@ export default function FarmMenu() {
               latestFarmValue
             }
           }
-        `,
-        }),
-      });
+        `);
 
-      const json: SubgraphResponse = await response.json();
-      const currentTimestamp = Math.round(Date.now() / 1000);
-      if (
-        currentTimestamp - json.data._meta.block.timestamp >
-        Constants.SUBGRAPH_DELAY_TOLERANCE_MS
-      ) {
-        setSubgraphDelay(true);
-      }
+      setSubgraphDelay(isSubgraphDelayed(data._meta?.block?.timestamp));
       const addressToInfoMap = new Map<string, PoolSubgraphData>();
 
-      if (!json.data?.farmPools) {
+      if (!data.farmPools) {
         throw new Error("Invalid response format from subgraph");
       }
 
-      json.data.farmPools.forEach((pool) => {
+      data.farmPools.forEach((pool) => {
         const entryData: PoolSubgraphData = {
           poolApr: parseFloat(pool.latestAPR),
           poolTotalStaked: BigNumber.from(pool.latestFarmBalanceOf),
@@ -117,7 +169,8 @@ export default function FarmMenu() {
       return addressToInfoMap;
     } catch (error) {
       console.error("Error fetching from subgraph:", error);
-      throw error;
+      setSubgraphDelay(false);
+      return new Map<string, PoolSubgraphData>();
     }
   };
 
@@ -152,6 +205,7 @@ export default function FarmMenu() {
 
     ////// Mainnet /////
     for (let i = 0; i < _poolLength; i++) {
+      const poolDefinition = farm[i];
       const _lpAddress: string = await readContract(
         restakingFarm,
         "poolTokenList",
@@ -195,17 +249,7 @@ export default function FarmMenu() {
         bscProvider
       );
 
-      const stakedBalancePromise = readContract(
-        lpContract,
-        "balanceOf",
-        Constants.RESTAKING_FARM_ADDRESS
-      ).then((stakedBalance) => {
-        _stakeBalances.push(stakedBalance);
-      });
-
       const subgraphData = subgraphResponse.get(_lpAddress.toLowerCase());
-
-      _tvl.push(subgraphData?.poolTvl || 0);
       const apr = subgraphData?.poolApr || 0;
       _apr.push(apr);
 
@@ -213,12 +257,43 @@ export default function FarmMenu() {
       _apyWeekly.push((Math.pow(1 + (0.8 * apr) / 5200, 52) - 1) * 100);
       _apyMonthly.push((Math.pow(1 + (0.8 * apr) / 1200, 12) - 1) * 100);
 
-      await Promise.all([
+      const [
+        ,
+        ,
+        ,
+        stakedBalance,
+        token0,
+        token1,
+        reserves,
+        totalSupply,
+      ] = await Promise.all([
         poolInfoPromise,
         pendingRewardPromise,
         userInfoPromise,
-        stakedBalancePromise,
+        readContract(lpContract, "balanceOf", Constants.RESTAKING_FARM_ADDRESS),
+        readContract(lpContract, "token0"),
+        readContract(lpContract, "token1"),
+        readContract(lpContract, "getReserves"),
+        readContract(lpContract, "totalSupply"),
       ]);
+
+      _stakeBalances.push(stakedBalance);
+
+      const quoteToken =
+        poolDefinition.quoteToken[
+          farmNetwork as keyof typeof poolDefinition.quoteToken
+        ];
+      const calculatedTvl = calculatePoolTvl({
+        quoteTokenAddress: quoteToken.address.toLowerCase(),
+        quoteTokenDecimals: parseInt(quoteToken.decimals, 10),
+        stakedBalance,
+        totalSupply,
+        token0,
+        token1,
+        reserves,
+      });
+
+      _tvl.push(calculatedTvl ?? subgraphData?.poolTvl ?? 0);
     }
 
     ////// Testnet //////
