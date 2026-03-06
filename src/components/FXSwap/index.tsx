@@ -465,7 +465,7 @@ export default function FXSwap(props: any) {
                   <small>
                     {aprloading ? (
                       <div className="">
-                        TVL: ${" "}
+                        Total Staked(TVL): ${" "}
                         {parseFloat(fxswapTvl).toLocaleString("en-US", {
                           maximumFractionDigits: 0,
                         })}{" "}

@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import { AiFillMail } from "react-icons/ai";
 import { MdForum } from "react-icons/md";
-import { FaXTwitter } from "react-icons/fa6";
+// import { FaTwitter } from "react-icons/fa6";
 import { FaMediumM } from "react-icons/fa";
 import { RiNotionFill } from "react-icons/ri";
 
@@ -33,7 +33,7 @@ export default function Footer() {
         Copyright © 2023-2024 PURSE®
       </div>
       <div style={{ fontSize: "20px", cursor: "pointer" }}>
-        <FaXTwitter
+        <FaTwitter
           onClick={() => {
             window.open(`https://twitter.com/Purse_Land`, "_blank");
           }}
